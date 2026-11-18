@@ -49,15 +49,13 @@ You do **not** need to create a webhook secret or a worker secret. The system ma
 
 Tell me step 3 is done. I redeploy the function with the latest code (it includes the `/testpay` command) and check it answers.
 
-## 5. Put the website live on Vercel (You, then Claude)
+## 5. The website on Vercel (done)
 
-The Vercel connection I have was refused for the account `try.avinasht@gmail.com`. Pick one:
+The site is live at **https://sutraluxe-one.vercel.app** (Vercel account `tryavinasht-6190`, project `sutraluxe`, linked to the GitHub repo). The settings below are already stored there. To deploy a new version run `npx vercel deploy --prod`, or push to `main`.
 
-- Grant that connection access to the Vercel account (Vercel asks you to approve it), or
-- In this session run `! npx vercel login`, or
-- Import the repo yourself at vercel.com/new (repo `git-nash-init/Invitation`).
+Use that address for the `SITE_URL` secret in step 3 and for the sign-in settings in step 6.
 
-Environment variables to add in Vercel (Settings, Environment Variables, all environments):
+Environment variables in Vercel (Settings, Environment Variables):
 
 | Name | Value |
 | --- | --- |
