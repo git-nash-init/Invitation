@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:bot": "node --test --no-warnings \"supabase/functions/telegram-bot/test/*.test.js\""
+    "test": "node --test --no-warnings \"supabase/functions/telegram-bot/test/*.test.js\" \"test/*.test.mjs\""
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

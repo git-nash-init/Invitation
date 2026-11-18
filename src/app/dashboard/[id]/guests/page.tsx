@@ -5,9 +5,9 @@ import { ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import { GuestManager } from "@/components/dashboard/guest-manager";
 import { LinkButton } from "@/components/ui/button";
-import { getGuests, getMyInvitation, getRsvps } from "@/lib/invitations/queries";
+import { getGuests, getMessageTemplates, getMyInvitation, getRsvps } from "@/lib/invitations/queries";
 
-export const metadata: Metadata = { title: "Guests and replies", robots: { index: false } };
+export const metadata: Metadata = { title: "Share and replies", robots: { index: false } };
 
 const STATUS: Record<string, string> = {
   attending: "Yes",
@@ -22,8 +22,13 @@ export default async function GuestsPage({ params }: PageProps<"/dashboard/[id]/
   const invitation = await getMyInvitation(id);
   if (!invitation) notFound();
 
-  const [guests, rsvps] = await Promise.all([getGuests(id), getRsvps(id)]);
-  const personalised = invitation.guest_mode === "personalised";
+  const [guests, rsvps, messages] = await Promise.all([getGuests(id), getRsvps(id), getMessageTemplates()]);
+
+  // "Ankita & Kaushik" from the template, or the invitation's own name.
+  const cfg = invitation.config;
+  const names = [cfg.brideName, cfg.groomName].filter((n): n is string => typeof n === "string" && n.length > 0);
+  const hostName = names.length === 2 ? `${names[0]} & ${names[1]}` : invitation.title;
+
   const going = rsvps.filter((r) => r.attending).reduce((n, r) => n + r.headcount, 0);
 
   // RSVP answers are keyed by the ceremony's position in the template config.
@@ -44,7 +49,7 @@ export default async function GuestsPage({ params }: PageProps<"/dashboard/[id]/
 
       <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="display text-[32px] leading-[1.15] sm:text-[36px]">Guests and replies</h1>
+          <h1 className="display text-[32px] leading-[1.15] sm:text-[36px]">Share and replies</h1>
           <p className="mt-1 text-[14px] text-text-2">{invitation.title}</p>
         </div>
         <LinkButton href={`/studio/${id}`} variant="glass">
@@ -54,28 +59,18 @@ export default async function GuestsPage({ params }: PageProps<"/dashboard/[id]/
 
       <section className="mt-10" aria-labelledby="guests-h">
         <h2 id="guests-h" className="text-[18px] font-medium leading-6">
-          Guest links
+          Send to your friends
         </h2>
-        {personalised ? (
-          <div className="mt-4">
-            <GuestManager
-              invitationId={id}
-              slug={invitation.slug}
-              published={invitation.status === "published"}
-              guests={guests}
-            />
-          </div>
-        ) : (
-          <div className="glass mt-4 rounded-[16px] p-5 text-[14px] leading-5 text-text-2">
-            This invitation uses one link for everyone. To give each guest a personal link with
-            their name on it, switch to a personal link per guest in the publish panel.
-            <div className="mt-4">
-              <LinkButton href={`/studio/${id}`} size="sm">
-                Open publish panel
-              </LinkButton>
-            </div>
-          </div>
-        )}
+        <div className="mt-4">
+          <GuestManager
+            invitationId={id}
+            slug={invitation.slug}
+            published={invitation.status === "published"}
+            guests={guests}
+            messages={messages}
+            hostName={hostName}
+          />
+        </div>
       </section>
 
       <section className="mt-12" aria-labelledby="replies-h">

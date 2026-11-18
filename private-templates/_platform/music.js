@@ -26,7 +26,10 @@ window.BalconyMusic = (function () {
   // URL-encoded (the filename has a space) - encodeURI would be run on this
   // every use otherwise, and a literal space in a src attribute is asking
   // for a browser/environment to disagree on how to resolve it.
-  var DEFAULT_TRACK = '/templates/music/Jashn-e-bahara%20Instrumental.mp3';
+  // No shared default track: the one that shipped with these templates was a
+  // commercial film song. An invitation now plays only a track its host chose
+  // from the licensed catalogue (or uploaded); otherwise it stays silent.
+  var DEFAULT_TRACK = '';
 
   var ICON_ON =
     '<svg class="music-toggle__icon music-toggle__icon--on" viewBox="0 0 24 24" aria-hidden="true">' +
@@ -69,6 +72,7 @@ window.BalconyMusic = (function () {
     if (cfg.enabled === false) return;
 
     var src = (cfg.src || '').trim() || DEFAULT_TRACK;
+    if (!src) return; // nothing licensed to play: no audio and no music button
 
     var audio = new Audio();
     audio.loop = true;
@@ -126,7 +130,7 @@ window.BalconyMusic = (function () {
     // the browser can't play) shouldn't leave the guest with silence - fall
     // back to the shared default once.
     audio.addEventListener('error', function () {
-      if (audio.src.indexOf(DEFAULT_TRACK) === -1) {
+      if (DEFAULT_TRACK && audio.src.indexOf(DEFAULT_TRACK) === -1) {
         audio.src = DEFAULT_TRACK;
         audio.load();
         tryPlay();

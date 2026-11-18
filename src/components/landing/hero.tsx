@@ -42,16 +42,24 @@ export function Hero() {
           </Enter>
         </div>
 
-        {/* The product, rising past the bottom edge: a real template, running live. */}
+        {/* The product, rising past the bottom edge. A cover image, not the live template:
+            nothing real is public before it is bought. */}
         <Enter delay={0.2} className="relative flex justify-center lg:justify-end lg:self-end">
           <div className="glass-strong w-[300px] rounded-[40px] p-2 lg:translate-y-[18%]">
-            <iframe
-              src="/templates/royale/"
-              title="Live preview of the Royale Gate invitation"
-              loading="eager"
-              allow="autoplay"
-              className="block h-[560px] w-full rounded-[32px] border-0 bg-black lg:h-[640px]"
-            />
+            <div className="relative h-[520px] w-full overflow-hidden rounded-[32px] bg-black lg:h-[600px]">
+              <Image
+                src="/covers/royale.webp"
+                alt="The Royale Gate invitation, a mandap at dusk"
+                fill
+                priority
+                sizes="300px"
+                className="object-cover"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#12110f]/90 to-transparent p-5 pt-16">
+                <p className="display text-[22px] leading-[1.2]">The Royale Gate</p>
+                <p className="mt-1 text-[13px] leading-5 text-text-2">Preview it in the Telegram bot</p>
+              </div>
+            </div>
           </div>
         </Enter>
       </div>

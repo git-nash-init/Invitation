@@ -6,7 +6,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className="paper-bg grid min-h-screen lg:grid-cols-2">
       <aside className="relative hidden overflow-hidden lg:block">
         <Image
-          src="/templates/royale/media/mandap_dusk.webp"
+          src="/covers/royale.webp"
           alt="A mandap at dusk from the Royale Gate invitation"
           fill
           priority

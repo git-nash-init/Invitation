@@ -10,6 +10,7 @@ type Props = {
   id: string;
   slug: string;
   templateSlug: string;
+  assetToken: string;
   initialTitle: string;
   initialStatus: "draft" | "published" | "archived";
   initialGuestMode: "common" | "personalised";
@@ -22,6 +23,7 @@ export function StudioClient({
   id,
   slug,
   templateSlug,
+  assetToken,
   initialTitle,
   initialStatus,
   initialGuestMode,
@@ -29,11 +31,12 @@ export function StudioClient({
 }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   // The iframe src is fixed on first render; the template navigates itself afterwards.
-  const [src] = useState(`/templates/${templateSlug}/?edit=1${initialHash}`);
+  const [src] = useState(`/t/${assetToken}/${templateSlug}/?edit=1${initialHash}`);
 
   const [title, setTitle] = useState(initialTitle);
   const [status, setStatusState] = useState(initialStatus);
-  const [guestMode, setGuestMode] = useState(initialGuestMode);
+  // Adding a friend switches this on its own (see addGuests), so it is not chosen here.
+  const guestMode = initialGuestMode;
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [panelOpen, setPanelOpen] = useState(false);
   const [device, setDevice] = useState<"phone" | "desktop">("desktop");
@@ -141,7 +144,7 @@ export function StudioClient({
 
         <LinkButton href={`/dashboard/${id}/guests`} variant="ghost" size="sm">
           <Users size={16} strokeWidth={1.5} />
-          <span className="hidden sm:inline">Guests</span>
+          <span className="hidden sm:inline">Share</span>
         </LinkButton>
         <Button size="sm" onClick={() => setPanelOpen(true)}>
           {published ? "Share" : "Publish"}
@@ -207,56 +210,10 @@ export function StudioClient({
                   />
                 </div>
 
-                <fieldset>
-                  <legend className="label">Who is it for</legend>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {(
-                      [
-                        ["common", "One link for everyone"],
-                        ["personalised", "A personal link per guest"],
-                      ] as const
-                    ).map(([value, label]) => (
-                      <label
-                        key={value}
-                        className={`flex cursor-pointer items-center gap-3 rounded-[10px] border px-4 py-3 text-[14px] transition-colors duration-150 ${
-                          guestMode === value
-                            ? "border-accent bg-[rgba(232,169,59,0.1)]"
-                            : "border-(--glass-border) hover:border-(--hairline-strong)"
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="guest_mode"
-                          value={value}
-                          checked={guestMode === value}
-                          onChange={() => {
-                            setGuestMode(value);
-                            setBusy(true);
-                            updateSettings(id, { title, guest_mode: value }).then((r) => {
-                              setBusy(false);
-                              if (!r.ok) setPanelError(r.error);
-                            });
-                          }}
-                          className="accent-[#e8a93b]"
-                        />
-                        {label}
-                      </label>
-                    ))}
-                  </div>
-                  {guestMode === "personalised" && (
-                    <p className="mt-3 text-[13px] leading-5 text-text-2">
-                      Add your guest list to get a link for each person.{" "}
-                      <Link href={`/dashboard/${id}/guests`} className="link">
-                        Open guest list
-                      </Link>
-                    </p>
-                  )}
-                </fieldset>
-
-                {published && guestMode === "common" && (
+                {published && (
                   <div>
                     <label htmlFor="share-url" className="label">
-                      Share link
+                      Link for everyone
                     </label>
                     <div className="flex gap-2">
                       <input
@@ -293,9 +250,20 @@ export function StudioClient({
                 )}
 
                 <div className="flex flex-wrap gap-2">
-                  <Button onClick={togglePublish} disabled={busy} className="flex-1">
-                    {published ? "Unpublish" : "Publish invitation"}
-                  </Button>
+                  {published ? (
+                    <>
+                      <LinkButton href={`/dashboard/${id}/guests`} size="lg" className="w-full">
+                        Send to your friends
+                      </LinkButton>
+                      <Button onClick={togglePublish} disabled={busy} variant="ghost" className="w-full">
+                        Unpublish
+                      </Button>
+                    </>
+                  ) : (
+                    <Button onClick={togglePublish} disabled={busy} size="lg" className="w-full">
+                      Publish invitation
+                    </Button>
+                  )}
                 </div>
               </div>
             </section>

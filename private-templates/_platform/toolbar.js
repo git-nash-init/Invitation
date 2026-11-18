@@ -40,7 +40,7 @@
   // Fetch once, keyed by the slug already in the path (/templates/<slug>/...).
   function ensureMeta() {
     if (metaPromise) return metaPromise;
-    const slug = (location.pathname.match(/\/templates\/([^/]+)\//) || [])[1];
+    const slug = (location.pathname.match(/\/(?:templates|t\/[^/]+)\/([^/]+)\//) || [])[1];
     if (!slug) return (metaPromise = Promise.resolve());
 
     metaPromise = fetch('/try/' + slug + '/meta', { headers: { Accept: 'application/json' } })

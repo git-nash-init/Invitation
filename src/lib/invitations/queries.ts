@@ -47,6 +47,14 @@ export async function getMyInvitation(id: string): Promise<Invitation | null> {
   return (data as Invitation | null) ?? null;
 }
 
+export type MessageTemplate = { id: string; label: string; body: string };
+
+export async function getMessageTemplates(): Promise<MessageTemplate[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("message_templates").select("id, label, body").order("sort", { ascending: true });
+  return (data ?? []) as MessageTemplate[];
+}
+
 export type Stats = { guests: number; replies: number; headcount: number };
 
 export async function getStats(): Promise<Record<string, Stats>> {

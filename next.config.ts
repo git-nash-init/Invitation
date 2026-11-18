@@ -53,15 +53,11 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   // Templates use relative asset paths (../symbols/..., media/...), so their
-  // URLs must keep the trailing slash instead of being redirected away from it.
+  // URLs under /t/ must keep the trailing slash instead of being redirected away from it.
   skipTrailingSlashRedirect: true,
-  async rewrites() {
-    return [
-      {
-        source: "/templates/:slug/",
-        destination: "/templates/:slug/index.html",
-      },
-    ];
+  // The template files are not in /public. They ship with the /t route only.
+  outputFileTracingIncludes: {
+    "/t/[...path]": ["./private-templates/**/*"],
   },
   turbopack: {
     rules: {
@@ -74,7 +70,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/((?!templates/).*)",
+        source: "/((?!t/).*)",
         headers: [
           ...baseHeaders,
           { key: "Content-Security-Policy", value: appCsp },
@@ -82,17 +78,11 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/templates/:path*",
+        source: "/t/:path*",
         headers: [
           ...baseHeaders,
           { key: "Content-Security-Policy", value: templateCsp },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
-        ],
-      },
-      {
-        source: "/templates/:path*.(webp|png|jpg|svg|mp3|mp4|woff2|js|css)",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
     ];

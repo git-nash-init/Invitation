@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PublicFrame } from "@/components/invitation/public-frame";
 import { openInvitation } from "@/lib/invitations/queries";
 import { buildPlatformHash } from "@/lib/invitations/payload";
+import { mintAssetToken } from "@/lib/asset-token";
 
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{3,59}$/;
 const CODE_RE = /^[a-z0-9]{6,40}$/;
@@ -39,9 +40,12 @@ export async function InvitationView({ slug, code }: { slug: string; code: strin
     commonLink: !personal,
   });
 
+  // Six hours is long enough to read an invitation; reopening the link mints a new token.
+  const token = mintAssetToken(inv.template_slug, 6 * 3600);
+
   return (
     <PublicFrame
-      src={`/templates/${inv.template_slug}/${hash}`}
+      src={`/t/${token}/${inv.template_slug}/${hash}`}
       slug={inv.slug}
       code={personal ? code : null}
       title={names(inv.config)}

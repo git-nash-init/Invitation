@@ -31,7 +31,11 @@ export async function startInvitation(slug: string): Promise<void> {
     .select("id")
     .single();
 
-  if (error || !data) redirect("/dashboard?error=create");
+  if (error || !data) {
+    // The database refuses to create an invitation without a paid credit for this template.
+    if (error?.code === "P0001") redirect(`/preview/${parsedSlug.data}?buy=1`);
+    redirect("/dashboard?error=create");
+  }
   redirect(`/studio/${data.id}`);
 }
 
@@ -140,8 +144,12 @@ export async function addGuests(id: string, namesText: string): Promise<ActionRe
     };
   }
 
+  // Giving a friend their own link means the invitation is now personal. The shared
+  // link keeps working: without a friend's code it simply opens with no name on it.
+  await supabase.from("invitations").update({ guest_mode: "personalised" }).eq("id", id);
+
   revalidatePath(`/dashboard/${id}/guests`);
-  return { ok: true, message: `${names.length} guest${names.length === 1 ? "" : "s"} added` };
+  return { ok: true, message: `${names.length} friend${names.length === 1 ? "" : "s"} added` };
 }
 
 export async function removeGuest(invitationId: string, guestId: string): Promise<ActionResult> {
