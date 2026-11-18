@@ -244,6 +244,11 @@ async function onAdmin(env, msg, chat, t, user) {
     case '/dashboard':
       await send(env, chat, `🔐 Admin panel:\n${esc(String(env.SITE_URL || '').replace(/\/+$/, ''))}/admin`);
       return true;
+    case '/testpay':
+      // A real ₹1 payment through the whole path (QR, screenshot check, delivery message).
+      // It never counts as a sale and never creates a purchase.
+      await startOrder(env, chat, user, null, { isTest: true });
+      return true;
     case '/revoke': {
       if (!arg) {
         await send(env, chat, 'Use: /revoke &lt;order ID&gt;\nOnly for a sale whose money never reached your UPI app.');

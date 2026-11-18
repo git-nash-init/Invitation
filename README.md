@@ -34,3 +34,13 @@ Only the Supabase **publishable** key belongs in this app. Never add the `servic
 1. Authentication → URL Configuration: set the Site URL and add the deployed domain and `/auth/callback` to the redirect URLs.
 2. Authentication → Providers → Google: add an OAuth client ID and secret from Google Cloud.
 3. Authentication → Sign In / Providers: turn on email confirmation and leaked-password protection.
+
+## Telegram bot, payments and admin
+
+Buyers browse templates in a Telegram bot, pay by UPI, and are sent to the site to customize, publish and share. The bot runs as a Supabase Edge Function (`supabase/functions/telegram-bot`) with an every-minute worker (`pg_cron`). The admin panel is at `/admin`.
+
+- Going live, step by step: [docs/production-guide.md](docs/production-guide.md)
+- Making the Flow videos and music, and what to send back: [docs/flow-asset-guide.md](docs/flow-asset-guide.md)
+- Tests: `npm test` (payment rules, QR encoder, share links)
+
+Template files are not public. They live in `private-templates/` and are served only through short-lived signed links (`/t/<token>/...`).
