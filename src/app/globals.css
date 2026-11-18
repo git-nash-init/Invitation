@@ -1,0 +1,368 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   SutraLuxe design tokens
+   Direction: ceremonial, warm, exact. World: ivory paper, ink, brass, marigold.
+   Warm neutral ramp (dark), one marigold accent, 4px spacing grid.
+   Glass is one material: blur + hairline highlight + neutral shadow.
+   ========================================================================== */
+:root {
+  --bg-deep: #12110f;
+  --bg: #161513;
+  --card: #1c1a18;
+  --raised: #262421;
+
+  --text: #efe9de;
+  --text-2: #aaa398;
+  --text-muted: #8a847a;
+
+  --hairline: rgba(239, 233, 222, 0.08);
+  --hairline-strong: rgba(239, 233, 222, 0.16);
+
+  --accent: #e8a93b;
+  --accent-hover: #f0ba58;
+  --accent-ink: #1a1408; /* text on accent, 9:1 */
+  --seal: #c9962f;
+
+  --positive: #4cc38a;
+  --negative: #e5484d;
+
+  /* Glass material */
+  --glass-bg: rgba(28, 26, 24, 0.55);
+  --glass-bg-strong: rgba(28, 26, 24, 0.78);
+  --glass-border: rgba(239, 233, 222, 0.1);
+  --glass-hi: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(20px) saturate(140%);
+  --shadow-float: 0 16px 48px rgba(0, 0, 0, 0.38);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 160ms;
+  --dur-mid: 200ms;
+  --dur-enter: 400ms;
+
+  --radius-ctl: 10px;
+  --radius-card: 16px;
+  --radius-panel: 20px;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-card: var(--card);
+  --color-raised: var(--raised);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-seal: var(--seal);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --font-sans: var(--nf-ui), system-ui, sans-serif;
+  --font-display: var(--nf-display), Georgia, serif;
+  --font-mono: var(--nf-mono), ui-monospace, monospace;
+}
+
+html {
+  color-scheme: dark;
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--nf-ui), system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 22px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(232, 169, 59, 0.35);
+}
+
+/* Faint paper motif behind app pages. Glass panels sit over it. */
+.paper-bg {
+  position: relative;
+  isolation: isolate;
+}
+.paper-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("/templates/noor/media/motif_tile.svg");
+  background-size: 160px;
+  opacity: 0.045;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Glass
+   ========================================================================== */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-hi), var(--shadow-float);
+}
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-hi), var(--shadow-float);
+}
+.glass-interactive {
+  transition:
+    transform var(--dur-mid) var(--ease),
+    border-color var(--dur-mid) var(--ease),
+    background-color var(--dur-mid) var(--ease);
+}
+.glass-interactive:hover {
+  transform: translateY(-3px);
+  border-color: var(--hairline-strong);
+  background-color: rgba(38, 36, 33, 0.62);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .glass,
+  .glass-strong {
+    background: var(--card);
+  }
+}
+@media (max-width: 640px) {
+  :root {
+    --glass-blur: blur(12px) saturate(130%);
+  }
+}
+
+/* ==========================================================================
+   Buttons: hover lift + light sweep, press scale, visible focus ring
+   ========================================================================== */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: var(--radius-ctl);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid transparent;
+  transition:
+    transform var(--dur-fast) var(--ease),
+    background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-mid) var(--ease);
+}
+.btn::after {
+  /* soft light sweep on hover */
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 600ms var(--ease);
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+.btn:hover::after {
+  transform: translateX(120%);
+}
+.btn:active {
+  transform: translateY(0) scale(0.97);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.btn-lg {
+  height: 48px;
+  padding: 0 28px;
+  font-size: 15px;
+}
+.btn-sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+.btn-glass {
+  background: rgba(239, 233, 222, 0.07);
+  color: var(--text);
+  border-color: var(--glass-border);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.btn-glass:hover {
+  background: rgba(239, 233, 222, 0.12);
+  border-color: var(--hairline-strong);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 10px 28px rgba(0, 0, 0, 0.3);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-2);
+}
+.btn-ghost:hover {
+  color: var(--text);
+  background: rgba(239, 233, 222, 0.06);
+}
+
+.btn-danger {
+  background: rgba(229, 72, 77, 0.12);
+  color: #f0888b;
+  border-color: rgba(229, 72, 77, 0.3);
+}
+.btn-danger:hover {
+  background: rgba(229, 72, 77, 0.2);
+}
+
+/* Inline link */
+.link {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--hairline-strong);
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--dur-fast) var(--ease);
+}
+.link:hover {
+  text-decoration-color: var(--accent);
+}
+
+/* ==========================================================================
+   Form controls
+   ========================================================================== */
+.field {
+  display: block;
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: var(--radius-ctl);
+  border: 1px solid var(--glass-border);
+  background: rgba(239, 233, 222, 0.05);
+  color: var(--text);
+  font-size: 15px;
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    background-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+}
+textarea.field {
+  height: auto;
+  padding: 12px 14px;
+  line-height: 22px;
+  resize: vertical;
+}
+.field::placeholder {
+  color: var(--text-muted);
+}
+.field:hover {
+  border-color: var(--hairline-strong);
+}
+.field:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  background: rgba(239, 233, 222, 0.08);
+  box-shadow: 0 0 0 3px rgba(232, 169, 59, 0.18);
+}
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--text-2);
+}
+
+/* Published status seal (signature detail) */
+.seal {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--seal);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.18);
+}
+.seal-draft {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--text-muted);
+}
+
+/* Guest-name tag chip (signature detail) */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 6px;
+  background: rgba(232, 169, 59, 0.12);
+  border: 1px solid rgba(232, 169, 59, 0.28);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--nf-mono), ui-monospace, monospace;
+}
+
+.display {
+  font-family: var(--nf-display), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+/* ==========================================================================
+   Motion safety
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .btn:hover,
+  .glass-interactive:hover {
+    transform: none;
+  }
+}

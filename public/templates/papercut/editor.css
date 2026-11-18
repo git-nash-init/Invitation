@@ -1,0 +1,782 @@
+/* Papercut Lotus editor styles: the edit-mode affordances for [data-edit]/
+   [data-locked] fields, the gallery-photo control, and toasts. Scoped under
+   body.is-editing / body.is-previewing / body.is-trial so the guest view is
+   completely untouched.
+
+   The toolbar itself (the bar, its buttons, the finalize/share and buy
+   modals) and the design tokens it defines (--edit-accent, --ds-*) live in
+   the shared platform chrome at /templates/_platform/toolbar.css, which loads
+   before this file. The rules below consume those tokens - see
+   rose-invitation/editor.css for the same convention. */
+
+/* ---------- Inline editable fields ---------- */
+[data-edit] {
+  cursor: text;
+  border-radius: 6px;
+  outline: 2.5px dashed var(--edit-accent-faint);
+  outline-offset: 3px;
+  transition: outline-color 0.15s ease, background 0.15s ease;
+  min-width: 1em;
+  display: inline-block;
+}
+
+[data-edit]:hover {
+  background: var(--edit-accent-tint);
+  outline-color: var(--edit-accent);
+}
+
+[data-edit]:focus {
+  background: rgba(255, 255, 255, 0.75);
+  outline: 3px solid var(--edit-accent);
+  outline-offset: 3px;
+}
+
+[data-edit]:empty::before {
+  content: attr(data-edit-placeholder);
+  color: var(--edit-accent);
+  opacity: 0.5;
+  font-style: italic;
+}
+
+/* ---- Trial (pre-purchase "try editing") -----------------------------------
+   The shopper edits the couple's names and the invitation note for real;
+   the family cards, gallery photo and gallery note require purchase. Locked
+   fields carry data-locked instead of data-edit (see render.js), so they are
+   genuinely not editable - this styling only makes that legible. */
+[data-locked] {
+  cursor: not-allowed;
+  border-radius: 6px;
+  outline: 2px dashed rgba(120, 120, 130, 0.35);
+  outline-offset: 3px;
+  position: relative;
+  display: inline-block;
+}
+
+[data-locked]:hover {
+  outline-color: rgba(120, 120, 130, 0.6);
+  background: rgba(120, 120, 130, 0.06);
+}
+
+[data-locked]:hover::after {
+  content: '🔒 Buy to edit';
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translate(-50%, -6px);
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #2b2340;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* Structural controls (uploading content) don't belong in a trial - hidden
+   outright rather than disabled, so the trial reads as a clean invitation
+   rather than a wall of dead buttons. */
+body.is-trial [data-action='gallery-photo'] {
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Guest-name spot: locked, filled per guest from the share link */
+.edit-guest {
+  border-bottom: 2.5px dashed var(--edit-accent-soft);
+  cursor: help;
+  opacity: 0.85;
+}
+
+/* ---------- Toasts (kit.toast(), e.g. failed photo upload) ---------- */
+.edit-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  z-index: 999;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: #2b2340;
+  color: #fff;
+  font: 13px var(--font-serif, sans-serif);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+/* ---------- Gallery photo control (edit mode) ---------- */
+body.is-editing .frame__slot--photo,
+body.is-previewing .frame__slot--photo {
+  outline: 2.5px dashed var(--edit-accent-faint);
+  outline-offset: 3px;
+}
+
+body.is-editing .frame__slot--photo:hover {
+  outline-color: var(--edit-accent);
+}
+
+body.is-editing .frame__slot--photo[data-locked]:hover::after,
+body.is-previewing .frame__slot--photo[data-locked]:hover::after {
+  content: '🔒 Buy to edit';
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #2b2340;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  z-index: 20;
+}
+
+/* ---------- Opening-invocation picker ------------------------------------
+   Ported from rose-invitation/editor.css so the control looks and behaves the
+   same in both templates. The --edit-accent* tokens come from the shared
+   _platform/toolbar.css, but rose's own --brown / --font-secondary /
+   --font-regular / --font-semi-bold do not exist here, so those are swapped
+   for papercut's --intro-ink, --font-sans and plain numeric weights.
+
+   Papercut had no popover of its own before this, so the base .edit-pop rules
+   come along too - nothing else in this template opens one. */
+.edit-pop {
+  position: absolute;
+  z-index: 400;
+  min-width: 230px;
+  max-width: min(92vw, 340px);
+  padding: 16px;
+  border: 1.5px solid var(--edit-accent);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 16px 40px rgba(95, 15, 255, 0.25);
+  color: var(--intro-ink);
+  font: 400 13px var(--font-sans);
+}
+
+.edit-pop h4 {
+  font: 600 14px var(--font-sans);
+  color: var(--edit-accent);
+  margin: 0 0 12px;
+}
+
+/* Body copy for a popover that asks something rather than offering a control -
+   currently the "remove this photograph?" confirmation. Deliberately NOT the
+   accent colour: the heading carries that, and a whole paragraph in it reads as
+   a warning banner rather than as an explanation. */
+.edit-pop__note {
+  margin: -4px 0 14px;
+  font: 400 12.5px/1.5 var(--font-sans);
+  color: var(--intro-ink-soft);
+}
+
+.edit-pop__confirm {
+  display: flex;
+  gap: 8px;
+}
+
+/* Equal halves, same reasoning as the social popups' buttons: flex-basis 0 so
+   the two are sized by growth rather than by their labels, which keeps
+   "Remove" and "Keep it" the same width instead of making the shorter one
+   look like the lesser option. */
+.edit-pop__btn {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--edit-accent);
+  border-radius: 999px;
+  padding: 0.55em 1em;
+  background: transparent;
+  font: 500 12.5px var(--font-sans);
+  color: var(--edit-accent);
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+
+.edit-pop__btn:hover,
+.edit-pop__btn:focus-visible {
+  background: var(--edit-accent-tint);
+}
+
+/* The destructive half is the filled one. It is the action the host came here
+   for, so it leads - the confirmation is a speed bump, not a discouragement. */
+.edit-pop__btn--danger {
+  border-color: #B3261E;
+  background: #B3261E;
+  color: #FFFFFF;
+}
+
+.edit-pop__btn--danger:hover,
+.edit-pop__btn--danger:focus-visible {
+  background: #8C1D18;
+}
+
+.edit-pop input[type="text"] {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--edit-accent-soft);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--intro-ink);
+  font: 400 13px var(--font-sans);
+  margin-bottom: 10px;
+}
+
+.edit-pop input[type="text"]:focus {
+  outline: none;
+  border-color: var(--edit-accent);
+}
+
+.edit-pop__field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.edit-pop__field > span {
+  font: 600 11px var(--font-sans);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--edit-accent);
+}
+
+/* Custom dropdown (trigger + floating menu) - replaces the native <select> so
+   the option list can be styled and the native scripts render in their fonts. */
+.inv-dd {
+  position: relative;
+}
+
+.inv-dd__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--edit-accent-soft);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--intro-ink);
+  font: 400 15px var(--font-sans);
+  cursor: pointer;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.inv-dd__trigger:hover {
+  border-color: var(--edit-accent);
+}
+
+.inv-dd.is-open .inv-dd__trigger {
+  border-color: var(--edit-accent);
+  box-shadow: 0 0 0 3px var(--edit-accent-tint);
+}
+
+.inv-dd__value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.35;
+}
+
+.inv-dd__chev {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--edit-accent);
+  transition: transform 0.2s ease;
+}
+
+.inv-dd.is-open .inv-dd__chev {
+  transform: rotate(180deg);
+}
+
+.inv-dd__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 248px;
+  overflow-y: auto;
+  padding: 6px;
+  border: 1.5px solid var(--edit-accent);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 14px 34px rgba(95, 15, 255, 0.22);
+}
+
+.inv-dd.is-open .inv-dd__menu {
+  display: flex;
+}
+
+.inv-dd__opt {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--intro-ink);
+  font: 400 16px var(--font-sans);
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.14s ease;
+}
+
+.inv-dd__opt:hover {
+  background: var(--edit-accent-tint);
+}
+
+.inv-dd__opt.is-current {
+  background: var(--edit-accent-tint);
+  color: var(--edit-accent);
+  font-weight: 600;
+}
+
+.inv-dd__opt[dir="rtl"] {
+  text-align: right;
+}
+
+/* Tradition heading inside the invocation dropdown - visibly divides each
+   tradition's English + native-script options from the next. */
+.inv-dd__group {
+  padding: 9px 12px 3px;
+  font: 600 10px var(--font-sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--edit-accent);
+  opacity: 0.7;
+}
+
+.inv-dd__group:not(:first-child) {
+  margin-top: 4px;
+  border-top: 1px solid var(--edit-accent-faint);
+}
+
+/* ---------- Symbol options (artwork thumbnail + label) ---------- */
+.inv-dd__opt--sym {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inv-dd__value--sym {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.inv-dd__sym {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.inv-dd__sym--none {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px dashed var(--edit-accent-soft);
+  border-radius: 6px;
+  color: var(--edit-accent);
+  font-size: 16px;
+  opacity: 0.6;
+}
+
+.inv-preview__sym {
+  display: block;
+  width: 46px;
+  height: 46px;
+  margin: 0 auto 8px;
+  object-fit: contain;
+}
+
+/* Free-text invocation input (the base .edit-pop input rule styles the rest). */
+.inv-custom {
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+.inv-custom__count {
+  margin: 3px 2px 0;
+  text-align: right;
+  font: 400 11px var(--font-sans);
+  color: var(--intro-ink);
+  opacity: 0.55;
+}
+
+.edit-pop__inv-preview {
+  margin-top: 4px;
+  padding: 14px 12px;
+  border: 1.5px dashed var(--edit-accent-faint);
+  border-radius: 10px;
+  text-align: center;
+  background: var(--edit-accent-tint);
+}
+
+.inv-preview__native {
+  font-size: 24px;
+  line-height: 1.3;
+  color: var(--intro-ink);
+}
+
+.inv-preview__en {
+  margin-top: 6px;
+  font: 400 12px var(--font-sans);
+  font-style: italic;
+  color: var(--intro-ink);
+  opacity: 0.8;
+}
+
+/* The button on the intro cover that opens the picker. */
+.edit-symbol-btn {
+  align-self: center;
+  margin-bottom: 14px;
+  padding: 6px 14px;
+  border: 2.5px dashed var(--edit-accent);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--edit-accent);
+  font: 400 12px var(--font-sans);
+  cursor: pointer;
+}
+
+.edit-symbol-btn:hover {
+  border-style: solid;
+  background: var(--edit-accent-tint);
+}
+
+/* ---------- Intro cover, in edit mode ------------------------------------
+   The opening invocation, its symbol and the intro note all live on the cover.
+   For a guest that cover is a fixed overlay that slides away on tap; app.js
+   used to fire that same open() as soon as the host arrived, which swept the
+   invocation off screen and left no way to reach it - the host could not edit
+   it at all.
+
+   app.js now leaves the cover alone in edit mode and binds no click, and these
+   rules take it out of `fixed` so it stops being an overlay and becomes an
+   ordinary panel in the page. It cannot slide, cannot be dismissed by a stray
+   click, and everything on it is reachable by scrolling.
+
+   It appears FIRST on the editing page, because .intro is now the first
+   element in <body>. That move is invisible to guests - the cover is fixed at
+   z-index 10 and covers the page from anywhere in the DOM - but in edit mode,
+   where it is in flow, DOM order IS the host's scroll order. Move it back down
+   the document and the host has to scroll past every scene to reach the
+   invocation again. */
+body.is-editing .intro {
+  position: relative;
+  inset: auto;
+  z-index: auto;
+  /* The guest cover is a fixed 95vh panel; here it is an ordinary section in
+     the flow and has to grow with whatever the host types into it. height:auto
+     hands the sizing back to the content, with min-height keeping a short
+     invocation from collapsing the panel. Without this the 95vh would cap it
+     and a long note - plus the editor's own "Change invocation" button - would
+     be cut off with no way to scroll to it. */
+  height: auto;
+  min-height: 70vh;
+  cursor: default;
+  /* The toolbar (.edit-bar, a flat 58px) is fixed, click-through and
+     "reserves no space" - fine over a 95vh cover whose content is centred far
+     below it, but this panel is content-sized and its first row is the editor's
+     own "Change invocation" button. With the cue back in flow (below) the
+     column outgrows 70vh on a phone and centring stops giving anything away at
+     the top, so the button rode up under the Back / Reset / Preview pills. The
+     panel reserves the bar's height itself; the foot pays for the plaque. */
+  padding-top: 82px;
+  padding-bottom: 40px;
+
+  /* The cover is no longer the viewport, so nothing crops .intro__wave any
+     more. As a fixed panel it hung 250% wide and half off each side (see the
+     phone rule on .intro__wave) with no consequence - a fixed box contributes
+     nothing to the document's scrollable overflow. In flow it contributes all
+     of it: on a 390px phone the wave reaches x=780 and the document became
+     twice the viewport wide, which a phone browser will happily let the host
+     pinch out to and pan around.
+
+     clip, not hidden: `hidden` on one axis forces the other to `auto`, and the
+     wave is MEANT to hang 60px below the panel (its bottom:-60px scallops the
+     join with the hero). `overflow-x: clip` leaves overflow-y visible, so the
+     overhang survives and only the sideways bleed is cropped - which is exactly
+     what the viewport did for it before. */
+  overflow-x: clip;
+  /* Belt and braces: if .is-open is ever set here, it must not translate the
+     panel out of the document. */
+  transform: none;
+  transition: none;
+  pointer-events: auto;
+}
+
+/* The "Tap to open" plaque, in edit mode.
+
+   For a guest it is pinned to the FOOT of the cover (position:absolute,
+   bottom:30px against a panel that is always 95vh) so it lands on the same
+   spot on every screen no matter how long the host's note runs - see
+   .intro__cue in styles.css for why that beat the in-flow version.
+
+   That pin cannot survive edit mode. Here the panel is content-sized rather
+   than viewport-sized, so "the foot of the panel" moves with the text, and on
+   a phone the two collide: the symbol, mantra, guest line and note fill the
+   70vh min-height, the centred column runs to within ~35px of the bottom, and
+   the bottom-pinned plaque lands ON the note - the host reads their own
+   invitation line through a translucent plaque.
+
+   So in edit mode it goes back into the flow. .intro is display:grid /
+   place-items:center, so as an ordinary second grid row it centres itself and
+   stacks under the note with no overlap possible, however much the host types.
+   left/transform are undone because a static box ignores the first and would
+   still be shifted by the second. */
+body.is-editing .intro__cue {
+  position: static;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  margin-top: 28px;
+}
+
+/* The cover is what a guest taps; in edit mode it does nothing, so say so
+   rather than leaving a dead control that looks broken. */
+body.is-editing .intro__open {
+  cursor: default;
+  opacity: 0.55;
+  /* The guest plaque is lifted 3vh off its own box (position:relative,
+     bottom:3vh) to sit clear of the panel edge it is pinned to. In flow that
+     lift only drags it back up into the note it was just moved clear of. */
+  bottom: auto;
+  /* And it should not beckon either - the guest-facing bob on a control the
+     host cannot press is just motion under the thing they are editing. */
+  animation: none;
+}
+
+/* The invocation picker button render.js inserts sits above the symbol and
+   line, so give it room to breathe inside the panel. */
+body.is-editing .intro__inner .edit-symbol-btn {
+  margin-bottom: 18px;
+}
+
+/* ---------- Wedding-date calendar ----------------------------------------
+   Sits under the plaque in edit mode and opens a native date field, which
+   brings each platform's own calendar UI, locale and keyboard for free. One
+   pick fills all three panels (see applyISO in editor.js). */
+.edit-date-btn {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  z-index: 3;
+
+  padding: 6px 14px;
+  border: 2.5px dashed var(--edit-accent);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--edit-accent);
+  font: 400 12px var(--font-sans);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* On the date-reveal card the bottom edge is spoken for - the reveal button
+   sits there and a bloom hangs over each corner - so the picker straddles the
+   top edge instead, clear of the plaques. */
+.reveal-card .edit-date-btn {
+  top: -15px;
+  bottom: auto;
+}
+
+.edit-date-btn:hover {
+  border-style: solid;
+  background: var(--edit-accent-tint);
+}
+
+.edit-pop .date-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--edit-accent-soft);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--intro-ink);
+  font: 400 15px var(--font-sans);
+}
+
+.edit-pop .date-input:focus {
+  outline: none;
+  border-color: var(--edit-accent);
+}
+
+.date-input__hint {
+  margin-top: 6px;
+  font: 400 11px var(--font-sans);
+  color: var(--intro-ink);
+  opacity: 0.6;
+}
+
+/* Typed alternative to the calendar above - three panels side by side rather
+   than .edit-pop__field's default stacked layout, so Day/Month/Year read as
+   one row instead of three full-width fields. */
+.date-input__manual {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.date-input__manual .edit-pop__field {
+  flex: 1 1 0;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.date-input__manual input[type="text"] {
+  margin-bottom: 0;
+  padding: 8px 10px;
+}
+
+/* ---------- Ceremonies the host adds ---------- */
+/* Delete, in the place the built-in cards have their include switch. */
+.cere-remove {
+  border: 0;
+}
+
+/* The photo is the control while editing: tap to choose or swap it, drag to
+   move it, wheel or pinch to zoom (editor.js). */
+body.is-editing .ceremony__photo--adjust {
+  cursor: grab;
+  touch-action: none;
+}
+
+body.is-editing .ceremony__photo--adjust:active {
+  cursor: grabbing;
+}
+
+/* Until there is a photo: the arch filled with a wash of the editor's
+   colour, asking for one - the shape the photo will take, without a line
+   drawn round it. */
+.ceremony__photo-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 15%;
+  background: rgb(95 15 255 / 0.1); /* --edit-accent, washed */
+  color: var(--edit-accent);
+  font: 600 clamp(13px, 1.5vw, 16px)/1.3 var(--font-serif);
+  text-align: center;
+  cursor: pointer;
+}
+
+/* ---------- Under each card, while editing ---------- */
+/* What the host sets that a guest never reads on the card - the maps link,
+   an added ceremony's photo controls and why it is still hidden - on a panel
+   under the card rather than in it, so the card holds exactly what it holds
+   for a guest, in the same places (render.js ceremonyBelowHtml). */
+.cere-below {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px dashed var(--edit-accent-faint);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.9);
+  color: var(--ceremony-ink);
+  text-align: left;
+}
+
+body.is-trial .cere-below {
+  display: none;
+}
+
+/* The maps link's own spacing was for sitting under the venue inside the
+   card; the panel spaces it now. */
+.cere-below .cere-maps {
+  margin-top: 0;
+  padding: 0;
+}
+
+/* Why the host can see a card their guests can't. */
+.cere-hint {
+  margin: 0;
+  color: var(--edit-accent);
+  font: italic 500 13px/1.3 var(--font-serif);
+}
+
+/* An added ceremony's photo: zoom out, zoom in, change it. */
+.cere-photo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cere-photo > span {
+  margin-right: auto;
+  font: 500 clamp(11px, 1.3vw, 13px)/1 var(--font-serif);
+  opacity: 0.75;
+}
+
+.cere-photo button {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgb(0 0 0 / 0.2);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ceremony-ink);
+  font: 600 14px/1 var(--font-serif);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.cere-photo button:hover {
+  border-color: var(--edit-accent);
+  color: var(--edit-accent);
+}
+
+/* The add tile: a card's width in the row, standing in its middle. */
+.ceremony--add {
+  align-self: center;
+}
+
+.cere-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 26px 20px;
+  border: 3px dashed var(--edit-accent-faint);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.9);
+  color: var(--edit-accent);
+  font: 500 14px/1.3 var(--font-serif);
+  text-align: center;
+}
+
+.cere-add p {
+  margin: 0;
+}
+
+.cere-add button {
+  padding: 8px 16px;
+  border: 1px solid var(--edit-accent);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--edit-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.cere-add button:hover {
+  background: var(--edit-accent);
+  color: #fff;
+}

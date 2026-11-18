@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Papercut Lotus - Wedding Invitation</title>
+
+    <!-- Cormorant Garamond, Fraunces and Sora - self-hosted (see
+         ../_platform/vendor/fonts/fonts.css) rather than loaded from
+         fonts.googleapis.com. A guest reported the wrong (fallback) typeface
+         on a real phone: font-display:swap falls back correctly whenever the
+         Google Fonts request never completes, and STAYS on the fallback for
+         good if it never does - which happens whenever something between the
+         phone and Google's CDN blocks or drops that request (a privacy
+         browser/ad-blocker treating fonts.googleapis.com/fonts.gstatic.com as
+         a tracker, a carrier/network filter, or just a dropped connection).
+         Self-hosting removes that failure class entirely: the font now ships
+         from this same origin, with nothing third-party left to block.
+
+         Cormorant Garamond is the template's serif for everything that reads
+         as type - see the :root note in styles.css, where --font-serif is an
+         alias of --font-cormorant.
+
+         Fraunces is the DISPLAY face and the revealed date is the only thing
+         set in it. Requested at a fraction of its former weight - roman only
+         (the date is never italic) and wght 500..700 rather than the full
+         300..900, so the opsz axis it needs still comes along without the
+         rest.
+
+         Both are requested as a weight RANGE rather than as picked stops, and
+         both are trimmed to the latin + latin-ext subsets only - see the
+         comment atop fonts.css for how to regenerate this file if a rule ever
+         needs a weight, style or script outside what it already carries. -->
+    <link rel="stylesheet" href="../_platform/vendor/fonts/fonts.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Native scripts for the opening invocation, the same set rose-invitation
+         loads. Cormorant covers no Indic script at all, so every tradition in
+         config.js INVOCATIONS needs its face here - drop one and that tradition
+         renders as tofu boxes.
+
+         Still loaded from Google Fonts, unlike the three above: nine script
+         families is a lot to vendor for a problem that was specifically
+         reported against the Latin type (names/dates/labels, on screen on
+         every single load) rather than against an invocation script (on
+         screen only for the tradition that uses it). Worth doing the same
+         self-hosting pass here later if the same report comes in for one of
+         these.
+
+         Devanagari is Tiro Devanagari Sanskrit, not Noto Sans Devanagari - the
+         same swap rose made, and for the same reason: Noto Sans is a UI face
+         and sets श्री गणेशाय नमः as flat signage, where Tiro is a calligraphic
+         serif cut for exactly this and carries the stacked conjuncts and the
+         repha the mantras want. Noto Sans Devanagari is no longer requested at
+         all, since nothing references it now. Tiro ships in one weight, so it
+         takes no :wght axis. -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Sanskrit&family=Noto+Sans+Bengali:wght@400;600&family=Noto+Sans+Tamil:wght@400;600&family=Noto+Sans+Telugu:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&family=Noto+Sans+Malayalam:wght@400;600&family=Noto+Sans+Gurmukhi:wght@400;600&family=Noto+Sans+Oriya:wght@400;600&family=Noto+Naskh+Arabic:wght@400;600&family=Noto+Sans+Gujarati:wght@400;600&display=swap">
+
+    <!-- The default opening symbol, fetched on every load before the host picks
+         another. Only this one is preloaded, exactly as rose-invitation does -
+         a host who chooses a different symbol (or none) spends one unused fetch. -->
+    <link rel="preload" as="image" href="../symbols/_ganesha.svg" />
+
+    <!-- Shared platform chrome + tokens (bar, buy modal, buttons; guest RSVP). -->
+    <link rel="stylesheet" href="../_platform/toolbar.css">
+    <link rel="stylesheet" href="../_platform/rsvp.css">
+    <link rel="stylesheet" href="../_platform/music.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="editor.css">
+</head>
+
+<body>
+    <!-- FIRST in the document on purpose. For a guest this is a fixed overlay
+         at z-index 10, so its position here changes nothing - it covers the
+         page wherever it sits, and the front arch (11) still paints over it.
+         But in EDIT mode editor.css drops it into normal flow, and then DOM
+         order is what the host scrolls through: at the end of the file they
+         had to scroll past every scene to reach the invocation. Here it is the
+         first thing they meet, which is also the order a guest sees it in. -->
+    <!-- Ganesha idol goes above .intro__mantra -->
+    <div class="intro" id="intro">
+        <div class="intro__inner">
+            <!-- Opening invocation. Both the symbol and the line beneath it are
+                 the host's choice (config.js SYMBOLS / INVOCATIONS, the same
+                 tables rose-invitation uses); render.js fills them in. The
+                 symbol is painted as a CSS mask, so it takes the cover ink
+                 rather than the artwork's own colours. -->
+            <span class="intro__symbol" aria-hidden="true" hidden></span>
+            <p class="intro__mantra" id="pcInvocation">श्री गणेशाय नमः</p>
+            <p class="intro__guest" id="pcGuestGreeting" hidden></p>
+            <p class="intro__note" id="pcIntroNote">
+                we cordially invite you to grace the auspicious occasion of the marriage of&hellip;
+            </p>
+        </div>
+
+        <!-- The words sit ON the plaque artwork, which is the button's
+             background - hence the span: it is positioned against the
+             plaque's own centre, which is not the centre of the SVG's
+             canvas (see .intro__open-label).
+             The plaque is wrapped because it BOBS (pc-cue-bob) and the
+             sprigs either side of it must not. Pseudo-elements of the
+             button would ride that animation; hung off this static wrapper
+             they stay put while the plaque lifts inside it.
+             Moved OUT of .intro__inner and pinned to the FOOT of the cover
+             instead of sitting in the centred content column - .intro__inner
+             is a centred grid (display:grid; place-items:center on .intro),
+             so as long as this stayed inside it the cue could only ever sit
+             wherever the note text happened to end, not at a fixed spot on
+             the panel. As a direct child of #intro (position:fixed) instead,
+             it can be positioned against the panel itself. -->
+        <div class="intro__cue">
+            <button class="intro__open" type="button"><span class="intro__open-label">Tap to open</span></button>
+        </div>
+
+        <!-- Back to being intro's own child (it briefly lived in .hero as a
+             permanent element - see .intro__wave in styles.css for why that
+             changed): it needs to TRAVEL WITH the cover as it slides away
+             (.intro.is-open's transform), which only happens for an actual
+             child, not a separately-positioned sibling trying to time its
+             own position against .intro's animation. -->
+        <img class="intro__wave" src="media/wave.svg" alt="" aria-hidden="true" draggable="false">
+    </div>
+
+    <section class="hero">
+        <!-- TEMPORARY: the built-up collage (sun, two clouds, wave band, two
+             floating lotuses) is swapped for one flat hero artwork while the
+             design is being tried out. Un-comment the block below and delete
+             .hero-art to put the collage back - every CSS rule it depends on
+             (.sun, .cloud--*, .waves + its drift, .lotus-float + its bob, and
+             the --water-line maths they share) is still in styles.css,
+             untouched, so it will come back exactly as it was. -->
+        <picture class="deco hero-art">
+            <source media="(max-width: 500px)" srcset="media/hero_phone.webp">
+            <img src="media/hero_desktop.webp" alt="" aria-hidden="true">
+        </picture>
+
+        <!--
+        sky
+        <img class="deco sun" src="media/sun.svg" alt="" aria-hidden="true">
+        <img class="deco cloud cloud--main" src="media/cloud.svg" alt="" aria-hidden="true">
+        <img class="deco cloud cloud--right" src="media/cloud.svg" alt="" aria-hidden="true">
+
+        water
+        <img class="deco waves" src="media/waves.svg" alt="" aria-hidden="true">
+
+        Two lotuses floating on the water line, each cut in half by it -
+        the placement is derived from the wave band, see styles.css.
+        <img class="deco lotus-float lotus-float--left" src="media/lotus1.webp" alt="" aria-hidden="true">
+        <img class="deco lotus-float lotus-float--right" src="media/lotus2.webp" alt="" aria-hidden="true">
+        -->
+
+        <h1 class="couple">
+            <span class="bride-name" id="pcBrideName">Ankita</span>
+            <span class="amp">and</span>
+            <span class="groom-name" id="pcGroomName">Kaushik</span>
+        </h1>
+
+        <!-- Full arch across the top of the hero: a single cream/green underlayer
+             (arch2) behind the single green front (arch), both centred and pinned
+             to the top. Below 500px the landscape drawings are swapped for the
+             portrait *_phone cuts, which frame the whole hero rather than just
+             its top edge. -->
+        <!-- TEMPORARY: the back arch (arch2 / arch2_phone, the cream-and-green
+             underlayer at z-index 7) is commented out. Un-comment to restore -
+             .arch--back and its shared .arch rules are untouched in styles.css.
+             With it gone the front arch has nothing behind it, so wherever the
+             back one used to show past the front's edge you now see the hero
+             artwork instead.
+        <picture class="arch arch--back">
+            <source media="(max-width: 500px)" srcset="media/arch2_phone.svg">
+            <img src="media/arch2.svg" alt="" aria-hidden="true">
+        </picture>
+        -->
+        <picture class="arch arch--front">
+            <source media="(max-width: 500px)" srcset="media/arch1_phone.svg">
+            <img src="media/arch.svg" alt="" aria-hidden="true">
+        </picture>
+
+        <!-- A flower pinned on each springing point - where the arch's curve
+             lands on its pillar and the drawing stops being an arch. The
+             wrapper carries the arch's own aspect ratio so the two anchors
+             stay on those points at every width; see styles.css. They
+             counter-rotate as the page scrolls (data-spin, app.js). -->
+        <div class="arch-flowers" aria-hidden="true">
+            <img class="arch-flower arch-flower--left" src="media/mini-flower.svg" alt="" data-spin="0.5">
+            <img class="arch-flower arch-flower--right" src="media/mini-flower.svg" alt="" data-spin="-0.5">
+        </div>
+    </section>
+
+    <section class="invite">
+        <article class="card" id="pcGroomCard" data-card="groomFamily">
+            <!-- Split into two <deco-frame>s (was one) so .card__crown's
+                 lotus can sit BETWEEN the teal and navy in real paint order -
+                 inner (teal) band, then the lotus, then the outer (navy)
+                 band, in that DOM sequence, so the navy paints frontmost.
+                 See the long comment on .card__frame in styles.css. -->
+            <deco-frame class="card__frame card__frame--inner"></deco-frame>
+            <!-- .card__crown and .card__stem sandwiched here, between the
+                 two frame elements - each has to sit in the DOM between
+                 .card__frame--inner and --outer to land between them in
+                 paint order (teal behind, navy in front). See each one's
+                 own "no z-index" note in styles.css for why that matters.
+                 .card__bud is NOT sandwiched - it keeps its z-index and
+                 sits after the outer frame, in front of both bands, same
+                 as every corner flower before this change. -->
+            <img class="card__crown" src="media/paper-lotus_straight.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+            <img class="card__stem" src="media/lotus-bud2.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+            <deco-frame class="card__frame card__frame--outer"></deco-frame>
+            <img class="card__bud" src="media/lotus-bud.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+
+            <div class="invite__inner">
+                <h2 class="card__name" id="pcGroomCardName">Chi. Kaushik Sharma</h2>
+
+                <p class="card__block">
+                    <span class="card__rel" id="pcGroomRelLabel">Son of</span>
+                    <span class="card__elder" id="pcGroomParentA">Shri Ramesh Chandra Sharma</span>
+                    <span class="card__amp" id="pcGroomParentJoin">&amp;</span>
+                    <span class="card__elder" id="pcGroomParentB">Smt. Sunita Sharma</span>
+                </p>
+
+                <p class="card__block">
+                    <span class="card__rel" id="pcGroomGrandLabel">Grandson of</span>
+                    <span class="card__elder" id="pcGroomGrandA">Late Shri Pandit Brij Mohan Sharma</span>
+                    <span class="card__amp" id="pcGroomGrandJoin">&amp;</span>
+                    <span class="card__elder" id="pcGroomGrandB">Late Smt. Kamla Devi Sharma</span>
+                </p>
+
+                <!-- The label is the host's too: "Gotra" is one community's word for it,
+                     and the colon stays outside so punctuation is not something they
+                     have to retype. -->
+                <p class="card__gotra"><span id="pcGroomGotraLabel">Gotra</span>: <span
+                        id="pcGroomGotra">Bharadwaj</span></p>
+            </div>
+        </article>
+
+        <article class="card" id="pcBrideCard" data-card="brideFamily">
+            <!-- Split into two <deco-frame>s (was one) so .card__crown's
+                 lotus can sit BETWEEN the teal and navy in real paint order -
+                 inner (teal) band, then the lotus, then the outer (navy)
+                 band, in that DOM sequence, so the navy paints frontmost.
+                 See the long comment on .card__frame in styles.css. -->
+            <deco-frame class="card__frame card__frame--inner"></deco-frame>
+            <!-- .card__crown and .card__stem sandwiched here, between the
+                 two frame elements - each has to sit in the DOM between
+                 .card__frame--inner and --outer to land between them in
+                 paint order (teal behind, navy in front). See each one's
+                 own "no z-index" note in styles.css for why that matters.
+                 .card__bud is NOT sandwiched - it keeps its z-index and
+                 sits after the outer frame, in front of both bands, same
+                 as every corner flower before this change. -->
+            <img class="card__crown" src="media/paper-lotus_straight.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+            <img class="card__stem" src="media/lotus-bud2.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+            <deco-frame class="card__frame card__frame--outer"></deco-frame>
+            <img class="card__bud" src="media/lotus-bud.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+
+            <div class="invite__inner">
+                <h2 class="card__name" id="pcBrideCardName">Kum. Ankita Verma</h2>
+
+                <p class="card__block">
+                    <span class="card__rel" id="pcBrideRelLabel">Daughter of</span>
+                    <span class="card__elder" id="pcBrideParentA">Shri Rajesh Kumar Verma</span>
+                    <span class="card__amp" id="pcBrideParentJoin">&amp;</span>
+                    <span class="card__elder" id="pcBrideParentB">Smt. Meera Verma</span>
+                </p>
+
+                <p class="card__block">
+                    <span class="card__rel" id="pcBrideGrandLabel">Granddaughter of</span>
+                    <span class="card__elder" id="pcBrideGrandA">Late Shri Hari Prasad Verma</span>
+                    <span class="card__amp" id="pcBrideGrandJoin">&amp;</span>
+                    <span class="card__elder" id="pcBrideGrandB">Late Smt. Shanti Devi Verma</span>
+                </p>
+
+                <p class="card__gotra"><span id="pcBrideGotraLabel">Gotra</span>: <span id="pcBrideGotra">Kashyap</span>
+                </p>
+            </div>
+        </article>
+    </section>
+
+    <section class="lotus-spin">
+        <!-- One flat flower image (previously six stacked ring cut-outs -
+             rotating_flowers01-05.svg + the seed-pod dot - built to fake this
+             same look before big_lotus.png existed as a single asset). Still
+             rotates with scroll the same way those did: app.js turns anything
+             carrying data-spin, generically, by scroll position x rate - one
+             image with the same rate rotates as one piece exactly like the
+             six layers did when they all carried it together. -->
+        <div class="lotus-spin__stack" id="spinLotus">
+            <img class="lotus-spin__layer" src="media/big_lotus.webp" alt="" aria-hidden="true" data-spin="0.12">
+        </div>
+    </section>
+
+    <!-- ── Date reveal ────────────────────────────────────────────────────
+         A small paper mechanism: three dials hidden behind cut windows, and
+         the host's own flower laid around them. Blank until the guest presses
+         the button, at which point the dials roll and settle on the wedding
+         date (see date-reveal.js).
+
+         The windows are EMPTY in this markup on purpose. The strips are built
+         at press time rather than rendered here and hidden, so the date is not
+         sitting in the DOM waiting to be read - "concealed" means concealed,
+         not merely overflow:hidden.
+
+         Self-contained: it introduces its own .reveal-* namespace and touches
+         no other section's markup, classes or scripts. -->
+    <section class="scene scene--reveal" id="pcDateReveal" hidden>
+        <div class="reveal-card">
+            <!-- A bloom straddling each side of the card, overhanging it and
+                 casting its own shadow onto it. Decorative only: no alt text,
+                 aria-hidden, and pointer-events off in CSS so they never take
+                 a tap meant for the button they sit beside. -->
+            <img class="reveal-bloom reveal-bloom--left" id="pcRevealBloomLeft" src="media/date_flower_left.webp" alt=""
+                aria-hidden="true" loading="lazy" decoding="async">
+            <img class="reveal-bloom reveal-bloom--right" id="pcRevealBloomRight" src="media/date_flower_right.webp"
+                alt="" aria-hidden="true" loading="lazy" decoding="async">
+
+            <!-- Optional. Empty in the shipped config - the design has no
+                 heading over the plaques - but rendered whenever a host puts
+                 something there, and always shown in edit mode so there is
+                 something to type into. -->
+            <p class="reveal-lead" id="pcRevealLead" hidden></p>
+
+            <!-- aria-live so the settled date is announced once, for a guest who
+                 cannot see the dials move. The dials themselves are decorative
+                 machinery; the date text below is the accessible result. -->
+            <div class="reveal-dials" role="group" aria-label="Wedding date">
+                <!-- Each window is a plaque: the same <deco-frame> the family
+                     cards are built from, so the scooped corners and the inset
+                     keyline are drawn by the same code rather than approximated
+                     here. The frame is a sibling of the window, not a wrapper -
+                     the window clips the rolling strip, and clipping would have
+                     eaten the frame's corners along with it. -->
+                <div class="reveal-dial" data-dial="day">
+                    <span class="reveal-dial__cap">Date</span>
+                    <div class="reveal-plaque">
+                        <deco-frame class="reveal-plaque__frame"></deco-frame>
+                        <div class="reveal-window">
+                            <div class="reveal-strip" data-strip></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal-dial reveal-dial--wide" data-dial="month">
+                    <span class="reveal-dial__cap">Month</span>
+                    <div class="reveal-plaque">
+                        <deco-frame class="reveal-plaque__frame"></deco-frame>
+                        <div class="reveal-window">
+                            <div class="reveal-strip" data-strip></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal-dial reveal-dial--wide" data-dial="year">
+                    <span class="reveal-dial__cap">Year</span>
+                    <div class="reveal-plaque">
+                        <deco-frame class="reveal-plaque__frame"></deco-frame>
+                        <div class="reveal-window">
+                            <div class="reveal-strip" data-strip></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- The same ornate plaque the intro cover's "Tap to open" sits on
+                 (media/tap_to_open.svg), laid on as a background exactly the
+                 way .intro__open does it, label positioned against the plaque
+                 path's centre rather than the SVG box's. -->
+            <div class="reveal-action">
+                <button class="reveal-btn" id="pcRevealBtn" type="button">
+                    <span class="reveal-btn__face" id="pcRevealBtnLabel">Reveal the Date!</span>
+                </button>
+                <!-- What stands in the button's place once the date is out. The
+                     button is left in flow behind it rather than removed, so the
+                     card does not jump a plaque's height at the moment the dials
+                     settle; only its ink goes. -->
+                <p class="reveal-after" id="pcRevealAfter" hidden>Save the Date!</p>
+            </div>
+
+            <p class="reveal-said" id="pcRevealSaid" aria-live="polite"></p>
+        </div>
+    </section>
+
+    <!-- Gallery: two one-frame-per-view carousels (photos and keepsake notes),
+         each up to five. render.js builds the slides from cfg.gallery.photos /
+         .notes; app.js runs the arrows; editor.js adds/removes. -->
+    <section class="gallery">
+        <div class="gallery__reveal">
+            <div class="gallery__pager" data-gallery="photos">
+                <!-- Cord in the frame's top opening; drag/tap to see the next photo. -->
+                <div class="gallery__pull">
+                    <span class="gallery__pull-rope"></span>
+                    <img class="gallery__pull-knob" src="media/pull.svg" alt="" draggable="false">
+                </div>
+                <p class="gallery__hint" hidden>Pull the string to see the next photo</p>
+                <button class="gallery__nav gallery__nav--prev" type="button" aria-label="Previous photo" hidden>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <path d="M15 4 7 12l8 8" />
+                    </svg>
+                </button>
+                <figure class="frame">
+                    <div class="frame__slot frame__slot--photo">
+                        <ul class="frame__reel" id="pcGalleryPhotoTrack"></ul>
+                    </div>
+                    <img class="frame__border" src="media/gallery.png" alt="" aria-hidden="true">
+                    <button class="gallery__remove" type="button" data-action="gallery-remove" data-kind="photos"
+                        data-idx="0" aria-label="Remove this photo" hidden>&times;</button>
+                    <!-- Reorder the shown photo. Like .gallery__remove, these act
+                         on whichever cell is currently in the opening; app.js
+                         keeps their data-idx in step with the reel. -->
+                    <div class="gallery__reorder" hidden>
+                        <button type="button" data-action="gallery-move" data-kind="photos" data-dir="-1" data-idx="0"
+                            aria-label="Move this photo earlier" title="Move earlier">&#9664;</button>
+                        <button type="button" data-action="gallery-move" data-kind="photos" data-dir="1" data-idx="0"
+                            aria-label="Move this photo later" title="Move later">&#9654;</button>
+                    </div>
+                    <!-- Adjust the shown photo: zoom out / in, and replace. app.js
+                         targets the current cell and shows this only when filled. -->
+                    <div class="frame__adjust" hidden>
+                        <button type="button" class="frame__ctl" data-action="gallery-zoom" data-dir="out" data-idx="0"
+                            aria-label="Zoom out">−</button>
+                        <button type="button" class="frame__ctl" data-action="gallery-zoom" data-dir="in" data-idx="0"
+                            aria-label="Zoom in">＋</button>
+                        <button type="button" class="frame__ctl" data-action="gallery-photo" data-idx="0"
+                            aria-label="Replace photo" title="Replace photo">↺</button>
+                    </div>
+                </figure>
+                <button class="gallery__nav gallery__nav--next" type="button" aria-label="Next photo" hidden>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <path d="M9 4l8 8-8 8" />
+                    </svg>
+                </button>
+                <button class="gallery__add" id="pcGalleryPhotoAdd" type="button" data-action="gallery-add"
+                    data-kind="photos" hidden>＋ Add photo</button>
+            </div>
+
+            <div class="gallery__pager" data-gallery="notes">
+                <!-- Cord in the frame's top opening; drag/tap to see the next note. -->
+                <div class="gallery__pull">
+                    <span class="gallery__pull-rope"></span>
+                    <img class="gallery__pull-knob" src="media/pull.svg" alt="" draggable="false">
+                </div>
+                <p class="gallery__hint" hidden>Pull the string to see the next note</p>
+                <button class="gallery__nav gallery__nav--prev" type="button" aria-label="Previous note" hidden>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <path d="M15 4 7 12l8 8" />
+                    </svg>
+                </button>
+                <figure class="frame">
+                    <div class="frame__slot frame__slot--text">
+                        <ul class="frame__reel" id="pcGalleryNoteTrack"></ul>
+                    </div>
+                    <img class="frame__border" src="media/gallery.png" alt="" aria-hidden="true">
+                    <button class="gallery__remove" type="button" data-action="gallery-remove" data-kind="notes"
+                        data-idx="0" aria-label="Remove this note" hidden>&times;</button>
+                    <div class="gallery__reorder" hidden>
+                        <button type="button" data-action="gallery-move" data-kind="notes" data-dir="-1" data-idx="0"
+                            aria-label="Move this note earlier" title="Move earlier">&#9664;</button>
+                        <button type="button" data-action="gallery-move" data-kind="notes" data-dir="1" data-idx="0"
+                            aria-label="Move this note later" title="Move later">&#9654;</button>
+                    </div>
+                </figure>
+                <button class="gallery__nav gallery__nav--next" type="button" aria-label="Next note" hidden>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <path d="M9 4l8 8-8 8" />
+                    </svg>
+                </button>
+                <button class="gallery__add" id="pcGalleryNoteAdd" type="button" data-action="gallery-add"
+                    data-kind="notes" hidden>＋ Add note</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ceremonies carousel. The track's cards are built by render.js from
+         cfg.ceremonies; the viewport/nav chrome is static. app.js runs the
+         slide (view/preview only - edit mode shows the cards in place so the
+         host can edit each one). -->
+    <section class="ceremonies">
+        <h2 class="ceremonies__title">Ceremonies</h2>
+
+        <div class="carousel">
+            <button class="carousel__nav carousel__nav--prev" type="button" aria-label="Previous ceremony">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <path d="M15 4 7 12l8 8" />
+                </svg>
+            </button>
+
+            <div class="carousel__viewport">
+                <ul class="carousel__track" id="pcCeremonyTrack"></ul>
+            </div>
+
+            <button class="carousel__nav carousel__nav--next" type="button" aria-label="Next ceremony">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 4l8 8-8 8" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- One dot per ceremony, built by app.js to match whatever the host has
+             enabled - never hard-coded, since that count changes. Hidden by app.js
+             when there is only one ceremony (nothing to paginate) and by this
+             rule in edit mode, same as the arrows: the host sees every card
+             wrapped in a row there, not a window with something to jump to. -->
+        <div class="carousel__dots" role="group" aria-label="Jump to a ceremony"></div>
+    </section>
+
+    <!-- Compliment card - same framed card as the invite cards above. -->
+    <section class="scene scene--compliment">
+        <article class="card" id="pcComplimentCard" data-card="compliments">
+            <!-- Split into two <deco-frame>s (was one) so .card__crown's
+                 lotus can sit BETWEEN the teal and navy in real paint order -
+                 inner (teal) band, then the lotus, then the outer (navy)
+                 band, in that DOM sequence, so the navy paints frontmost.
+                 See the long comment on .card__frame in styles.css. -->
+            <deco-frame class="card__frame card__frame--inner"></deco-frame>
+            <!-- .card__crown and .card__stem sandwiched here, between the
+                 two frame elements - each has to sit in the DOM between
+                 .card__frame--inner and --outer to land between them in
+                 paint order (teal behind, navy in front). See each one's
+                 own "no z-index" note in styles.css for why that matters.
+                 .card__bud is NOT sandwiched - it keeps its z-index and
+                 sits after the outer frame, in front of both bands, same
+                 as every corner flower before this change. -->
+            <img class="card__crown" src="media/paper-lotus_straight.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+            <img class="card__stem" src="media/lotus-bud2.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+            <deco-frame class="card__frame card__frame--outer"></deco-frame>
+            <img class="card__bud" src="media/lotus-bud.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+            <div class="invite__inner">
+                <h3 class="card__name" id="pcComplimentLead">With Best Compliments From:</h3>
+                <div class="compliment__lines" id="pcComplimentLines"></div>
+                <button class="card-add" id="pcComplimentAdd" type="button" data-action="compliment-line-add" hidden>＋
+                    Add a line</button>
+            </div>
+        </article>
+    </section>
+
+    <!-- Note card - same framed card as the invite cards above. -->
+    <section class="scene scene--note">
+        <article class="card" id="pcNoteCard" data-card="note">
+            <!-- Split into two <deco-frame>s (was one) so .card__crown's
+                 lotus can sit BETWEEN the teal and navy in real paint order -
+                 inner (teal) band, then the lotus, then the outer (navy)
+                 band, in that DOM sequence, so the navy paints frontmost.
+                 See the long comment on .card__frame in styles.css. -->
+            <deco-frame class="card__frame card__frame--inner"></deco-frame>
+            <!-- .card__crown and .card__stem sandwiched here, between the
+                 two frame elements - each has to sit in the DOM between
+                 .card__frame--inner and --outer to land between them in
+                 paint order (teal behind, navy in front). See each one's
+                 own "no z-index" note in styles.css for why that matters.
+                 .card__bud is NOT sandwiched - it keeps its z-index and
+                 sits after the outer frame, in front of both bands, same
+                 as every corner flower before this change. -->
+            <img class="card__crown" src="media/paper-lotus_straight.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+            <img class="card__stem" src="media/lotus-bud2.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+            <deco-frame class="card__frame card__frame--outer"></deco-frame>
+            <img class="card__bud" src="media/lotus-bud.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
+            <div class="invite__inner">
+                <h3 class="card__name" id="pcNoteLead">A Note From Us</h3>
+                <p class="note__text" id="pcNoteText"></p>
+            </div>
+        </article>
+    </section>
+
+    <!-- Media row: Instagram, ceremony locations, add-to-calendar. The same
+         three affordances rose-invitation closes with (its .scene--social),
+         drawn with this template's own artwork and reading from this
+         template's own config. Each opens the shared popup below; social.js
+         fills it. Sits above the RSVP so the invitation still ENDS on the
+         guest's reply, which is the one thing the host is waiting for. -->
+    <section class="scene scene--social">
+        <div class="socials">
+            <button class="social" id="pcIgBtn" type="button" aria-label="Instagram">
+                <img src="media/instagram.webp" alt="Instagram" loading="lazy" decoding="async">
+            </button>
+            <button class="social" id="pcLocBtn" type="button" aria-label="Ceremony locations">
+                <img src="media/location.webp" alt="Locations" loading="lazy" decoding="async">
+            </button>
+            <button class="social" id="pcCalBtn" type="button" aria-label="Add ceremonies to calendar">
+                <img src="media/date.webp" alt="Calendar" loading="lazy" decoding="async">
+            </button>
+        </div>
+    </section>
+
+    <!-- Closing address, under the media row. The guest's name is not config -
+         it comes from ?to= per invite - so render.js fills it and hides the
+         line when there is nobody to name (a common link), exactly as it does
+         for the greeting on the intro cover. -->
+    <section class="scene scene--farewell">
+        <p class="farewell__guest" id="pcFarewellGuest" hidden></p>
+        <p class="farewell__line">Your Presence Means the World to Us</p>
+    </section>
+
+    <!-- Shared platform RSVP - the host's RSVP events render here. -->
+    <div id="balcony-rsvp"></div>
+
+    <!-- One popup, refilled per button by social.js. Named pc-modal rather than
+         modal: the shared platform toolbar loads its own chrome onto this page
+         and a bare .modal is exactly the class a buy/confirm dialog would
+         claim. -->
+    <div class="pc-modal" id="pcModal" hidden>
+        <div class="pc-modal__overlay" data-pc-close></div>
+        <div class="pc-modal__box" role="dialog" aria-modal="true" aria-labelledby="pcModalTitle">
+            <button class="pc-modal__close" type="button" data-pc-close aria-label="Close">&times;</button>
+            <div class="pc-modal__content" id="pcModalContent"></div>
+        </div>
+    </div>
+
+    <!-- Foot of the frame: the same green-and-gold band as the arch, inverted,
+         closing off the two fixed edge bars at the end of the page. Last in
+         flow rather than fixed, so it sits at the foot of the DOCUMENT and
+         never covers content. Phone cut swapped in below 500px. -->
+    <picture class="arch-foot">
+        <source media="(max-width: 500px)" srcset="media/arch_bottom_phone.svg">
+        <img src="media/arch_bottom.svg" alt="" aria-hidden="true">
+    </picture>
+
+    <!-- A lotus in each bottom corner of the PAGE, not of the closing band -
+         siblings of .arch-foot rather than its pseudo-elements, positioned
+         against <body> (which is position:relative). -->
+    <img class="page-lotus page-lotus--left" src="media/paper-lotus.webp" alt="" aria-hidden="true" draggable="false" loading="lazy" decoding="async">
+    <img class="page-lotus page-lotus--right" src="media/paper-lotus.webp" alt="" aria-hidden="true" draggable="false" loading="lazy" decoding="async">
+
+    <!-- Trial (?trial=1): synchronously injects window.__balconyTrial (draft +
+         save endpoint + CSRF) before config.js reads it - see config.js's
+         load()/save() and TrialDraftController. -->
+    <script>if (location.search.indexOf('trial=1') !== -1) document.write('<scr' + 'ipt src="/try/papercut-magenta/draft.js"><\/scr' + 'ipt>');</script>
+
+    <script src="config.js"></script>
+    <script src="platform-adapter.js"></script>
+    <script src="../_platform/fit-text.js"></script>
+    <script src="render.js"></script>
+    <script src="app.js"></script>
+    <!-- The date-reveal mechanism. Its own file so the section stays separable
+         from the rest of the template's behaviour. -->
+    <script src="date-reveal.js"></script>
+    <!-- The media row's three popups. After render.js, which is where the date,
+         time and map-link helpers it borrows are published onto PC. -->
+    <script src="social.js"></script>
+    <script src="../_platform/toolbar.js"></script>
+    <script src="../_platform/rsvp.js"></script>
+    <script src="../_platform/date-display.js"></script>
+    <script src="../_platform/editor-kit.js"></script>
+    <script src="editor.js"></script>
+    <!-- Shared background-music control (toggle + edit-mode upload) -->
+    <script src="../_platform/music.js"></script>
+    <script>if (window.BalconyMusic) window.BalconyMusic.mount(window.Papercut);</script>
+</body>
+
+</html>
