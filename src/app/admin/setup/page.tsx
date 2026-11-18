@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { Flash } from "@/components/admin/flash";
+import { Button } from "@/components/ui/button";
 import { adminRpc } from "@/lib/admin";
 import { ago, istTime } from "@/lib/format";
+import { connectBot } from "../actions";
 
 export const metadata: Metadata = { title: "Setup" };
 
@@ -24,7 +27,8 @@ type PreviewRow = {
   last_seen_at: string | null;
 };
 
-export default async function SetupPage() {
+export default async function SetupPage({ searchParams }: { searchParams: Promise<{ ok?: string; e?: string }> }) {
+  const { ok, e } = await searchParams;
   const [s, log] = await Promise.all([
     adminRpc<Status>("admin_setup_status"),
     adminRpc<PreviewRow[]>("admin_preview_log", { p_limit: 50 }),
@@ -44,6 +48,18 @@ export default async function SetupPage() {
   return (
     <>
       <h1 className="display text-[32px] leading-[1.15] sm:text-[36px]">Setup</h1>
+      <Flash ok={ok} e={e} />
+
+      <section className="glass mt-6 rounded-[16px] p-5">
+        <h2 className="text-[16px] font-medium leading-6">Telegram bot</h2>
+        <p className="mt-2 text-[14px] leading-5 text-text-2">
+          After you set the secrets in Supabase (see the guide), press this once. It connects Telegram to the bot and
+          sets the bot&apos;s menu. Press it again any time you change the bot token.
+        </p>
+        <form action={connectBot} className="mt-4">
+          <Button type="submit" className="w-full sm:w-auto">Connect Telegram bot</Button>
+        </form>
+      </section>
 
       <section className="glass mt-6 rounded-[16px] p-5">
         <h2 className="text-[16px] font-medium leading-6">Checks</h2>

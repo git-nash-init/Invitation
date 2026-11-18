@@ -13,6 +13,32 @@ const back = (path: string, message?: string, ok = false): never =>
 const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 const flag = (f: FormData, k: string) => f.get(k) === "on";
 
+// ---------- connect the Telegram bot ----------
+export async function connectBot() {
+  await requireAdmin();
+  const supabase = await createClient();
+  // A single-use token proves an admin pressed the button; the function checks it in the database.
+  const { data: token, error } = await supabase.rpc("admin_setup_token");
+  if (error || typeof token !== "string") back("/admin/setup", "Could not start the connection.");
+
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  let body: { ok?: boolean; bot?: string; error?: string } | null = null;
+  try {
+    const res = await fetch(`${base}/functions/v1/telegram-bot/setup`, {
+      method: "POST",
+      headers: { "x-setup-token": String(token) },
+      cache: "no-store",
+    });
+    body = await res.json().catch(() => null);
+  } catch {
+    body = null;
+  }
+  if (!body?.ok) {
+    back("/admin/setup", body?.error ?? "The bot function did not answer. Check that it is deployed and the BOT_TOKEN secret is set.");
+  }
+  back("/admin/setup", `Connected to @${body?.bot ?? "your bot"}. Send /start to it to try.`, true);
+}
+
 // ---------- payments (UPI IDs) ----------
 export async function saveUpi(formData: FormData) {
   await requireAdmin();

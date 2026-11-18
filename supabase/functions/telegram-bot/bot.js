@@ -123,6 +123,12 @@ async function showTemplate(env, chat, user, slug) {
     await remember(env, 'previews', stills[0].storage_path, r, 'photo');
     if (r && r.ok) return;
   }
+  // No preview media uploaded yet: fall back to the public cover image from the website.
+  if (!video && stills.length === 0 && tpl.cover_path && hasHttps(env)) {
+    const cover = `${String(env.SITE_URL).replace(/\/+$/, '')}${tpl.cover_path}`;
+    const r = await sendProtectedPhoto(env, chat, cover, caption, { reply_markup });
+    if (r && r.ok) return;
+  }
   return send(env, chat, caption, { reply_markup });
 }
 
