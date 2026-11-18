@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test --no-warnings \"supabase/functions/telegram-bot/test/*.test.js\" \"test/*.test.mjs\""
+    "test": "node --test --no-warnings \"supabase/functions/telegram-bot/test/*.test.js\" \"test/*.test.mjs\"",
+    "previews:make": "node scripts/make-previews.mjs",
+    "previews:upload": "node --env-file=.env.local scripts/upload-previews.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -27,6 +29,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "jsqr": "^1.4.0",
+    "puppeteer-core": "^25.18.1",
     "tailwindcss": "4.3.3",
     "typescript": "^5"
   }

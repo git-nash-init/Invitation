@@ -113,7 +113,11 @@ Admin, **Payments**, **Add a UPI ID**: the UPI ID, the receiver name exactly as 
 
 ## 11. Previews and music (You and Claude, before you advertise)
 
-- **Previews**: until preview images or videos are uploaded, the bot shows each template's cover image. Preview videos come from the ffmpeg pipeline or from your Flow clips (see `docs/flow-asset-guide.md`).
+- **Previews**: until preview media is uploaded, the bot shows each template's cover image. To make real ones from the actual templates (needs ffmpeg and Chrome on your computer):
+  1. Build and start the site locally with `ASSET_TOKEN_SECRET` set: `npm run build`, then `npx next start -p 3201`.
+  2. In another terminal: `ASSET_TOKEN_SECRET=<same value> BASE_URL=http://localhost:3201 npm run previews:make`. This writes a watermarked 540x960 video and three stills per template to `previews-out/` (about 1 MB each).
+  3. After step 7 (you are admin): `ADMIN_EMAIL=you@example.com ADMIN_PASSWORD=... npm run previews:upload`. This uploads them and registers them, and the bot shows them from then on.
+  You can also replace these with clips from Flow later (see `docs/flow-asset-guide.md`).
 - **Music**: nothing plays by default. Add tracks in **Admin, Music** after generating them (guide in `docs/flow-asset-guide.md`). Write the licence note for each one, because a track cannot go live without it.
 
 ## 12. Go-live checklist
