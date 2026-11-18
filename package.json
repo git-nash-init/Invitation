@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:bot": "node --test --no-warnings \"supabase/functions/telegram-bot/test/*.test.js\""
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -25,6 +26,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "jsqr": "^1.4.0",
     "tailwindcss": "4.3.3",
     "typescript": "^5"
   }
