@@ -34,7 +34,7 @@ export default async function Home() {
         <Section id="templates">
           <SectionHead
             title="Five templates, each one interactive"
-            sub="Open any of them and try it the way your guests will."
+            sub="Tap one to see what it includes, then watch a private preview in our Telegram bot."
           />
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {templates.map((t, i) => (

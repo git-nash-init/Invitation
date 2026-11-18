@@ -11,6 +11,7 @@ import {
 import type { ReactNode } from "react";
 import { LinkButton } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
+import { botLink } from "@/lib/telegram";
 
 export function Section({
   id,
@@ -42,7 +43,7 @@ export function SectionHead({ title, sub }: { title: string; sub?: string }) {
 const STEPS = [
   {
     title: "Choose a template",
-    text: "Preview each one running live, with its own animation and music, then pick the one that feels like your families.",
+    text: "Browse by style in our Telegram bot and watch a private preview of each one. Pay by UPI and you are sent straight to the site.",
   },
   {
     title: "Make it yours",
@@ -50,7 +51,7 @@ const STEPS = [
   },
   {
     title: "Publish and share",
-    text: "Publish to get a link. Send it to everyone, or add your guest list and send each person their own.",
+    text: "Publish to get a link. Pick a ready-made message, add each friend's name and send it by WhatsApp, Instagram, Telegram or SMS.",
   },
 ];
 
@@ -96,7 +97,7 @@ const FEATURES = [
   {
     icon: Music,
     title: "Music",
-    text: "Background music starts when a guest opens the invitation. Keep the default or upload your own track.",
+    text: "Background music starts when a guest opens the invitation. Choose one of our tracks or upload your own.",
   },
   {
     icon: CheckCheck,
@@ -132,11 +133,11 @@ export function Features() {
 /* ------------------------------------------------------------------ */
 
 const INCLUDED = [
-  "All five templates",
+  "The template you choose",
   "Edit names, dates, venues, photos and notes",
   "A private link to share",
-  "Personal links for every guest",
-  "Background music, with your own upload",
+  "Personal links and a ready-made message for every friend",
+  "Background music from our licensed catalogue",
   "RSVP replies in your dashboard",
 ];
 
@@ -168,8 +169,8 @@ export function Pricing() {
           <p className="mt-3 text-[14px] leading-5 text-text-2">
             One time for each invitation, not a subscription
           </p>
-          <LinkButton href="/signup" size="lg" className="mt-8 w-full">
-            Create invitation
+          <LinkButton href={botLink() ?? "/templates"} target={botLink() ? "_blank" : undefined} rel="noopener noreferrer" size="lg" className="mt-8 w-full">
+            {botLink() ? "Get it on Telegram" : "Browse templates"}
           </LinkButton>
         </div>
       </div>
@@ -284,10 +285,12 @@ export function FinalCta() {
           Start your invitation today
         </h2>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <LinkButton href="/signup" size="lg">
-            Create invitation
-          </LinkButton>
-          <LinkButton href="/templates" variant="glass" size="lg">
+          {botLink() ? (
+            <LinkButton href={botLink() as string} target="_blank" rel="noopener noreferrer" size="lg">
+              Get it on Telegram
+            </LinkButton>
+          ) : null}
+          <LinkButton href="/templates" variant={botLink() ? "glass" : "primary"} size="lg">
             Browse templates
           </LinkButton>
         </div>

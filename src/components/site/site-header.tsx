@@ -38,8 +38,8 @@ export async function SiteHeader() {
               <LinkButton href="/login" variant="ghost" size="sm">
                 Log in
               </LinkButton>
-              <LinkButton href="/signup" size="sm">
-                Create invitation
+              <LinkButton href="/templates" size="sm">
+                Get started
               </LinkButton>
             </>
           )}

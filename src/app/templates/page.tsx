@@ -20,8 +20,8 @@ export default async function TemplatesPage() {
         <div className="mx-auto max-w-6xl">
           <h1 className="display text-[40px] leading-[1.1] sm:text-[56px]">Templates</h1>
           <p className="mt-4 max-w-[36rem] text-[18px] leading-[28px] text-text-2">
-            Open any template and try it the way your guests will. When you find the one, make it
-            yours.
+            Tap a template to see what it includes. Watch a private preview in our Telegram bot, then
+            make the one you love yours.
           </p>
 
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

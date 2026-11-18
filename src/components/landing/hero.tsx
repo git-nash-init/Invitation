@@ -1,8 +1,10 @@
 import Image from "next/image";
 import { LinkButton } from "@/components/ui/button";
 import { Enter } from "@/components/ui/reveal";
+import { botLink } from "@/lib/telegram";
 
 export function Hero() {
+  const bot = botLink();
   return (
     <section className="relative -mt-[120px] min-h-[100svh] overflow-hidden md:-mt-[72px]">
       {/* The scene carries the colour; the headline sits on its calm left half. */}
@@ -32,12 +34,20 @@ export function Hero() {
           </Enter>
           <Enter delay={0.12}>
             <div className="mt-10 flex flex-wrap items-center gap-3">
-              <LinkButton href="/signup" size="lg">
-                Create invitation
-              </LinkButton>
-              <LinkButton href="/templates" variant="glass" size="lg">
-                Browse templates
-              </LinkButton>
+              {bot ? (
+                <>
+                  <LinkButton href={bot} target="_blank" rel="noopener noreferrer" size="lg">
+                    Get it on Telegram
+                  </LinkButton>
+                  <LinkButton href="/templates" variant="glass" size="lg">
+                    Browse templates
+                  </LinkButton>
+                </>
+              ) : (
+                <LinkButton href="/templates" size="lg">
+                  Browse templates
+                </LinkButton>
+              )}
             </div>
           </Enter>
         </div>
