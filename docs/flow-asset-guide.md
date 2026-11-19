@@ -1,3 +1,5 @@
+> **Superseded for previews and template assets.** Use `docs/ai-agent-asset-prompt.md`: the preview video, poster and card images are now made by `npm run previews:make` and checked by `npm run previews:verify`. The Telegram parts of this guide no longer apply (the bot was removed). The Flow prompts and music ideas below are still usable if you want extra background clips or tracks.
+
 # Flow asset guide: videos and music for Pratham Invitation
 
 You generate the clips and songs in Google Flow and Flow Music. You drop them in `assets-in/`. I turn them into the website experience and the Telegram previews.

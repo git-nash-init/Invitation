@@ -29,13 +29,27 @@ const FONT = process.env.WATERMARK_FONT ?? "C\\:/Windows/Fonts/arialbd.ttf"; // 
 const MARK = process.env.WATERMARK_TEXT ?? "Pratham Invitation preview";
 const OUT = path.resolve("public/previews");
 
-// Which still becomes the clean cover (1-based). The two papercut designs share their
-// opening scenes and Royale shares a mandap look with Noor, so they use frames that differ.
-// How long to wait after the tap before taking the "opened" still. Noor's title animates in
-// slowly, so it needs longer than the others or the cover shows a half-drawn name.
-const OPEN_WAIT = { noor: 5200 };
-const COVER_FROM = { royale: 1, papercut: 1, "papercut-magenta": 3 };
-const ALL = ["royale", "noor", "rose-invitation", "papercut-magenta", "papercut"];
+// Every folder in private-templates/ with an index.html is a template (shared folders start with _ or are
+// listed in SHARED). A new template is picked up with no edit here.
+const SHARED = new Set(["symbols", "music"]);
+const ALL = (await fs.readdir(TEMPLATES, { withFileTypes: true }))
+  .filter((d) => d.isDirectory() && !d.name.startsWith("_") && !SHARED.has(d.name))
+  .filter((d) => statSync(path.join(TEMPLATES, d.name, "index.html"), { throwIfNoEntry: false }))
+  .map((d) => d.name)
+  .sort();
+
+// Per-template settings. Only add an entry when a template needs it:
+//   tap       text of the control that opens the invitation (default matches "Tap to open")
+//   openWait  ms to wait after the tap before the "opened" still, so the title animation has finished
+//   settle    ms to wait on the opening screen after the page loads, before recording starts
+//   coverFrom which still (1-3) becomes the card cover, when the default (2) looks like another design's
+const OPTS = {
+  noor: { openWait: 5200 },
+  royale: { coverFrom: 1 },
+  papercut: { coverFrom: 1 },
+  "papercut-magenta": { coverFrom: 3 },
+};
+const opt = (slug, key, dflt) => OPTS[slug]?.[key] ?? dflt;
 const args = process.argv.slice(2);
 // --video-only re-records just preview.mp4 and leaves the covers and stills as they are.
 const VIDEO_ONLY = args.includes("--video-only");
@@ -93,12 +107,12 @@ async function openPage(browser, url, errors) {
 }
 
 // Finds the "Tap to open" control and presses it with a real pointer.
-async function tapToOpen(page) {
-  const handle = await page.evaluateHandle(() => {
-    const re = /tap to open/i;
+async function tapToOpen(page, tapSrc = "tap to open") {
+  const handle = await page.evaluateHandle((tapSrc) => {
+    const re = new RegExp(tapSrc, "i");
     const pick = (sel) => [...document.querySelectorAll(sel)].find((e) => re.test(e.textContent || ""));
     return pick("button, a, [role=button]") ?? [...document.querySelectorAll("div, span")].reverse().find((e) => re.test(e.textContent || "") && e.children.length < 3) ?? null;
-  });
+  }, tapSrc);
   const el = handle.asElement();
   if (!el) return false;
   try { await el.click(); return true; } catch { return false; }
@@ -113,8 +127,8 @@ async function captureStills(browser, slug, dir, errors) {
   try {
     await sleep(1200);
     stills.push(await shot(page, dir, 1));
-    const tapped = await tapToOpen(page);
-    await sleep(tapped ? (OPEN_WAIT[slug] ?? 3200) : 800);
+    const tapped = await tapToOpen(page, opt(slug, "tap", "tap to open"));
+    await sleep(tapped ? opt(slug, "openWait", 3200) : 800);
     stills.push(await shot(page, dir, 2));
     for (let i = 0; i < 9; i++) {
       await page.mouse.wheel({ deltaY: 420 });
@@ -132,9 +146,10 @@ async function captureStills(browser, slug, dir, errors) {
 async function captureVideo(browser, slug, raw, errors) {
   const page = await openPage(browser, `${BASE}/t/local/${slug}/`, errors);
   try {
+    await sleep(opt(slug, "settle", 0));
     const recorder = await page.screencast({ path: raw, speed: 1 });
     await sleep(1600);
-    const tapped = await tapToOpen(page);
+    const tapped = await tapToOpen(page, opt(slug, "tap", "tap to open"));
     await sleep(tapped ? 3200 : 800);
     for (let i = 0; i < 16; i++) {
       await page.mouse.wheel({ deltaY: 420 });
@@ -190,7 +205,7 @@ async function encode({ dir, raw, stills, slug }) {
     return { preview, outStills };
   }
   // Clean cover from the opened invitation (still 2), no watermark, for cards and the hero.
-  await run("ffmpeg", ["-y", "-loglevel", "error", "-i", stills[(COVER_FROM[slug] ?? 2) - 1] ?? stills[0], "-vf", "scale=720:-2:flags=lanczos", "-quality", "86", path.join(dir, "cover.webp")]);
+  await run("ffmpeg", ["-y", "-loglevel", "error", "-i", stills[opt(slug, "coverFrom", 2) - 1] ?? stills[0], "-vf", "scale=720:-2:flags=lanczos", "-quality", "86", path.join(dir, "cover.webp")]);
   for (const [i, file] of stills.entries()) {
     const out = path.join(dir, `still-${i + 1}.webp`);
     await run("ffmpeg", ["-y", "-loglevel", "error", "-i", file, "-vf", `scale=720:-2:flags=lanczos,${watermark}`, "-quality", "82", out]);

@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "node --test --no-warnings \"test/*.test.mjs\"",
     "previews:make": "node scripts/make-previews.mjs",
+    "previews:verify": "node scripts/verify-previews.mjs",
     "qa:header": "node scripts/header-test.mjs",
     "qa:shots": "node scripts/shots.mjs"
   },

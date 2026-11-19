@@ -49,6 +49,18 @@ Admin → **Payments setup** shows which of these are in place (names only, neve
 
 How payment is trusted: the browser is never believed. The server checks Razorpay's signature, asks Razorpay for the payment and its amount, and only then marks the order paid in the database. The webhook does the same if the customer closes the tab right after paying. The price always comes from the database, never from the browser.
 
+### Switching Razorpay from test to live
+
+Test mode (keys starting `rzp_test_`) and live mode (`rzp_live_`) are two separate worlds in Razorpay: separate keys, separate webhooks, separate payments. Nothing carries over, so switching is a checklist:
+
+1. **Activate the account.** Razorpay dashboard, finish KYC and the website details (give it the live site address and the four policy pages: Terms, Privacy, Refunds, Contact). They review the site, so the business name, email and address variables must be filled in first.
+2. **Generate live keys.** Switch the dashboard to **Live Mode**, Settings, API Keys, Generate Key. The secret is shown once; copy it straight into Vercel.
+3. **Create a new live webhook** (Settings, Webhooks, in Live Mode): same address `https://pratham-invitation.vercel.app/api/razorpay/webhook`, a **new** secret, same four events (`payment.captured`, `order.paid`, `payment.failed`, `refund.processed`). The test webhook does not work for live payments.
+4. **Change three values in Vercel, Production scope only**: `RAZORPAY_KEY_ID` and `NEXT_PUBLIC_RAZORPAY_KEY_ID` (live Key ID, the same value in both), `RAZORPAY_KEY_SECRET` (live secret), and `RAZORPAY_WEBHOOK_SECRET` (the new live webhook secret). Keep the test keys on the Preview and Development scopes so previews never take real money.
+5. **Redeploy.** Environment changes only apply to a new deployment.
+6. **Prove it with a real small payment.** In Admin, Templates, set one price to a few rupees, publish an invitation with a real UPI or card payment, check Admin, Orders shows it Paid and the invitation is live, then refund it from the Razorpay dashboard and confirm Orders shows Refunded. Put the price back.
+7. **If you add a custom domain**: update `NEXT_PUBLIC_SITE_URL`, the Supabase Site URL and redirect URLs, the Google sign-in redirect settings, and the Razorpay webhook address.
+
 ## 3. Google sign-in
 
 The code is already in place. It needs two dashboards:
