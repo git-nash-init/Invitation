@@ -33,14 +33,18 @@ export default async function PreviewPage({
 }: PageProps<"/preview/[slug]"> & { searchParams: Promise<{ start?: string }> }) {
   const { slug } = await params;
   const { start } = await searchParams;
-  const template = validSlug(slug) ? await getTemplate(slug) : null;
+  // Independent lookups run together, not one after the other.
+  const [template, all] = await Promise.all([
+    validSlug(slug) ? getTemplate(slug) : Promise.resolve(null),
+    getTemplates(),
+  ]);
   if (!template) notFound();
 
   // Returning from sign-in with ?start=1: carry on into the editor without a second click.
   if (start === "1" && (await getCurrentUser())) await startInvitation(template.slug);
 
   const info = SHOWCASE[template.slug];
-  const others = (await getTemplates()).filter((t) => t.slug !== template.slug);
+  const others = all.filter((t) => t.slug !== template.slug);
   const begin = startInvitation.bind(null, template.slug);
 
   return (

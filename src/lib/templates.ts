@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 
 export type Template = {
@@ -15,7 +16,8 @@ export type Template = {
 // except on the publish page, where it is shown.
 const COLUMNS = "slug, name, tagline, category, highlights, cover_path, bullets, category_slug";
 
-export async function getTemplates(): Promise<Template[]> {
+// cache(): a page that asks for the same thing twice (for example its metadata and its body) pays once.
+export const getTemplates = cache(async (): Promise<Template[]> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("templates")
@@ -23,13 +25,13 @@ export async function getTemplates(): Promise<Template[]> {
     .order("sort", { ascending: true });
   if (error) return [];
   return (data ?? []) as Template[];
-}
+});
 
-export async function getTemplate(slug: string): Promise<Template | null> {
+export const getTemplate = cache(async (slug: string): Promise<Template | null> => {
   const supabase = await createClient();
   const { data } = await supabase.from("templates").select(COLUMNS).eq("slug", slug).maybeSingle();
   return (data as Template | null) ?? null;
-}
+});
 
 export type PricedTemplate = Template & { price: number; list_price: number | null };
 
