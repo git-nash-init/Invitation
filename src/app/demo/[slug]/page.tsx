@@ -5,7 +5,6 @@ import { DemoFrame } from "@/components/invitation/demo-frame";
 import { LinkButton } from "@/components/ui/button";
 import { mintAssetToken } from "@/lib/asset-token";
 import { BRAND } from "@/lib/brand";
-import { buildPlatformHash } from "@/lib/invitations/payload";
 import { rateLimit } from "@/lib/security";
 import { getTemplate } from "@/lib/templates";
 
@@ -47,12 +46,14 @@ export default async function DemoPage({ params }: PageProps<"/demo/[slug]">) {
   }
 
   const assetToken = mintAssetToken(template.slug, DEMO_SECONDS);
-  // Sample names and dates only: the template's own defaults, shown as a guest would see them.
-  const hash = buildPlatformHash({ status: "published", config: {}, commonLink: true, guestName: null });
+  // No platform payload on purpose. Without one the template runs in its own stand-alone mode, which
+  // is how a shopper is meant to see it: sample names and dates, and the whole sample gallery.
+  // With a payload it switches to guest mode and hides every frame that has no photo, which left
+  // the hanging-frames rail with two cards and nothing to scroll.
 
   return (
     <DemoFrame
-      src={`/t/${assetToken}/${template.slug}/${hash}`}
+      src={`/t/${assetToken}/${template.slug}/`}
       mark={BRAND.watermark}
       expiresAtMs={nowMs() + DEMO_SECONDS * 1000}
       designHref={`/preview/${template.slug}`}

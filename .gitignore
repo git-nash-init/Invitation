@@ -52,3 +52,7 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# Licensed music is never committed: add tracks through Admin > Music
+*.mp3
+*.m4a
