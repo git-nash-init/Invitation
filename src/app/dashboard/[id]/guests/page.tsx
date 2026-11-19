@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, PartyPopper } from "lucide-react";
 import { z } from "zod";
 import { GuestManager } from "@/components/dashboard/guest-manager";
 import { LinkButton } from "@/components/ui/button";
@@ -15,8 +15,12 @@ const STATUS: Record<string, string> = {
   "not-attending": "No",
 };
 
-export default async function GuestsPage({ params }: PageProps<"/dashboard/[id]/guests">) {
+export default async function GuestsPage({
+  params,
+  searchParams,
+}: PageProps<"/dashboard/[id]/guests"> & { searchParams: Promise<{ published?: string }> }) {
   const { id } = await params;
+  const { published: justPublished } = await searchParams;
   if (!z.string().uuid().safeParse(id).success) notFound();
 
   const invitation = await getMyInvitation(id);
@@ -56,6 +60,20 @@ export default async function GuestsPage({ params }: PageProps<"/dashboard/[id]/
           Edit invitation
         </LinkButton>
       </div>
+
+      {justPublished === "1" && invitation.status === "published" && (
+        <div role="status" className="theme-dark band-maroon mt-8 flex items-start gap-4 rounded-[24px] p-6 shadow-[0_24px_60px_rgba(107,15,43,0.3)]">
+          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#ffd66b] to-[#f5a300] text-[#3b0a1a]">
+            <PartyPopper size={24} strokeWidth={1.9} aria-hidden="true" />
+          </span>
+          <div>
+            <h2 className="display text-[28px] leading-[1.1]">Your invitation is live</h2>
+            <p className="mt-1 text-[16px] leading-6 text-text-2">
+              Payment received, thank you. Add your friends below, pick a message and send it on WhatsApp, Instagram, Telegram or SMS.
+            </p>
+          </div>
+        </div>
+      )}
 
       <section className="mt-10" aria-labelledby="guests-h">
         <h2 id="guests-h" className="text-[18px] font-medium leading-6">

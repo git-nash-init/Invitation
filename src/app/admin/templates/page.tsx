@@ -10,7 +10,7 @@ export default async function TemplatesAdminPage({ searchParams }: { searchParam
   const { ok, e } = await searchParams;
   const supabase = await createClient();
   const [{ data: templates }, { data: categories }] = await Promise.all([
-    supabase.from("templates").select("slug, name, price, is_active, category_slug, bullets").order("sort"),
+    supabase.from("templates").select("slug, name, price, list_price, is_active, category_slug, bullets").order("sort"),
     supabase.from("categories").select("slug, name, emoji, blurb, sort, is_active").order("sort"),
   ]);
 
@@ -18,7 +18,7 @@ export default async function TemplatesAdminPage({ searchParams }: { searchParam
     <>
       <h1 className="display text-[32px] leading-[1.15] sm:text-[36px]">Templates</h1>
       <p className="mt-2 max-w-[40rem] text-[14px] leading-5 text-text-2">
-        Price, name, category and the three short lines buyers see in Telegram. Changes show in the bot at once.
+        Price, name and the short lines shown on each design. The price appears only on the publish page, when someone is ready to share. Changes show at once.
       </p>
       <Flash ok={ok} e={e} />
 
@@ -34,6 +34,10 @@ export default async function TemplatesAdminPage({ searchParams }: { searchParam
               <div>
                 <label className="label" htmlFor={`p-${t.slug}`}>Price in ₹</label>
                 <input id={`p-${t.slug}`} name="price" type="number" min={1} className="field num" defaultValue={t.price} required />
+                <p className="mt-1 text-[12px] text-muted">
+                  Struck-through price (optional)
+                </p>
+                <input aria-label={`Struck-through price for ${t.name}`} name="list_price" type="number" min={0} className="field num mt-1" defaultValue={t.list_price ?? ""} placeholder="e.g. 999" />
               </div>
               <div>
                 <label className="label" htmlFor={`c-${t.slug}`}>Category</label>
@@ -46,12 +50,12 @@ export default async function TemplatesAdminPage({ searchParams }: { searchParam
               </div>
             </div>
             <div className="sm:col-span-2">
-              <label className="label" htmlFor={`b-${t.slug}`}>Three short lines (one per line)</label>
+              <label className="label" htmlFor={`b-${t.slug}`}>Short lines shown on the design (one per line, up to three)</label>
               <textarea id={`b-${t.slug}`} name="bullets" rows={3} className="field" defaultValue={(t.bullets as string[]).join("\n")} />
             </div>
             <label className="flex items-center gap-3 text-[14px]">
-              <input type="checkbox" name="is_active" defaultChecked={t.is_active} className="size-5 accent-[#e8a93b]" />
-              Live in the bot
+              <input type="checkbox" name="is_active" defaultChecked={t.is_active} className="size-5 accent-[#f5a300]" />
+              Shown on the website
             </label>
             <div className="sm:text-right">
               <Button type="submit" className="w-full sm:w-auto">Save {t.name}</Button>
@@ -61,7 +65,7 @@ export default async function TemplatesAdminPage({ searchParams }: { searchParam
       </div>
 
       <h2 className="display mt-12 text-[24px] leading-[1.2]">Categories</h2>
-      <p className="mt-2 text-[14px] leading-5 text-text-2">These are the buttons buyers see first. Add one any time, no deploy needed.</p>
+      <p className="mt-2 text-[14px] leading-5 text-text-2">Groups for the designs. Add one any time, no deploy needed.</p>
       <div className="mt-4 grid gap-4">
         {[...(categories ?? []), null].map((c) => (
           <form key={c?.slug ?? "new"} action={saveCategory} className="glass grid gap-3 rounded-[16px] p-5 sm:grid-cols-[1fr_1fr_80px_80px]">
@@ -86,8 +90,8 @@ export default async function TemplatesAdminPage({ searchParams }: { searchParam
               <input id={`cb-${c?.slug ?? "new"}`} name="blurb" className="field" defaultValue={c?.blurb} />
             </div>
             <label className="flex items-center gap-3 text-[14px] sm:col-span-2">
-              <input type="checkbox" name="is_active" defaultChecked={c ? c.is_active : true} className="size-5 accent-[#e8a93b]" />
-              Shown in the bot
+              <input type="checkbox" name="is_active" defaultChecked={c ? c.is_active : true} className="size-5 accent-[#f5a300]" />
+              Shown on the website
             </label>
             <div className="sm:col-span-2 sm:text-right">
               <Button type="submit" className="w-full sm:w-auto">{c ? "Save" : "Add category"}</Button>

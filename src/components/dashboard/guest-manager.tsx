@@ -162,7 +162,7 @@ export function GuestManager({
             </button>
           ))}
         </div>
-        <p className="mt-4 whitespace-pre-line rounded-[10px] border border-(--hairline) bg-[rgba(239,233,222,0.04)] p-4 text-[14px] leading-6 text-text-2">
+        <p className="mt-4 whitespace-pre-line rounded-[10px] border border-(--hairline) bg-[rgba(245,163,0,0.08)] p-4 text-[14px] leading-6 text-text-2">
           {sample}
         </p>
       </section>

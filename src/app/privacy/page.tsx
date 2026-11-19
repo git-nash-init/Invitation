@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "Privacy Policy" };
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="18 November 2026">
+    <LegalPage title="Privacy Policy" updated="19 November 2026">
       <section>
         <h2>What we collect</h2>
         <p className="mt-2">
@@ -22,6 +22,14 @@ export default function PrivacyPage() {
           We use this information to run the service: to show an invitation to the people it was
           shared with, and to give the host their replies. We collect guest details on behalf of
           the host who created the invitation.
+        </p>
+      </section>
+      <section>
+        <h2>Payments</h2>
+        <p>
+          Payments are processed by Razorpay. We receive confirmation that a payment succeeded, its
+          amount, method type and reference number. We never see or store your full card number, UPI
+          PIN or bank login.
         </p>
       </section>
       <section>

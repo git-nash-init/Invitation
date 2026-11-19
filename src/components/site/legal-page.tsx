@@ -8,17 +8,17 @@ export function LegalPage({
   children,
 }: {
   title: string;
-  updated: string;
+  updated?: string;
   children: ReactNode;
 }) {
   return (
     <>
       <SiteHeader />
-      <main className="paper-bg px-6 pb-24 pt-16">
-        <article className="glass mx-auto max-w-3xl rounded-[20px] p-8 sm:p-12">
-          <h1 className="display text-[40px] leading-[1.1]">{title}</h1>
-          <p className="num mt-3 text-[12px] text-muted">Last updated {updated}</p>
-          <div className="mt-10 grid gap-8 text-[15px] leading-[24px] text-text-2 [&_h2]:text-[18px] [&_h2]:font-medium [&_h2]:leading-6 [&_h2]:text-text">
+      <main className="paper-bg px-5 pb-24 pt-6 sm:px-6">
+        <article className="glass-strong mx-auto max-w-3xl rounded-[32px] p-7 sm:p-12">
+          <h1 className="display text-[40px] leading-[1.08] sm:text-[52px]">{title}</h1>
+          {updated && <p className="num mt-3 text-[14px] text-muted">Last updated {updated}</p>}
+          <div className="mt-10 grid gap-9 text-[16px] leading-[27px] text-text-2 [&_a]:text-maroon [&_a]:underline [&_h2]:display [&_h2]:mb-2 [&_h2]:text-[26px] [&_h2]:leading-[1.15] [&_li]:ml-5 [&_li]:list-disc">
             {children}
           </div>
         </article>

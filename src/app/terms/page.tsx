@@ -1,45 +1,62 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LegalPage } from "@/components/site/legal-page";
+import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = { title: "Terms of Service" };
 
 export default function TermsPage() {
   return (
-    <LegalPage title="Terms of Service" updated="18 November 2026">
+    <LegalPage title="Terms of Service" updated="19 November 2026">
       <section>
         <h2>The service</h2>
-        <p className="mt-2">
-          SutraLuxe lets you customize an interactive invitation template, publish it, and share
-          it by link, with optional personal links and RSVP replies.
+        <p>
+          {BRAND.name} lets you customize an interactive invitation design for free, and publish it
+          to get a link you can share, with optional personal links for each guest and RSVP replies.
+          Publishing an invitation is a paid, one-time purchase for that invitation.
+        </p>
+      </section>
+      <section>
+        <h2>Payment</h2>
+        <p>
+          The price is shown on the publish page before you pay, in Indian rupees. Payment is taken
+          by Razorpay (UPI, cards, netbanking and wallets); we do not see or store your card or bank
+          details. Your invitation is published once the payment is confirmed. There is no
+          subscription and nothing renews. See the <Link href="/refund">Refunds and cancellation</Link>{" "}
+          page for what happens if something goes wrong.
         </p>
       </section>
       <section>
         <h2>Your content</h2>
-        <p className="mt-2">
-          You are responsible for what you add to an invitation and for having the right to use
-          the photos and music you upload. Do not upload anything unlawful, harmful or that
-          belongs to someone else.
+        <p>
+          You are responsible for what you add to an invitation and for having the right to use the
+          photos and music you upload. Do not upload anything unlawful, harmful or that belongs to
+          someone else.
         </p>
       </section>
       <section>
-        <h2>Licence to use templates</h2>
-        <p className="mt-2">
-          Each invitation you create gives you a personal, non-transferable licence to use that
-          template for your own celebration. You may not copy, resell or redistribute the
-          templates, artwork or code.
+        <h2>Licence to use designs</h2>
+        <p>
+          Each published invitation gives you a personal, non-transferable licence to use that design
+          for your own celebration. You may not copy, resell or redistribute the designs, artwork or
+          code, or use the previews to build a competing product.
         </p>
       </section>
       <section>
         <h2>Accounts</h2>
-        <p className="mt-2">
-          Keep your login details private. You are responsible for activity under your account.
-        </p>
+        <p>Keep your login details private. You are responsible for activity under your account.</p>
       </section>
       <section>
         <h2>Availability</h2>
-        <p className="mt-2">
+        <p>
           We work to keep the service available, but we do not promise it will always be
           uninterrupted or error free.
+        </p>
+      </section>
+      <section>
+        <h2>Contact</h2>
+        <p>
+          Questions about these terms? Use the <Link href="/contact">contact page</Link>.
         </p>
       </section>
     </LegalPage>

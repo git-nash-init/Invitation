@@ -135,7 +135,7 @@
   }
 
   function wrapIcs(events) {
-    return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//SutraLuxe Noor//EN',
+    return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Pratham Noor//EN',
       'CALSCALE:GREGORIAN'].concat(events, 'END:VCALENDAR').join('\r\n');
   }
 

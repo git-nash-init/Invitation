@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { BRAND } from "@/lib/brand";
 
 const SAMPLE = ["Aarti Mehra", "Rohan Kapoor", "The Iyer family"];
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -14,13 +15,15 @@ export function GuestDemo() {
   const code = "7f3a9c2e41b8";
 
   return (
-    <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+    <div className="glass-strong grid items-center gap-10 rounded-[36px] p-6 sm:p-10 lg:grid-cols-2 lg:gap-16 lg:p-14">
       <div>
-        <h2 className="display text-[32px] leading-[1.15] sm:text-[40px]">
-          Every guest opens an invitation with their own name on it
+        <p className="eyebrow !justify-start">Try it yourself</p>
+        <h2 className="display mt-4 text-[38px] leading-[1.06] sm:text-[48px]">
+          Every guest opens an invitation with <em>their own name</em> on it
         </h2>
-        <p className="mt-4 max-w-[36rem] text-[18px] leading-[28px] text-text-2">
-          Add your guest list and each person gets a personal link. Try it: type a name.
+        <p className="mt-5 max-w-[34rem] text-[18px] leading-[30px] text-text-2">
+          Add your guest list and each person gets a personal link. Type a name and watch the card
+          change, exactly as your guests will see it.
         </p>
 
         <div className="mt-8 max-w-sm">
@@ -41,7 +44,7 @@ export function GuestDemo() {
                 key={n}
                 type="button"
                 onClick={() => setName(n)}
-                className="tag-chip cursor-pointer transition-colors duration-150 hover:bg-[rgba(232,169,59,0.2)]"
+                className="tag-chip min-h-[44px] cursor-pointer transition-colors duration-150 hover:bg-[rgba(245,163,0,0.3)]"
               >
                 {n}
               </button>
@@ -50,47 +53,38 @@ export function GuestDemo() {
         </div>
       </div>
 
-      {/* The invitation card: the one bright, rich object in this section. */}
-      <div className="glass rounded-[20px] p-4">
-        <div className="relative overflow-hidden rounded-[12px] bg-[#f1e9d6] px-8 py-12 text-center text-[#2b2118]">
-          <svg
-            className="mx-auto mb-6 text-[#9c6b1f]"
-            width="40"
-            height="40"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M4 21V11a8 8 0 0 1 16 0v10"
-              stroke="currentColor"
-              strokeWidth="1.25"
-              strokeLinecap="round"
-            />
-            <path d="M12 3v18" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-          </svg>
-          <p className="text-[13px] tracking-[0.01em] text-[#6d5a43]">Specially honouring</p>
-          <div className="relative mt-2 h-[48px]">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.p
-                key={shown}
-                initial={reduce ? false : { opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reduce ? undefined : { opacity: 0, y: -8 }}
-                transition={{ duration: 0.2, ease: EASE }}
-                className="display absolute inset-x-0 truncate text-[36px] leading-[48px]"
-              >
-                {shown}
-              </motion.p>
-            </AnimatePresence>
+      {/* The invitation card: a rich object on a maroon ground. */}
+      <div className="relative">
+        <div
+          aria-hidden="true"
+          className="absolute inset-[-6%] -z-10 rounded-[40px] bg-[radial-gradient(closest-side,rgba(255,214,107,0.5),transparent_75%)] blur-xl"
+        />
+        <div className="rounded-[28px] bg-gradient-to-b from-[#7c1233] to-[#3d0818] p-3 shadow-[0_30px_70px_rgba(107,15,43,0.35)]">
+          <div className="relative overflow-hidden rounded-[20px] border border-[#c9a76a]/70 bg-[#fdf3e0] px-8 py-12 text-center text-[#2b0a14]">
+            <p className="deva text-[26px] leading-none text-[#9a1740]">श्री गणेशाय नमः</p>
+            <p className="mt-6 text-[14px] tracking-[0.04em] text-[#6d4a3a]">Specially honouring</p>
+            <div className="relative mt-2 h-[56px]">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.p
+                  key={shown}
+                  initial={reduce ? false : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduce ? undefined : { opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2, ease: EASE }}
+                  className="display absolute inset-x-0 truncate text-[42px] leading-[56px] !text-[#6b0f2b]"
+                >
+                  {shown}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+            <div className="mx-auto my-6 h-px w-20 bg-gradient-to-r from-transparent via-[#c9a76a] to-transparent" />
+            <p className="display text-[28px] leading-[1.2] !text-[#2b0a14]">Ankita &amp; Kaushik</p>
+            <p className="num mt-2 text-[15px] text-[#6d4a3a]">2 December 2026</p>
           </div>
-          <div className="mx-auto my-6 h-px w-16 bg-[#c9a76a]" />
-          <p className="display text-[24px] leading-[1.25]">Ankita &amp; Kaushik</p>
-          <p className="num mt-2 text-[13px] text-[#6d5a43]">2 December 2026</p>
         </div>
 
-        <p className="num mt-4 truncate px-2 text-[12px] leading-4 text-muted">
-          sutraluxe.com/i/ankita-kaushik/<span className="text-text-2">{code}</span>
+        <p className="num mt-5 truncate px-2 text-center text-[13px] leading-4 text-muted">
+          {BRAND.short.toLowerCase()}.app/i/ankita-kaushik/<span className="font-semibold text-maroon">{code}</span>
         </p>
       </div>
     </div>

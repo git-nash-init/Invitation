@@ -135,7 +135,7 @@
   }
 
   function wrapIcs(events) {
-    return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//SutraLuxe//EN',
+    return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Pratham//EN',
       'CALSCALE:GREGORIAN'].concat(events, 'END:VCALENDAR').join('\r\n');
   }
 

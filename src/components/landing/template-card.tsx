@@ -1,40 +1,74 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { useRef } from "react";
+import { ArrowUpRight, Play } from "lucide-react";
 import type { Template } from "@/lib/templates";
+import { previewVideo } from "@/lib/showcase";
 
+/** An arch-framed card. The cover is a real frame from the template; hover plays its video. */
 export function TemplateCard({ template, priority }: { template: Template; priority?: boolean }) {
+  const video = useRef<HTMLVideoElement>(null);
+
+  const play = (e: React.PointerEvent) => {
+    if (e.pointerType !== "mouse") return;
+    video.current?.play().catch(() => {});
+  };
+  const stop = () => {
+    const v = video.current;
+    if (!v) return;
+    v.pause();
+    v.currentTime = 0;
+  };
+
   return (
     <Link
       href={`/preview/${template.slug}`}
-      className="glass glass-interactive group flex flex-col overflow-hidden rounded-[16px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+      onPointerEnter={play}
+      onPointerLeave={stop}
+      className="glass glass-interactive group flex h-full flex-col overflow-hidden rounded-[28px] p-3 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-rose"
     >
-      {/* Inner radius = outer 16 - padding 8 = 8 */}
-      <div className="p-2">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-[8px]">
-          <Image
-            src={template.cover_path}
-            alt={`${template.name} invitation`}
-            fill
-            priority={priority}
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
-          />
-        </div>
+      <div className="relative aspect-[3/4] overflow-hidden rounded-t-[999px] rounded-b-[18px] bg-[#fdf3e0] ring-1 ring-[rgba(183,121,31,0.35)]">
+        <Image
+          src={template.cover_path}
+          alt={`${template.name} invitation`}
+          fill
+          priority={priority}
+          sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
+          className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+        />
+        <video
+          ref={video}
+          src={previewVideo(template.slug)}
+          muted
+          loop
+          playsInline
+          preload="none"
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        />
+        <span className="absolute bottom-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-[#2a0610]/80 px-3.5 py-1.5 text-[12px] font-semibold text-[#fff4e2] backdrop-blur">
+          <Play size={12} fill="currentColor" aria-hidden="true" />
+          Live preview
+        </span>
       </div>
-      <div className="flex flex-1 flex-col gap-4 px-5 pb-5 pt-3">
-        <div>
-          <p className="text-[12px] leading-4 text-muted">{template.category}</p>
-          <h3 className="display mt-1 text-[24px] leading-[1.2]">{template.name}</h3>
-          <p className="mt-2 text-[14px] leading-5 text-text-2">{template.tagline}</p>
-        </div>
-        <div className="mt-auto flex items-center justify-between text-[13px] text-text-2">
-          <span className="num text-[12px] text-muted">{template.highlights}</span>
-          <span className="inline-flex items-center gap-1 text-text transition-transform duration-200 group-hover:translate-x-0.5">
-            Preview
-            <ArrowUpRight size={16} strokeWidth={1.5} />
-          </span>
-        </div>
+
+      <div className="flex flex-1 flex-col px-3 pb-3 pt-5">
+        <p className="eyebrow !text-[11px]">{template.category}</p>
+        <h3 className="display mt-2 text-[28px] leading-[1.1]">{template.name}</h3>
+        <ul className="mt-3 grid gap-1.5 text-[14px] leading-5 text-text-2">
+          {template.bullets.slice(0, 2).map((b) => (
+            <li key={b} className="flex gap-2">
+              <span className="mt-[7px] size-1.5 shrink-0 rotate-45 bg-seal" aria-hidden="true" />
+              {b}
+            </li>
+          ))}
+        </ul>
+        <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-[15px] font-semibold text-maroon transition-transform duration-200 group-hover:translate-x-1">
+          Customize this design
+          <ArrowUpRight size={17} strokeWidth={2} aria-hidden="true" />
+        </span>
       </div>
     </Link>
   );

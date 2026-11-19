@@ -1,5 +1,5 @@
 {
-  "name": "app",
+  "name": "pratham-invitation",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,9 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test --no-warnings \"supabase/functions/telegram-bot/test/*.test.js\" \"test/*.test.mjs\"",
+    "test": "node --test --no-warnings \"test/*.test.mjs\"",
     "previews:make": "node scripts/make-previews.mjs",
-    "previews:upload": "node --env-file=.env.local scripts/upload-previews.mjs"
+    "qa:header": "node scripts/header-test.mjs",
+    "qa:shots": "node scripts/shots.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

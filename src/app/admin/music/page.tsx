@@ -73,7 +73,7 @@ export default async function MusicPage({ searchParams }: { searchParams: Promis
                 <input id={`ln-${k}`} name="license_note" className="field" defaultValue={t?.license_note} placeholder="Flow Music, paid plan, terms read 2026-11-20" />
               </div>
               <label className="flex items-center gap-3 text-[14px]">
-                <input type="checkbox" name="is_active" defaultChecked={t ? t.is_active : false} className="size-5 accent-[#e8a93b]" />
+                <input type="checkbox" name="is_active" defaultChecked={t ? t.is_active : false} className="size-5 accent-[#f5a300]" />
                 Offer to buyers
               </label>
               <div className="sm:text-right">

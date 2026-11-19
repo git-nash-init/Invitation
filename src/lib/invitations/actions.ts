@@ -22,7 +22,7 @@ async function requireUser(nextPath: string) {
 export async function startInvitation(slug: string): Promise<void> {
   const parsedSlug = templateSlug.safeParse(slug);
   if (!parsedSlug.success) redirect("/templates");
-  await requireUser(`/preview/${parsedSlug.data}`);
+  await requireUser(`/preview/${parsedSlug.data}?start=1`);
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -32,8 +32,8 @@ export async function startInvitation(slug: string): Promise<void> {
     .single();
 
   if (error || !data) {
-    // The database refuses to create an invitation without a paid credit for this template.
-    if (error?.code === "P0001") redirect(`/preview/${parsedSlug.data}?buy=1`);
+    // Safety net: older databases refused creation without a paid credit.
+    if (error?.code === "P0001") redirect(`/preview/${parsedSlug.data}`);
     redirect("/dashboard?error=create");
   }
   redirect(`/studio/${data.id}`);

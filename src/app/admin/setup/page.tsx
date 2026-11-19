@@ -1,119 +1,70 @@
 import type { Metadata } from "next";
-import { Flash } from "@/components/admin/flash";
-import { Button } from "@/components/ui/button";
-import { adminRpc } from "@/lib/admin";
-import { ago, istTime } from "@/lib/format";
-import { connectBot } from "../actions";
+import { CheckCircle2, CircleAlert } from "lucide-react";
+import { SITE_URL } from "@/lib/brand";
+import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Setup" };
+export const metadata: Metadata = { title: "Payments setup" };
 
-type Status = {
-  last_cron: number;
-  server_now: number;
-  upi_active: number;
-  templates_live: number;
-  tracks_active: number;
-  preview_media: number;
-  in_review: number;
-};
+const has = (name: string, min = 1) => (process.env[name] ?? "").trim().length >= min;
 
-type PreviewRow = {
-  template_slug: string;
-  tg_user_id: number;
-  tg_name: string;
-  views: number;
-  max_views: number;
-  created_at: string;
-  last_seen_at: string | null;
-};
+function Row({ ok, title, children }: { ok: boolean; title: string; children?: React.ReactNode }) {
+  const Icon = ok ? CheckCircle2 : CircleAlert;
+  return (
+    <li className="flex gap-3 py-4">
+      <Icon size={22} strokeWidth={1.9} className={`mt-0.5 shrink-0 ${ok ? "text-positive" : "text-[#c97a00]"}`} aria-hidden="true" />
+      <div>
+        <p className="text-[16px] font-semibold">
+          {title} <span className="sr-only">{ok ? "is set" : "needs attention"}</span>
+        </p>
+        {children && <div className="mt-1 text-[14px] leading-5 text-text-2">{children}</div>}
+      </div>
+    </li>
+  );
+}
 
-export default async function SetupPage({ searchParams }: { searchParams: Promise<{ ok?: string; e?: string }> }) {
-  const { ok, e } = await searchParams;
-  const [s, log] = await Promise.all([
-    adminRpc<Status>("admin_setup_status"),
-    adminRpc<PreviewRow[]>("admin_preview_log", { p_limit: 50 }),
-  ]);
+/** A plain checklist of what the payment flow needs. It reads names only, never values. */
+export default async function SetupPage() {
+  const keyId = (process.env.RAZORPAY_KEY_ID ?? "").trim();
+  const mode = keyId.startsWith("rzp_live_") ? "Live" : keyId.startsWith("rzp_test_") ? "Test" : null;
 
-  if (!s) return <p role="alert" className="text-[14px] text-negative">Could not load the setup status.</p>;
-
-  const cronAge = s.last_cron ? s.server_now - s.last_cron : null;
-  const checks: Array<[string, boolean, string]> = [
-    ["Every-minute worker is running", cronAge !== null && cronAge < 180, cronAge === null ? "Never ran. Schedule it (step in the guide)." : `Last ran ${ago(s.last_cron, s.server_now)}`],
-    ["A UPI ID is on", s.upi_active > 0, "Add one on the Payments tab."],
-    ["At least one template is live", s.templates_live > 0, "Turn one on in Templates."],
-    ["Preview images or videos uploaded", s.preview_media > 0, "Run the preview script and upload (see the guide)."],
-    ["Music tracks are on", s.tracks_active > 0, "Optional: add tracks in Music."],
-  ];
+  const supabase = await createClient();
+  const { data: priced } = await supabase.from("templates").select("slug").eq("is_active", true).gt("price", 0);
 
   return (
     <>
-      <h1 className="display text-[32px] leading-[1.15] sm:text-[36px]">Setup</h1>
-      <Flash ok={ok} e={e} />
+      <h1 className="display text-[36px] leading-[1.1]">Payments setup</h1>
+      <p className="mt-2 max-w-[42rem] text-[15px] leading-6 text-text-2">
+        Everything the payment flow needs. Green means it is ready. Values are never shown here.
+      </p>
 
-      <section className="glass mt-6 rounded-[16px] p-5">
-        <h2 className="text-[16px] font-medium leading-6">Telegram bot</h2>
-        <p className="mt-2 text-[14px] leading-5 text-text-2">
-          After you set the secrets in Supabase (see the guide), press this once. It connects Telegram to the bot and
-          sets the bot&apos;s menu. Press it again any time you change the bot token.
-        </p>
-        <form action={connectBot} className="mt-4">
-          <Button type="submit" className="w-full sm:w-auto">Connect Telegram bot</Button>
-        </form>
-      </section>
-
-      <section className="glass mt-6 rounded-[16px] p-5">
-        <h2 className="text-[16px] font-medium leading-6">Checks</h2>
-        <ul className="mt-3 divide-y divide-(--hairline) text-[14px]">
-          {checks.map(([label, ok, hint]) => (
-            <li key={label} className="flex items-start gap-3 py-3">
-              <span className={`seal mt-1.5 ${ok ? "" : "seal-draft"}`} aria-hidden="true" />
-              <div>
-                <p>{label}</p>
-                {!ok || label.startsWith("Every") ? <p className="text-[13px] text-text-2">{hint}</p> : null}
-              </div>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-4 text-[13px] leading-5 text-text-2">
-          The bot token, webhook and AI key are secrets, so they cannot be shown here. To confirm the bot is connected, send
-          <code className="num mx-1 rounded bg-[rgba(239,233,222,0.08)] px-1.5 py-0.5">/id</code>
-          to it: it answers with your Telegram ID.
-        </p>
-      </section>
-
-      <section className="mt-6">
-        <h2 className="text-[16px] font-medium leading-6">Demo links (who opened what)</h2>
-        <p className="mt-1 text-[13px] leading-5 text-text-2">Each private demo is tied to one Telegram account, so a leak can be traced.</p>
-        {(log ?? []).length === 0 ? (
-          <p className="mt-4 text-[14px] text-text-2">No demos opened yet.</p>
-        ) : (
-          <div className="glass mt-4 overflow-x-auto rounded-[16px]">
-            <table className="w-full min-w-[560px] border-collapse text-left text-[14px] leading-5">
-              <thead>
-                <tr className="border-b border-(--hairline) text-[13px] text-text-2">
-                  <th scope="col" className="px-4 py-3 font-normal">Template</th>
-                  <th scope="col" className="px-4 py-3 font-normal">Telegram user</th>
-                  <th scope="col" className="px-4 py-3 text-right font-normal">Views</th>
-                  <th scope="col" className="px-4 py-3 font-normal">Created</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(log ?? []).map((r, i) => (
-                  <tr key={i} className="border-b border-(--hairline) last:border-0">
-                    <td className="px-4 py-3">{r.template_slug}</td>
-                    <td className="px-4 py-3">
-                      {r.tg_name}
-                      <span className="num block text-[12px] text-muted">{r.tg_user_id}</span>
-                    </td>
-                    <td className="num px-4 py-3 text-right">{r.views} / {r.max_views}</td>
-                    <td className="num px-4 py-3 text-[13px] text-text-2">{istTime(Math.floor(new Date(r.created_at).getTime() / 1000))}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+      <ul className="glass mt-6 divide-y divide-(--hairline) rounded-[20px] px-6">
+        <Row ok={has("RAZORPAY_KEY_ID") && has("NEXT_PUBLIC_RAZORPAY_KEY_ID") && has("RAZORPAY_KEY_SECRET")} title="Razorpay keys">
+          Set <code className="num">RAZORPAY_KEY_ID</code>, <code className="num">NEXT_PUBLIC_RAZORPAY_KEY_ID</code> (the same Key ID) and{" "}
+          <code className="num">RAZORPAY_KEY_SECRET</code> in Vercel, then redeploy.
+          {mode && (
+            <span className="mt-1 block font-semibold text-maroon">
+              Running in {mode} mode.{mode === "Test" && " No real money moves until you switch to live keys."}
+            </span>
+          )}
+        </Row>
+        <Row ok={has("RAZORPAY_WEBHOOK_SECRET")} title="Webhook secret">
+          Set <code className="num">RAZORPAY_WEBHOOK_SECRET</code> in Vercel to the same secret you typed in Razorpay when you created the webhook.
+        </Row>
+        <Row ok title="Webhook address in Razorpay">
+          In Razorpay, Settings, Webhooks, add{" "}
+          <code className="num break-all rounded bg-[rgba(107,15,43,0.07)] px-1.5 py-0.5">{SITE_URL}/api/razorpay/webhook</code> and tick{" "}
+          <b>payment.captured</b>, <b>order.paid</b>, <b>payment.failed</b> and <b>refund.processed</b>. This cannot be checked from here.
+        </Row>
+        <Row ok={has("PAYMENT_BRIDGE_SECRET", 32)} title="Payment confirmation secret">
+          <code className="num">PAYMENT_BRIDGE_SECRET</code> lets this site tell the database a payment is confirmed. It must match the one stored in Supabase Vault.
+        </Row>
+        <Row ok={(priced?.length ?? 0) > 0} title="Designs have a price">
+          Set prices under Templates. {priced?.length ?? 0} design{priced?.length === 1 ? " has" : "s have"} one.
+        </Row>
+        <Row ok={has("ASSET_TOKEN_SECRET", 32)} title="Template protection secret">
+          <code className="num">ASSET_TOKEN_SECRET</code> signs the short-lived links that unlock template files.
+        </Row>
+      </ul>
     </>
   );
 }

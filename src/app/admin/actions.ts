@@ -13,67 +13,12 @@ const back = (path: string, message?: string, ok = false): never =>
 const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 const flag = (f: FormData, k: string) => f.get(k) === "on";
 
-// ---------- connect the Telegram bot ----------
-export async function connectBot() {
-  await requireAdmin();
-  const supabase = await createClient();
-  // A single-use token proves an admin pressed the button; the function checks it in the database.
-  const { data: token, error } = await supabase.rpc("admin_setup_token");
-  if (error || typeof token !== "string") back("/admin/setup", "Could not start the connection.");
-
-  const base = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-  let body: { ok?: boolean; bot?: string; error?: string } | null = null;
-  try {
-    const res = await fetch(`${base}/functions/v1/telegram-bot/setup`, {
-      method: "POST",
-      headers: { "x-setup-token": String(token) },
-      cache: "no-store",
-    });
-    body = await res.json().catch(() => null);
-  } catch {
-    body = null;
-  }
-  if (!body?.ok) {
-    back("/admin/setup", body?.error ?? "The bot function did not answer. Check that it is deployed and the BOT_TOKEN secret is set.");
-  }
-  back("/admin/setup", `Connected to @${body?.bot ?? "your bot"}. Send /start to it to try.`, true);
-}
-
-// ---------- payments (UPI IDs) ----------
-export async function saveUpi(formData: FormData) {
-  await requireAdmin();
-  const id = str(formData, "id");
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("admin_upi_save", {
-    p_id: id ? Number(id) : null,
-    p_label: str(formData, "label"),
-    p_vpa: str(formData, "vpa"),
-    p_payee_name: str(formData, "payee_name"),
-    p_active: flag(formData, "active"),
-    p_daily_limit: Number(str(formData, "daily_limit")) || 0,
-  });
-  if (error) back("/admin/payments", "Could not save the UPI ID.");
-  const res = data as { ok: boolean; error?: string };
-  revalidatePath("/admin/payments");
-  if (!res.ok) back("/admin/payments", res.error ?? "Could not save the UPI ID.");
-  back("/admin/payments", "Saved", true);
-}
-
-export async function deleteUpi(formData: FormData) {
-  await requireAdmin();
-  const supabase = await createClient();
-  const { data } = await supabase.rpc("admin_upi_delete", { p_id: Number(str(formData, "id")) });
-  const res = (data ?? { ok: false }) as { ok: boolean; error?: string };
-  revalidatePath("/admin/payments");
-  if (!res.ok) back("/admin/payments", res.error ?? "Could not delete it.");
-  back("/admin/payments", "Deleted", true);
-}
-
 // ---------- templates and categories ----------
 const templateSchema = z.object({
   slug: z.string().regex(/^[a-z0-9-]{2,40}$/),
   name: z.string().trim().min(1).max(80),
   price: z.coerce.number().int().min(1).max(100000),
+  list_price: z.coerce.number().int().min(0).max(100000),
   category_slug: z.string().regex(/^[a-z0-9-]{2,40}$/).or(z.literal("")),
 });
 
@@ -83,9 +28,10 @@ export async function saveTemplate(formData: FormData) {
     slug: str(formData, "slug"),
     name: str(formData, "name"),
     price: str(formData, "price"),
+    list_price: str(formData, "list_price") || "0",
     category_slug: str(formData, "category_slug"),
   });
-  if (!parsed.success) back("/admin/templates", "Check the name and price (₹1 to ₹1,00,000).");
+  if (!parsed.success) back("/admin/templates", "Check the name and prices (₹1 to ₹1,00,000).");
   const d = parsed.success ? parsed.data : null;
   if (!d) return;
 
@@ -101,6 +47,8 @@ export async function saveTemplate(formData: FormData) {
     .update({
       name: cleanText(d.name, 80),
       price: d.price,
+      // A list price only shows (struck through) when it is higher than the price.
+      list_price: d.list_price > d.price ? d.list_price : null,
       category_slug: d.category_slug || null,
       is_active: flag(formData, "is_active"),
       bullets,

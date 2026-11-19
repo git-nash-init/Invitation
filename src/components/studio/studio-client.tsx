@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, Check, Copy, ExternalLink, Monitor, Smartphone, Users, X } from "lucide-react";
 import { Button, LinkButton } from "@/components/ui/button";
@@ -15,6 +16,8 @@ type Props = {
   initialStatus: "draft" | "published" | "archived";
   initialGuestMode: "common" | "personalised";
   initialHash: string;
+  /** A paid order exists, so publishing needs no further payment. */
+  paid: boolean;
 };
 
 type SaveState = "idle" | "saving" | "saved" | "error";
@@ -28,7 +31,9 @@ export function StudioClient({
   initialStatus,
   initialGuestMode,
   initialHash,
+  paid,
 }: Props) {
+  const router = useRouter();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   // The iframe src is fixed on first render; the template navigates itself afterwards.
   const [src] = useState(`/t/${assetToken}/${templateSlug}/?edit=1${initialHash}`);
@@ -49,6 +54,12 @@ export function StudioClient({
   // known by then and there is nothing to hydrate.
   const shareUrl = `${typeof window === "undefined" ? "" : window.location.origin}/i/${slug}`;
 
+  // Publishing an unpaid invitation goes to the page that explains and takes the payment.
+  function openPublish() {
+    if (!published && !paid) router.push(`/studio/${id}/publish`);
+    else setPanelOpen(true);
+  }
+
   // Messages from the template running in the iframe. Only our own iframe, same origin.
   useEffect(() => {
     async function onMessage(e: MessageEvent) {
@@ -61,15 +72,14 @@ export function StudioClient({
         setSaveState("saving");
         const res = await saveConfig(id, data.config);
         setSaveState(res.ok ? "saved" : "error");
-      } else if (data.type === "sutra:finalize") {
-        setPanelOpen(true);
-      } else if (data.type === "sutra:buy") {
-        setPanelOpen(true);
+      } else if (data.type === "sutra:finalize" || data.type === "sutra:buy") {
+        openPublish();
       }
     }
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, published, paid]);
 
   const togglePublish = useCallback(async () => {
     setBusy(true);
@@ -146,7 +156,7 @@ export function StudioClient({
           <Users size={16} strokeWidth={1.5} />
           <span className="hidden sm:inline">Share</span>
         </LinkButton>
-        <Button size="sm" onClick={() => setPanelOpen(true)}>
+        <Button size="sm" onClick={openPublish}>
           {published ? "Share" : "Publish"}
         </Button>
       </header>

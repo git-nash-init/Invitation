@@ -7,12 +7,13 @@ export type Template = {
   category: string;
   highlights: string;
   cover_path: string;
-  price: number;
   bullets: string[];
   category_slug: string | null;
 };
 
-const COLUMNS = "slug, name, tagline, category, highlights, cover_path, price, bullets, category_slug";
+// The price is deliberately not part of the public template: it must never reach the browser
+// except on the publish page, where it is shown.
+const COLUMNS = "slug, name, tagline, category, highlights, cover_path, bullets, category_slug";
 
 export async function getTemplates(): Promise<Template[]> {
   const supabase = await createClient();
@@ -30,14 +31,16 @@ export async function getTemplate(slug: string): Promise<Template | null> {
   return (data as Template | null) ?? null;
 }
 
-/** Does the signed-in user hold an unused paid credit for this template? */
-export async function hasCredit(slug: string): Promise<boolean> {
+export type PricedTemplate = Template & { price: number; list_price: number | null };
+
+/** For the publish page only: the template with its price. */
+export async function getPricedTemplate(slug: string): Promise<PricedTemplate | null> {
   const supabase = await createClient();
-  const { count } = await supabase
-    .from("entitlements")
-    .select("id", { count: "exact", head: true })
-    .eq("template_slug", slug)
-    .eq("revoked", false)
-    .is("consumed_at", null);
-  return (count ?? 0) > 0;
+  const { data } = await supabase
+    .from("templates")
+    .select(`${COLUMNS}, price, list_price`)
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .maybeSingle();
+  return (data as PricedTemplate | null) ?? null;
 }

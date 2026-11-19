@@ -1,45 +1,48 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Instrument_Sans, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, DM_Sans, Tiro_Devanagari_Hindi } from "next/font/google";
+import { BRAND, SITE_URL } from "@/lib/brand";
 import "./globals.css";
 
-const display = Fraunces({
+const display = Cormorant_Garamond({
   variable: "--nf-display",
   subsets: ["latin"],
-  axes: ["opsz"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
-const ui = Instrument_Sans({
+const deva = Tiro_Devanagari_Hindi({
+  variable: "--nf-deva",
+  subsets: ["devanagari", "latin"],
+  weight: "400",
+});
+
+const ui = DM_Sans({
   variable: "--nf-ui",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const mono = Geist_Mono({
-  variable: "--nf-mono",
-  subsets: ["latin"],
-});
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const title = `${BRAND.name}: ${BRAND.tagline.toLowerCase()}`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "SutraLuxe: interactive wedding invitations",
-    template: "%s | SutraLuxe",
+    default: title,
+    template: `%s | ${BRAND.name}`,
   },
-  description:
-    "Pick an interactive wedding invitation, make it yours, publish it and share one link, or a personal link for every guest.",
+  description: BRAND.description,
+  applicationName: BRAND.name,
   openGraph: {
-    title: "SutraLuxe: interactive wedding invitations",
-    description:
-      "Pick an interactive wedding invitation, make it yours, publish it and share one link, or a personal link for every guest.",
+    title,
+    description: BRAND.description,
     type: "website",
-    siteName: "SutraLuxe",
+    siteName: BRAND.name,
   },
+  twitter: { card: "summary_large_image", title, description: BRAND.description },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#161513",
+  themeColor: "#fff8ee",
   width: "device-width",
   initialScale: 1,
 };
@@ -48,7 +51,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${display.variable} ${ui.variable} ${mono.variable} h-full antialiased`}
+      className={`${display.variable} ${deva.variable} ${ui.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

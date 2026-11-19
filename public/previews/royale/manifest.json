@@ -1,0 +1,14 @@
+{
+  "slug": "royale",
+  "video": "preview.mp4",
+  "cover": "cover.webp",
+  "stills": [
+    "still-1.webp",
+    "still-2.webp",
+    "still-3.webp"
+  ],
+  "probe": "720,1280,20.966667",
+  "bytes": 2505730,
+  "tapped": true,
+  "pageErrors": []
+}

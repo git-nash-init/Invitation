@@ -1,38 +1,36 @@
 import Image from "next/image";
 import { Logo } from "@/components/site/logo";
+import { BRAND } from "@/lib/brand";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="paper-bg grid min-h-screen lg:grid-cols-2">
-      <aside className="relative hidden overflow-hidden lg:block">
+    <div className="paper-bg grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
+      <aside className="theme-dark relative hidden overflow-hidden lg:block">
         <Image
-          src="/covers/royale.webp"
-          alt="A mandap at dusk from the Royale Gate invitation"
+          src="/images/hero-haveli.jpg"
+          alt="A marigold-draped marble pavilion by a lake at golden hour"
           fill
           priority
           sizes="50vw"
-          className="object-cover"
+          className="object-cover object-[62%_50%]"
         />
-        <div className="absolute inset-0 bg-[#12110f]/55" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#3d0818]/85 via-[#3d0818]/15 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-12">
-          <div className="glass-strong max-w-md rounded-[20px] p-8">
-            <p className="display text-[28px] leading-[1.15] text-text">
-              One link for the whole guest list, or one for each guest
-            </p>
-            <p className="mt-4 text-[14px] leading-5 text-text-2">
-              Personal links open with the guest&apos;s own name on the gate.
-            </p>
-          </div>
+          <p className="deva text-[34px] leading-none text-[#ffd66b]">{BRAND.devanagari}</p>
+          <p className="display mt-4 max-w-md text-[40px] leading-[1.05]">
+            Make the <em>first</em> impression a beautiful one
+          </p>
+          <p className="mt-4 max-w-md text-[17px] leading-7 text-text-2">
+            Design your invitation for free. One link for the whole guest list, or one for each guest with their own name.
+          </p>
         </div>
       </aside>
 
-      <main className="flex flex-col px-6 py-8 sm:px-12">
+      <main className="flex flex-col px-5 py-8 sm:px-12">
         <div>
           <Logo />
         </div>
-        <div className="mx-auto flex w-full max-w-[400px] flex-1 flex-col justify-center py-12">
-          {children}
-        </div>
+        <div className="mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-center py-12">{children}</div>
       </main>
     </div>
   );

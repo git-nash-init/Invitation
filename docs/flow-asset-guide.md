@@ -1,4 +1,4 @@
-# Flow asset guide: videos and music for SutraLuxe
+# Flow asset guide: videos and music for Pratham Invitation
 
 You generate the clips and songs in Google Flow and Flow Music. You drop them in `assets-in/`. I turn them into the website experience and the Telegram previews.
 
@@ -8,7 +8,7 @@ Some menu names below may differ on your screen. Follow the idea, not the exact 
 
 1. Sign in to Flow with your Google account. Check which plan you are on and read its **terms of use for commercial use**. The free tier gives daily credits, but whether free-tier output may be used in a product you sell was not clear in my research. You confirm this for your plan. Save a screenshot of the terms page.
 2. After your first download, **play the file** and check for a visible "Made with Veo" mark or any watermark. If it is there, do not send it: generate on a plan that removes it, or tell me and we decide together. Audio from Flow Music may also carry an inaudible watermark; that is fine.
-3. Make one project called `SutraLuxe` so everything stays together.
+3. Make one project called `Pratham Invitation` so everything stays together.
 
 ## 1. Video settings (use these for every clip)
 

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { compose, whatsappUrl, telegramUrl, smsUrl, emailUrl } from "../src/lib/share.ts";
 
 const body = "Hi {friend}! {host} invites you: {link}";
-const link = "https://sutraluxe.example/i/abc123/def456";
+const link = "https://pratham.example/i/abc123/def456";
 
 test("compose fills every placeholder, including repeats", () => {
   assert.equal(

@@ -2,16 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, CreditCard, LayoutGrid, Music2, ReceiptText, Settings2, Users } from "lucide-react";
+import { BarChart3, CreditCard, LayoutGrid, Music2, ReceiptText, Users } from "lucide-react";
 
 const ITEMS = [
   { href: "/admin", label: "Overview", icon: BarChart3 },
   { href: "/admin/orders", label: "Orders", icon: ReceiptText },
   { href: "/admin/templates", label: "Templates", icon: LayoutGrid },
   { href: "/admin/music", label: "Music", icon: Music2 },
-  { href: "/admin/payments", label: "Payments", icon: CreditCard },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/setup", label: "Setup", icon: Settings2 },
+  { href: "/admin/users", label: "People", icon: Users },
+  { href: "/admin/setup", label: "Payments setup", icon: CreditCard },
 ];
 
 /** A side list on desktop; a swipeable row of tabs on phones. */

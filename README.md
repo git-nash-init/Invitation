@@ -1,4 +1,4 @@
-# SutraLuxe
+# Pratham Invitation (प्रथम)
 
 Interactive wedding invitations. A host picks a template, customizes it, publishes it and shares a link: one link for everyone, or a personal link for each guest that shows the guest's name on the invitation. Guests reply with an RSVP and the host sees every reply in a dashboard.
 
@@ -19,7 +19,7 @@ Only the Supabase **publishable** key belongs in this app. Never add the `servic
 - `src/app` – routes: landing, templates, preview, auth, dashboard, studio, public invitations (`/i/<slug>` and `/i/<slug>/<guest-code>`), API routes.
 - `src/lib/supabase` – server, browser and proxy (session refresh and route guard) clients.
 - `src/lib/invitations` – queries, server actions, config sanitiser, upload checks.
-- `public/templates` – the invitation templates. They run in same-origin iframes and talk to the host page over `postMessage` (`sutra:*` messages).
+- `private-templates` – the invitation templates. They run in same-origin iframes and talk to the host page over `postMessage` (`sutra:*` messages).
 - Database changes are SQL migrations applied to the Supabase project; row-level security is on for every table, and anonymous visitors only reach data through the `open_invitation` and `submit_rsvp` functions.
 
 ## Security notes
@@ -35,12 +35,13 @@ Only the Supabase **publishable** key belongs in this app. Never add the `servic
 2. Authentication → Providers → Google: add an OAuth client ID and secret from Google Cloud.
 3. Authentication → Sign In / Providers: turn on email confirmation and leaked-password protection.
 
-## Telegram bot, payments and admin
+## Payments and admin
 
-Buyers browse templates in a Telegram bot, pay by UPI, and are sent to the site to customize, publish and share. The bot runs as a Supabase Edge Function (`supabase/functions/telegram-bot`) with an every-minute worker (`pg_cron`). The admin panel is at `/admin`.
+Designing an invitation is free. Publishing needs one paid order, taken by Razorpay on the publish page (`/studio/<id>/publish`, the only place a price is shown). The admin panel is at `/admin`.
 
-- Going live, step by step: [docs/production-guide.md](docs/production-guide.md)
-- Making the Flow videos and music, and what to send back: [docs/flow-asset-guide.md](docs/flow-asset-guide.md)
-- Tests: `npm test` (payment rules, QR encoder, share links)
+- Going live, environment variables, Razorpay and Google sign-in: [docs/production-guide.md](docs/production-guide.md)
+- Making Flow videos and music, and what to send back: [docs/flow-asset-guide.md](docs/flow-asset-guide.md)
+- Tests: `npm test` (payment signatures, share links)
+- Preview media: `npm run previews:make`
 
 Template files are not public. They live in `private-templates/` and are served only through short-lived signed links (`/t/<token>/...`).

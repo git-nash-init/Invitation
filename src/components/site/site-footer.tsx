@@ -1,34 +1,60 @@
 import Link from "next/link";
+import { BRAND } from "@/lib/brand";
 import { Logo } from "./logo";
+
+const COLS = [
+  {
+    title: "Explore",
+    links: [
+      { href: "/templates", label: "Templates" },
+      { href: "/#how-it-works", label: "How it works" },
+      { href: "/#features", label: "Features" },
+      { href: "/#faq", label: "FAQ" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { href: "/contact", label: "Contact" },
+      { href: "/terms", label: "Terms" },
+      { href: "/privacy", label: "Privacy" },
+      { href: "/refund", label: "Refunds and cancellation" },
+    ],
+  },
+];
 
 export function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-(--hairline) px-4 py-12 sm:px-6">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 md:flex-row md:items-start md:justify-between">
-        <div className="max-w-xs">
-          <Logo />
-          <p className="mt-4 text-[14px] leading-5 text-text-2">
-            Interactive wedding invitations you customize, publish and share as a link.
+    <footer className="theme-dark band-maroon mt-auto px-4 pb-8 pt-16 sm:px-6">
+      <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-[1.4fr_1fr_1fr]">
+        <div className="max-w-sm">
+          <Logo light />
+          <p className="deva mt-5 text-[28px] leading-none text-[#ffd66b]">{BRAND.devanagari}</p>
+          <p className="mt-3 text-[15px] leading-6 text-text-2">
+            Royal interactive wedding invitations. Make yours in minutes and share it as a link, with
+            every guest&apos;s name on it.
           </p>
         </div>
-
-        <nav aria-label="Footer" className="grid grid-cols-2 gap-x-16 gap-y-3 text-[14px]">
-          <Link href="/templates" className="text-text-2 transition-colors hover:text-text">
-            Templates
-          </Link>
-          <Link href="/#pricing" className="text-text-2 transition-colors hover:text-text">
-            Pricing
-          </Link>
-          <Link href="/privacy" className="text-text-2 transition-colors hover:text-text">
-            Privacy
-          </Link>
-          <Link href="/terms" className="text-text-2 transition-colors hover:text-text">
-            Terms
-          </Link>
-        </nav>
+        {COLS.map((c) => (
+          <nav key={c.title} aria-label={c.title}>
+            <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-[#ffd66b]">{c.title}</p>
+            <ul className="mt-4 grid gap-1">
+              {c.links.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="inline-flex min-h-[44px] items-center text-[15px] text-text-2 transition-colors hover:text-[#ffd66b]"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))}
       </div>
-      <p className="mx-auto mt-10 max-w-6xl text-[12px] text-muted">
-        © {new Date().getFullYear()} SutraLuxe
+      <p className="mx-auto mt-12 max-w-6xl border-t border-(--hairline) pt-6 text-[13px] text-muted">
+        © {new Date().getFullYear()} {BRAND.name}. Made with care for Indian weddings.
       </p>
     </footer>
   );

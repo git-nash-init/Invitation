@@ -138,7 +138,7 @@
   }
 
   function wrapIcs(events) {
-    return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//SutraLuxe Papercut//EN',
+    return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Pratham Papercut//EN',
       'CALSCALE:GREGORIAN'].concat(events, 'END:VCALENDAR').join('\r\n');
   }
 

@@ -416,7 +416,7 @@
   function brandHtml() {
     return '<div class="brsvp__brand">' +
       '<span class="brsvp__brand-label">Crafted with love by</span>' +
-      '<a class="brsvp__brand-url" href="https://sutraluxe.com" target="_blank" rel="noopener" style="font-family:\'Cinzel\',Georgia,serif;font-size:15px;letter-spacing:0.18em;font-weight:700;color:#c5a059;text-decoration:none;border-bottom:none;">SUTRALUXE</a>' +
+      '<a class="brsvp__brand-url" href="https://pratham-invitation.vercel.app" target="_blank" rel="noopener" style="font-family:\'Cinzel\',Georgia,serif;font-size:14px;letter-spacing:0.14em;font-weight:700;color:#c5a059;text-decoration:none;border-bottom:none;">PRATHAM INVITATION</a>' +
       '</div>';
   }
 
