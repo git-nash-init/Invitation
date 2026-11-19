@@ -38,3 +38,24 @@ export const FALLBACK_SLIDES = [
 export const previewVideo = (slug: string) => `/previews/${slug}/preview.mp4`;
 export const previewCover = (slug: string) => `/previews/${slug}/cover.webp`;
 export const previewStill = (slug: string, n: number) => `/previews/${slug}/still-${n}.webp`;
+/** First frame of the preview video. Used as the poster so the video never "jumps" when it starts. */
+export const previewPoster = (slug: string) => `/previews/${slug}/poster.webp`;
+
+/**
+ * Style groups the visitor can filter by. A design can sit in more than one group.
+ * Unknown slugs (templates added later) fall into "All" only until they are listed here.
+ */
+export const FILTERS = [
+  { id: "royal", label: "Royal & grand" },
+  { id: "floral", label: "Floral & romantic" },
+  { id: "papercut", label: "Papercut & modern" },
+  { id: "festive", label: "Festive functions" },
+] as const;
+
+export const TEMPLATE_GROUPS: Record<string, string[]> = {
+  royale: ["royal"],
+  noor: ["royal", "floral"],
+  "rose-invitation": ["floral"],
+  "papercut-magenta": ["papercut", "festive"],
+  papercut: ["papercut", "floral"],
+};

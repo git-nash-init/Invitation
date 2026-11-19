@@ -1,25 +1,29 @@
 import Image from "next/image";
+import { Plus } from "lucide-react";
 import {
-  CalendarHeart,
-  Check,
-  CheckCheck,
-  Link2,
-  Mail,
-  MapPin,
-  MessageCircle,
-  Music,
-  PenLine,
-  Plus,
-  Send,
-  Smartphone,
-  UserRound,
-} from "lucide-react";
+  CeremonyIcon,
+  ChooseDesignIcon,
+  EmailLogo,
+  GuestLinkIcon,
+  InstagramLogo,
+  LotusMark,
+  MakeItYoursIcon,
+  MapPinIcon,
+  MusicIcon,
+  PenIcon,
+  RsvpIcon,
+  SealTick,
+  ShareLinkIcon,
+  SmsLogo,
+  TelegramLogo,
+  WhatsAppLogo,
+} from "@/components/icons";
 import type { ReactNode } from "react";
 import { LinkButton } from "@/components/ui/button";
 import { LazyVideo } from "@/components/ui/lazy-video";
 import { Reveal } from "@/components/ui/reveal";
 import { BRAND } from "@/lib/brand";
-import { SHOWCASE, previewCover, previewStill, previewVideo } from "@/lib/showcase";
+import { SHOWCASE, previewPoster, previewStill, previewVideo } from "@/lib/showcase";
 import type { Template } from "@/lib/templates";
 
 export function Section({
@@ -43,11 +47,7 @@ export function Ornament() {
   return (
     <div className="mx-auto mt-5 flex items-center justify-center gap-3 text-seal" aria-hidden="true">
       <span className="h-px w-14 bg-current opacity-50" />
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 21c-3-3-3-7 0-11 3 4 3 8 0 11Z" />
-        <path d="M12 21c-5-1-8-4-8-9 4 0 7 3 8 9Z" opacity=".75" />
-        <path d="M12 21c5-1 8-4 8-9-4 0-7 3-8 9Z" opacity=".75" />
-      </svg>
+      <LotusMark size={22} />
       <span className="h-px w-14 bg-current opacity-50" />
     </div>
   );
@@ -75,22 +75,25 @@ export function SectionHead({
 /* ------------------------------------------------------------------ */
 
 const SHARE = [
-  { icon: MessageCircle, label: "WhatsApp" },
-  { icon: Send, label: "Telegram" },
-  { icon: Smartphone, label: "Text message" },
-  { icon: Mail, label: "Email" },
-  { icon: Link2, label: "Instagram" },
+  { logo: WhatsAppLogo, label: "WhatsApp" },
+  { logo: InstagramLogo, label: "Instagram" },
+  { logo: TelegramLogo, label: "Telegram" },
+  { logo: SmsLogo, label: "Text message" },
+  { logo: EmailLogo, label: "Email" },
 ];
 
-/** A strip right under the hero: where invitations travel. */
+/** A strip right under the hero: where invitations travel. The logos are the real apps'. */
 export function ShareStrip() {
   return (
-    <section aria-label="Share anywhere" className="border-y border-(--hairline) bg-white/60 px-5 py-6 backdrop-blur sm:px-6">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-3">
-        <p className="text-[14px] font-semibold uppercase tracking-[0.14em] text-text-2">Send it on</p>
+    <section aria-label="Share anywhere" className="border-y border-(--hairline) bg-white/70 px-5 py-6 backdrop-blur sm:px-6">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-4 gap-y-3 sm:gap-x-5">
+        <p className="mr-1 text-[14px] font-semibold uppercase tracking-[0.14em] text-text-2">Send it on</p>
         {SHARE.map((s) => (
-          <span key={s.label} className="inline-flex items-center gap-2 text-[16px] font-medium text-maroon">
-            <s.icon size={20} strokeWidth={1.75} aria-hidden="true" />
+          <span
+            key={s.label}
+            className="inline-flex min-h-11 items-center gap-2.5 rounded-full border border-[rgba(183,121,31,0.28)] bg-white py-1.5 pl-2.5 pr-4 text-[15px] font-semibold text-text shadow-[0_4px_14px_rgba(107,15,43,0.06)]"
+          >
+            <s.logo size={26} />
             {s.label}
           </span>
         ))}
@@ -131,7 +134,7 @@ export function TemplateShowcase({ templates }: { templates: Template[] }) {
                       <div className="relative aspect-[9/17.4] overflow-hidden rounded-[34px] bg-[#fdf3e0]">
                         <LazyVideo
                           src={previewVideo(t.slug)}
-                          poster={previewCover(t.slug)}
+                          poster={previewPoster(t.slug)}
                           label={`${t.name} invitation playing`}
                           className="h-full w-full object-cover"
                         />
@@ -149,9 +152,7 @@ export function TemplateShowcase({ templates }: { templates: Template[] }) {
                   <ul className="mt-6 grid gap-3">
                     {t.bullets.map((b) => (
                       <li key={b} className="flex items-start gap-3 text-[16px] leading-6">
-                        <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-maroon text-[#ffd66b]">
-                          <Check size={14} strokeWidth={3} aria-hidden="true" />
-                        </span>
+                        <SealTick size={24} className="mt-0.5 shrink-0" />
                         {b}
                       </li>
                     ))}
@@ -200,16 +201,19 @@ export function TemplateShowcase({ templates }: { templates: Template[] }) {
 const STEPS = [
   {
     n: "१",
+    art: ChooseDesignIcon,
     title: "Choose your design",
     text: "Browse five royal designs and watch each one play. Pick the one that feels like your wedding.",
   },
   {
     n: "२",
+    art: MakeItYoursIcon,
     title: "Make it yours",
     text: "Type your names right on the invitation. Add parents, every ceremony with time and venue, photos and a note.",
   },
   {
     n: "३",
+    art: ShareLinkIcon,
     title: "Share one link",
     text: "Send a ready-made message by WhatsApp, Instagram, Telegram or SMS, with each friend's name already in it.",
   },
@@ -229,15 +233,18 @@ export function HowItWorks() {
       <ol className="relative mt-16 grid gap-6 md:grid-cols-3">
         <div
           aria-hidden="true"
-          className="absolute left-[16%] right-[16%] top-[58px] hidden h-px border-t-2 border-dashed border-[rgba(183,121,31,0.5)] md:block"
+          className="absolute left-[16%] right-[16%] top-[76px] hidden h-px border-t-2 border-dashed border-[rgba(183,121,31,0.5)] md:block"
         />
         {STEPS.map((s, i) => (
           <li key={s.title}>
             <Reveal delay={i * 0.08} className="h-full">
               <div className="glass-strong relative h-full rounded-[28px] p-8 text-center">
-                <span className="deva relative mx-auto grid size-[84px] place-items-center rounded-full bg-gradient-to-br from-[#8a1538] to-[#4a0a1e] text-[44px] leading-none text-[#ffd66b] shadow-[0_14px_30px_rgba(107,15,43,0.35),0_0_0_4px_#fff8ee,0_0_0_5.5px_rgba(201,122,0,0.6)]">
-                  {s.n}
-                </span>
+                <div className="relative mx-auto w-fit">
+                  <s.art size={128} className="drop-shadow-[0_14px_22px_rgba(107,15,43,0.18)]" />
+                  <span className="deva absolute -right-2 -top-1 grid size-9 place-items-center rounded-full bg-gradient-to-br from-[#8a1538] to-[#4a0a1e] text-[22px] leading-none text-[#ffd66b] shadow-[0_6px_14px_rgba(107,15,43,0.35),0_0_0_3px_#fff8ee]">
+                    {s.n}
+                  </span>
+                </div>
                 <h3 className="display mt-7 text-[30px] leading-[1.1]">{s.title}</h3>
                 <p className="mt-3 text-[16px] leading-[26px] text-text-2">{s.text}</p>
               </div>
@@ -258,34 +265,34 @@ export function HowItWorks() {
 
 const FEATURES = [
   {
-    icon: UserRound,
+    art: GuestLinkIcon,
     title: "A personal link for every guest",
     text: "Add your guest list and each person gets their own link. When they open it, their name is on the invitation, like a hand-written card.",
     big: true,
   },
   {
-    icon: CheckCheck,
+    art: RsvpIcon,
     title: "RSVPs in one place",
     text: "Guests reply on the invitation. You see who is coming, how many, and any note they left.",
     big: true,
   },
   {
-    icon: CalendarHeart,
+    art: CeremonyIcon,
     title: "Every ceremony",
     text: "Haldi to reception, each with its own date, time and venue.",
   },
   {
-    icon: MapPin,
+    art: MapPinIcon,
     title: "One-tap maps",
     text: "Guests tap the venue and their map opens, ready to navigate.",
   },
   {
-    icon: Music,
+    art: MusicIcon,
     title: "Music that starts on open",
     text: "A soft track plays when the invitation opens, and guests can mute it.",
   },
   {
-    icon: PenLine,
+    art: PenIcon,
     title: "Edit any time",
     text: "Change a time or venue after sharing. The link stays the same, so nobody needs a new one.",
   },
@@ -305,10 +312,8 @@ export function Features() {
       <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {FEATURES.map((f, i) => (
           <Reveal key={f.title} delay={(i % 4) * 0.05} className={f.big ? "lg:col-span-2" : ""}>
-            <div className="glass glass-interactive h-full rounded-[28px] p-7">
-              <span className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-[#ffd66b] to-[#f5a300] text-[#3b0a1a] shadow-[0_10px_22px_rgba(245,163,0,0.35)]">
-                <f.icon size={23} strokeWidth={1.9} aria-hidden="true" />
-              </span>
+            <div className="glass glass-interactive group/card h-full rounded-[28px] p-7">
+              <f.art size={f.big ? 84 : 72} className="drop-shadow-[0_10px_16px_rgba(107,15,43,0.16)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/card:-translate-y-1 group-hover/card:scale-105" />
               <h3 className="display mt-5 text-[26px] leading-[1.12]">{f.title}</h3>
               <p className="mt-2 text-[16px] leading-[26px] text-text-2">{f.text}</p>
             </div>

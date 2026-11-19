@@ -3,7 +3,7 @@ import { SiteFooter } from "@/components/site/site-footer";
 import { Hero } from "@/components/landing/hero";
 import { GuestDemo } from "@/components/landing/guest-demo";
 import { MobileCta } from "@/components/landing/mobile-cta";
-import { TemplateCard } from "@/components/landing/template-card";
+import { TemplateBrowser } from "@/components/landing/template-browser";
 import {
   Comparison,
   Faq,
@@ -15,7 +15,6 @@ import {
   ShareStrip,
   TemplateShowcase,
 } from "@/components/landing/sections";
-import { Reveal } from "@/components/ui/reveal";
 import { getTemplates } from "@/lib/templates";
 
 export default async function Home() {
@@ -36,14 +35,10 @@ export default async function Home() {
                 Pick the one that <em>feels like you</em>
               </>
             }
-            sub="Hover a design to watch it play. Tap one to see everything inside."
+            sub="Filter by style, hover a design to watch it play, and tap one to see everything inside."
           />
-          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-6 lg:[&>*]:col-span-2 lg:[&>*:nth-child(4)]:col-start-2">
-            {templates.map((t, i) => (
-              <Reveal key={t.slug} delay={(i % 3) * 0.06} className="h-full">
-                <TemplateCard template={t} priority={i < 3} />
-              </Reveal>
-            ))}
+          <div className="mt-12">
+            <TemplateBrowser templates={templates} priorityCount={3} />
           </div>
         </Section>
 

@@ -3,8 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { CheckCheck, Link2, Send } from "lucide-react";
-import { previewCover, previewVideo } from "@/lib/showcase";
+import { previewCover, previewPoster, previewVideo } from "@/lib/showcase";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -61,7 +60,7 @@ export function HeroPhone({ slides }: { slides: Slide[] }) {
                 <video
                   key={current.slug}
                   src={previewVideo(current.slug)}
-                  poster={previewCover(current.slug)}
+                  poster={previewPoster(current.slug)}
                   autoPlay
                   muted
                   loop
@@ -76,46 +75,11 @@ export function HeroPhone({ slides }: { slides: Slide[] }) {
         </div>
       </div>
 
-      {/* Floating glass notes: what the host sees happening */}
-      <div className="glass-strong float-y absolute -left-4 top-[14%] hidden items-center gap-3 rounded-2xl py-2.5 pl-3 pr-4 sm:flex lg:-left-16">
-        <span className="grid size-9 place-items-center rounded-full bg-[#0e8a5f]/15 text-positive">
-          <CheckCheck size={18} strokeWidth={2} aria-hidden="true" />
-        </span>
-        <span className="text-[13px] leading-4">
-          <b className="block font-semibold text-text">Aarti opened it</b>
-          <span className="text-text-2">just now</span>
-        </span>
-      </div>
-      <div
-        className="glass-strong float-y absolute -right-3 top-[46%] hidden items-center gap-3 rounded-2xl py-2.5 pl-3 pr-4 sm:flex lg:-right-14"
-        style={{ animationDelay: "-2s" }}
-      >
-        <span className="grid size-9 place-items-center rounded-full bg-[#f5a300]/20 text-[#b36b00]">
-          <Send size={17} strokeWidth={2} aria-hidden="true" />
-        </span>
-        <span className="text-[13px] leading-4">
-          <b className="block font-semibold text-text">3 replied yes</b>
-          <span className="text-text-2">12 guests coming</span>
-        </span>
-      </div>
-      <div
-        className="glass-strong float-y absolute -left-2 bottom-[12%] hidden items-center gap-3 rounded-2xl py-2.5 pl-3 pr-4 sm:flex lg:-left-12"
-        style={{ animationDelay: "-4s" }}
-      >
-        <span className="grid size-9 place-items-center rounded-full bg-[#e11d74]/12 text-rose">
-          <Link2 size={17} strokeWidth={2} aria-hidden="true" />
-        </span>
-        <span className="text-[13px] leading-4">
-          <b className="block font-semibold text-text">Link for Rohan</b>
-          <span className="text-text-2">ready to send</span>
-        </span>
-      </div>
-
       </div>
 
       {/* Design switcher: dots, with the current design named underneath */}
-      <div className="mt-5 text-center">
-        <div role="tablist" aria-label="Choose a design to preview" className="flex justify-center">
+      <div className="mt-4 text-center">
+        <div role="tablist" aria-label="Choose a design to preview" className="mx-auto flex w-fit justify-center rounded-full bg-white/60 px-2 shadow-[0_6px_20px_rgba(107,15,43,0.12)] backdrop-blur-md">
           {slides.map((s, idx) => (
             <button
               key={s.slug}
@@ -134,7 +98,9 @@ export function HeroPhone({ slides }: { slides: Slide[] }) {
             </button>
           ))}
         </div>
-        <p className="display -mt-1 text-[24px] leading-none text-maroon">{current.name}</p>
+        <p className="sr-only" aria-live="polite">
+          Showing {current.name}
+        </p>
       </div>
     </div>
   );

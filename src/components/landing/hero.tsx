@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { Check } from "lucide-react";
 import type { CSSProperties } from "react";
+import { SealTick } from "@/components/icons";
 import { LinkButton } from "@/components/ui/button";
 import { Enter } from "@/components/ui/reveal";
 import { BRAND } from "@/lib/brand";
@@ -9,9 +9,9 @@ import { HeroPhone } from "./hero-phone";
 
 const PROOF = [
   "5 royal designs",
-  "A personal link for every guest",
+  "A personal link per guest",
   "RSVPs tracked for you",
-  "Share on WhatsApp in one tap",
+  "One-tap WhatsApp sharing",
 ];
 
 const PETALS = [
@@ -26,18 +26,19 @@ const PETALS = [
 export function Hero({ slides }: { slides: { slug: string; name: string }[] }) {
   const list = slides.length ? slides : FALLBACK_SLIDES;
   return (
-    <section className="relative isolate overflow-hidden">
-      {/* A bright lake-palace morning. The calm sky on the left carries the headline. */}
+    <section className="relative isolate -mt-[var(--header-space)] overflow-hidden">
+      {/* A bright lake-palace morning, edge to edge and up behind the header. The calm sky on the
+          left carries the headline; there is no white wash over the picture. */}
       <Image
         src="/images/hero-haveli.jpg"
         alt=""
         fill
         priority
         sizes="100vw"
-        className="-z-20 object-cover object-[70%_50%]"
+        className="-z-20 object-cover object-[62%_50%]"
       />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#fff8ee] via-[#fff8ee]/80 to-[#fff8ee]/0 lg:via-[#fff8ee]/55" />
-      <div className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-t from-[#fff8ee] to-transparent" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_85%_at_16%_55%,rgba(255,248,238,0.72),rgba(255,248,238,0.3)_55%,transparent_78%)] max-lg:bg-[linear-gradient(180deg,rgba(255,248,238,0.55),rgba(255,248,238,0.15)_60%,transparent)]" />
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-[#fff8ee] to-transparent" />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         {PETALS.map((p, i) => (
           <span
@@ -56,7 +57,7 @@ export function Hero({ slides }: { slides: { slug: string; name: string }[] }) {
         ))}
       </div>
 
-      <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 pb-16 pt-6 sm:px-6 lg:min-h-[calc(100svh-var(--header-space))] lg:grid-cols-[1.08fr_0.92fr] lg:gap-8 lg:pb-20">
+      <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 pb-16 pt-[calc(var(--header-space)+1.5rem)] sm:px-6 lg:min-h-svh lg:grid-cols-[1.08fr_0.92fr] lg:gap-8 lg:pb-20">
         <div className="max-w-[40rem]">
           <Enter>
             <p className="eyebrow">
@@ -65,12 +66,12 @@ export function Hero({ slides }: { slides: { slug: string; name: string }[] }) {
             </p>
           </Enter>
           <Enter delay={0.05}>
-            <h1 className="display mt-5 text-[46px] leading-[1.02] sm:text-[64px] lg:text-[76px]">
-              The invitation your guests open <em>first</em>
+            <h1 className="display mt-5 text-[46px] leading-[1.02] [text-shadow:0_2px_30px_rgba(255,248,238,0.9)] sm:text-[64px] lg:text-[80px]">
+              The invitation <br className="hidden sm:block" />your guests <br className="hidden sm:block" />open <em>first</em>
             </h1>
           </Enter>
           <Enter delay={0.1}>
-            <p className="mt-6 max-w-[34rem] text-[18px] leading-[30px] text-text-2 sm:text-[20px] sm:leading-[32px]">
+            <p className="mt-6 max-w-[34rem] text-[18px] font-medium leading-[30px] text-text [text-shadow:0_1px_18px_rgba(255,248,238,0.95)] sm:text-[20px] sm:leading-[32px]">
               Choose a royal interactive design, add your names, dates and photos, and share one link,
               or a personal link with every guest&apos;s name on it.
             </p>
@@ -86,12 +87,10 @@ export function Hero({ slides }: { slides: { slug: string; name: string }[] }) {
             </div>
           </Enter>
           <Enter delay={0.2}>
-            <ul className="mt-9 grid max-w-[34rem] gap-x-6 gap-y-3 sm:grid-cols-2">
+            <ul className="glass-strong mt-9 grid w-fit max-w-full gap-x-8 gap-y-3 rounded-2xl px-5 py-4 sm:grid-cols-2">
               {PROOF.map((p) => (
-                <li key={p} className="flex items-center gap-2.5 text-[15px] font-medium text-text">
-                  <span className="grid size-5 place-items-center rounded-full bg-maroon text-[#ffd66b]">
-                    <Check size={12} strokeWidth={3} aria-hidden="true" />
-                  </span>
+                <li key={p} className="flex items-center gap-2.5 text-[15px] font-semibold text-text">
+                  <SealTick size={22} className="shrink-0" />
                   {p}
                 </li>
               ))}

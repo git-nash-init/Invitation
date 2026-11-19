@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 
 /**
  * A muted looping video that only downloads and plays while it is on screen.
- * The poster shows instantly, so there is never an empty frame.
+ * The poster is the video's own first frame, so starting playback never changes what is on screen.
  */
 export function LazyVideo({
   src,
@@ -42,7 +42,7 @@ export function LazyVideo({
       muted
       loop
       playsInline
-      preload="none"
+      preload="metadata"
       aria-label={label}
       className={className}
     />

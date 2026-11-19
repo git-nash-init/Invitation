@@ -1,6 +1,7 @@
 // Makes the preview media for each template and writes it to public/previews/<slug>/:
 //   preview.mp4          sharp 2x phone-sized walkthrough with a "preview" watermark
-//   cover.webp           clean opening frame used on cards and the hero
+//   poster.webp          first frame of the video (so it never jumps when it starts)
+//   cover.webp           clean opened-invitation frame used on cards
 //   still-1..3.webp      watermarked stills
 //   manifest.json
 // Everything written here is safe to publish: it is watermarked and only shows what a
@@ -30,9 +31,16 @@ const OUT = path.resolve("public/previews");
 
 // Which still becomes the clean cover (1-based). The two papercut designs share their
 // opening scenes and Royale shares a mandap look with Noor, so they use frames that differ.
+// How long to wait after the tap before taking the "opened" still. Noor's title animates in
+// slowly, so it needs longer than the others or the cover shows a half-drawn name.
+const OPEN_WAIT = { noor: 5200 };
 const COVER_FROM = { royale: 1, papercut: 1, "papercut-magenta": 3 };
 const ALL = ["royale", "noor", "rose-invitation", "papercut-magenta", "papercut"];
-const slugs = process.argv.slice(2).length ? process.argv.slice(2) : ALL;
+const args = process.argv.slice(2);
+// --video-only re-records just preview.mp4 and leaves the covers and stills as they are.
+const VIDEO_ONLY = args.includes("--video-only");
+const named = args.filter((a) => !a.startsWith("--"));
+const slugs = named.length ? named : ALL;
 
 const MIME = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".json": "application/json",
@@ -75,52 +83,85 @@ const watermark = [
   `drawtext=fontfile='${FONT}':text='${MARK}':fontsize=34:fontcolor=white@0.16:borderw=1:bordercolor=black@0.12:x=(w-tw)/2:y=(h-th)/2`,
 ].join(",");
 
+async function openPage(browser, url, errors) {
+  const page = await browser.newPage();
+  await page.setViewport({ width: 360, height: 640, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+  page.on("pageerror", (e) => errors.push(String(e).slice(0, 160)));
+  await page.goto(url, { waitUntil: "networkidle2", timeout: 60_000 });
+  await sleep(1500);
+  return page;
+}
+
+// Finds the "Tap to open" control and presses it with a real pointer.
+async function tapToOpen(page) {
+  const handle = await page.evaluateHandle(() => {
+    const re = /tap to open/i;
+    const pick = (sel) => [...document.querySelectorAll(sel)].find((e) => re.test(e.textContent || ""));
+    return pick("button, a, [role=button]") ?? [...document.querySelectorAll("div, span")].reverse().find((e) => re.test(e.textContent || "") && e.children.length < 3) ?? null;
+  });
+  const el = handle.asElement();
+  if (!el) return false;
+  try { await el.click(); return true; } catch { return false; }
+}
+
+// Stills come from their own page load. Taking a screenshot while the screencast is
+// running makes Chrome re-lay-out the page, and the video then shows the opening
+// card re-rendering and appearing a second time. So nothing is captured mid-recording.
+async function captureStills(browser, slug, dir, errors) {
+  const page = await openPage(browser, `${BASE}/t/local/${slug}/`, errors);
+  const stills = [];
+  try {
+    await sleep(1200);
+    stills.push(await shot(page, dir, 1));
+    const tapped = await tapToOpen(page);
+    await sleep(tapped ? (OPEN_WAIT[slug] ?? 3200) : 800);
+    stills.push(await shot(page, dir, 2));
+    for (let i = 0; i < 9; i++) {
+      await page.mouse.wheel({ deltaY: 420 });
+      await sleep(650);
+    }
+    stills.push(await shot(page, dir, 3));
+    return { stills, tapped };
+  } finally {
+    await page.close();
+  }
+}
+
+// The video starts on the settled "Tap to open" card and shows only that, the tap, and
+// a slow scroll: no loading state, no re-render.
+async function captureVideo(browser, slug, raw, errors) {
+  const page = await openPage(browser, `${BASE}/t/local/${slug}/`, errors);
+  try {
+    const recorder = await page.screencast({ path: raw, speed: 1 });
+    await sleep(1600);
+    const tapped = await tapToOpen(page);
+    await sleep(tapped ? 3200 : 800);
+    for (let i = 0; i < 16; i++) {
+      await page.mouse.wheel({ deltaY: 420 });
+      await sleep(650);
+    }
+    await sleep(600);
+    await recorder.stop();
+    return { tapped };
+  } finally {
+    await page.close();
+  }
+}
+
 async function capture(slug) {
   const dir = path.join(OUT, slug);
   await fs.mkdir(dir, { recursive: true });
   const raw = path.join(dir, "raw.webm");
-  const url = `${BASE}/t/local/${slug}/`;
-
+  const errors = [];
   const browser = await puppeteer.launch({
     executablePath: CHROME,
     headless: true,
     args: ["--no-first-run", "--autoplay-policy=no-user-gesture-required", "--mute-audio"],
   });
-  const stills = [];
   try {
-    const page = await browser.newPage();
-    await page.setViewport({ width: 360, height: 640, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-    const errors = [];
-    page.on("pageerror", (e) => errors.push(String(e).slice(0, 160)));
-    await page.goto(url, { waitUntil: "networkidle2", timeout: 60_000 });
-    await sleep(1500);
-
-    const recorder = await page.screencast({ path: raw, speed: 1 });
-
-    // Opening card, then the tap that opens the invitation.
-    await sleep(1800);
-    stills.push(await shot(page, dir, 1));
-    // Prefer a real <button>/<a> that says "tap to open", and click it with a real pointer.
-    const handle = await page.evaluateHandle(() => {
-      const re = /tap to open/i;
-      const pick = (sel) => [...document.querySelectorAll(sel)].find((e) => re.test(e.textContent || ""));
-      return pick("button, a, [role=button]") ?? [...document.querySelectorAll("div, span")].reverse().find((e) => re.test(e.textContent || "") && e.children.length < 3) ?? null;
-    });
-    const el = handle.asElement();
-    let tapped = false;
-    if (el) { try { await el.click(); tapped = true; } catch {} }
-    await sleep(tapped ? 3200 : 800);
-    stills.push(await shot(page, dir, 2));
-
-    // A slow scroll through the invitation.
-    for (let i = 0; i < 16; i++) {
-      await page.mouse.wheel({ deltaY: 420 });
-      await sleep(650);
-      if (i === 8) stills.push(await shot(page, dir, 3));
-    }
-    await sleep(600);
-    await recorder.stop();
-    return { dir, raw, stills, tapped, errors };
+    const st = VIDEO_ONLY ? { stills: [] } : await captureStills(browser, slug, dir, errors);
+    const video = await captureVideo(browser, slug, raw, errors);
+    return { dir, raw, stills: st.stills, tapped: video.tapped, errors };
   } finally {
     await browser.close();
   }
@@ -136,12 +177,18 @@ async function encode({ dir, raw, stills, slug }) {
   const preview = path.join(dir, "preview.mp4");
   // Phone-sized, no sound (the bot and site add music separately), starts instantly in Telegram.
   await run("ffmpeg", [
-    "-y", "-loglevel", "error", "-i", raw,
+    "-y", "-loglevel", "error", "-ss", "0.4", "-i", raw,
     "-t", "24", "-vf", `fps=30,scale=720:-2:flags=lanczos,${watermark}`,
     "-c:v", "libx264", "-preset", "medium", "-crf", "26", "-pix_fmt", "yuv420p",
     "-movflags", "+faststart", "-an", preview,
   ]);
+  // The poster is the video's own first frame, so the video starting never changes what is on screen.
+  await run("ffmpeg", ["-y", "-loglevel", "error", "-i", preview, "-frames:v", "1", "-quality", "82", path.join(dir, "poster.webp")]);
   const outStills = [];
+  if (VIDEO_ONLY) {
+    await fs.rm(raw, { force: true });
+    return { preview, outStills };
+  }
   // Clean cover from the opened invitation (still 2), no watermark, for cards and the hero.
   await run("ffmpeg", ["-y", "-loglevel", "error", "-i", stills[(COVER_FROM[slug] ?? 2) - 1] ?? stills[0], "-vf", "scale=720:-2:flags=lanczos", "-quality", "86", path.join(dir, "cover.webp")]);
   for (const [i, file] of stills.entries()) {
@@ -164,7 +211,7 @@ for (const slug of slugs) {
     "-show_entries", "stream=width,height,duration", "-of", "csv=p=0", preview,
   ]);
   const size = (await fs.stat(preview)).size;
-  await fs.writeFile(
+  if (!VIDEO_ONLY) await fs.writeFile(
     path.join(cap.dir, "manifest.json"),
     JSON.stringify({ slug, video: "preview.mp4", cover: "cover.webp", stills: outStills.map((p) => path.basename(p)), probe: stdout.trim(), bytes: size, tapped: cap.tapped, pageErrors: cap.errors }, null, 2),
   );

@@ -2,17 +2,17 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Check, Eye } from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
+import { SealTick } from "@/components/icons";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
-import { TemplateCard } from "@/components/landing/template-card";
+import { TemplateBrowser } from "@/components/landing/template-browser";
 import { SectionHead } from "@/components/landing/sections";
 import { Button, LinkButton } from "@/components/ui/button";
 import { LazyVideo } from "@/components/ui/lazy-video";
-import { Reveal } from "@/components/ui/reveal";
 import { startInvitation } from "@/lib/invitations/actions";
 import { getCurrentUser } from "@/lib/invitations/queries";
-import { SHOWCASE, previewCover, previewStill, previewVideo } from "@/lib/showcase";
+import { SHOWCASE, previewCover, previewPoster, previewStill, previewVideo } from "@/lib/showcase";
 import { getTemplate, getTemplates } from "@/lib/templates";
 
 const validSlug = (slug: string) => /^[a-z0-9-]{2,40}$/.test(slug);
@@ -40,7 +40,7 @@ export default async function PreviewPage({
   if (start === "1" && (await getCurrentUser())) await startInvitation(template.slug);
 
   const info = SHOWCASE[template.slug];
-  const others = (await getTemplates()).filter((t) => t.slug !== template.slug).slice(0, 3);
+  const others = (await getTemplates()).filter((t) => t.slug !== template.slug);
   const begin = startInvitation.bind(null, template.slug);
 
   return (
@@ -64,7 +64,7 @@ export default async function PreviewPage({
                   <div className="relative aspect-[9/17.4] overflow-hidden rounded-[35px] bg-[#fdf3e0]">
                     <LazyVideo
                       src={previewVideo(template.slug)}
-                      poster={previewCover(template.slug)}
+                      poster={previewPoster(template.slug)}
                       label={`${template.name} invitation playing`}
                       className="h-full w-full object-cover"
                     />
@@ -92,9 +92,7 @@ export default async function PreviewPage({
               <ul className="mt-8 grid gap-3.5">
                 {template.bullets.map((b) => (
                   <li key={b} className="flex items-start gap-3 text-[17px] leading-6">
-                    <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-maroon text-[#ffd66b]">
-                      <Check size={14} strokeWidth={3} aria-hidden="true" />
-                    </span>
+                    <SealTick size={24} className="mt-0.5 shrink-0" />
                     {b}
                   </li>
                 ))}
@@ -130,7 +128,7 @@ export default async function PreviewPage({
                   "Share on WhatsApp, Instagram, SMS",
                 ].map((x) => (
                   <p key={x} className="flex items-center gap-2.5 text-[15px] font-medium">
-                    <Check size={17} strokeWidth={2.5} className="text-positive" aria-hidden="true" />
+                    <SealTick size={20} className="shrink-0" />
                     {x}
                   </p>
                 ))}
@@ -144,16 +142,13 @@ export default async function PreviewPage({
                 eyebrow="More designs"
                 title={
                   <>
-                    You might also <em>love</em>
+                    Every other design, <em>one tap away</em>
                   </>
                 }
+                sub="Choose a style to see all the designs in it."
               />
-              <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {others.map((t, i) => (
-                  <Reveal key={t.slug} delay={i * 0.06} className="h-full">
-                    <TemplateCard template={t} />
-                  </Reveal>
-                ))}
+              <div className="mt-12">
+                <TemplateBrowser templates={others} />
               </div>
             </section>
           )}

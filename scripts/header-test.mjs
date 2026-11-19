@@ -24,13 +24,15 @@ try {
     await sleep(1500);
     const s = await state();
     sizes[p] = `${s.width}x${s.height}@${s.top}`;
-    // The first main element must start at or below the bottom of the header.
+    // No content may sit under the header. The home hero's picture is meant to run up behind it,
+    // so what must clear the header is the first piece of real content: the first heading and the
+    // first button or link inside <main>.
     const gap = await page.evaluate(() => {
       const h = document.querySelector("header").getBoundingClientRect();
-      const m = document.querySelector("main").getBoundingClientRect();
-      return Math.round(m.top - h.bottom);
+      const first = [...document.querySelectorAll("main h1, main h2, main a, main button")].map((e) => e.getBoundingClientRect()).filter((r) => r.height > 0).sort((a, b) => a.top - b.top)[0];
+      return Math.round(first.top - h.bottom);
     });
-    check(gap >= 0, `${p}: content starts ${gap}px below the header (no overlap)`);
+    check(gap >= 0, `${p}: first content starts ${gap}px below the header (no overlap)`);
     if (p === "/") {
       check(s.opacity === 1 && s.top >= 0, "home: header visible at the top");
       await page.evaluate(() => window.scrollTo(0, 900));
