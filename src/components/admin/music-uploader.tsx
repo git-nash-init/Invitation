@@ -40,7 +40,7 @@ export function MusicUploader() {
       const { id, title } = describe(f);
       const path = `${id}.${/\.m4a$/i.test(f.name) ? "m4a" : "mp3"}`;
       const up = await supabase.storage.from("music").upload(path, f, { contentType: type, upsert: true, cacheControl: "31536000" });
-      if (up.error) { set(i, { state: "error", note: "Upload refused. Are you signed in as an admin?" }); continue; }
+      if (up.error) { set(i, { state: "error", note: `Upload refused: ${up.error.message}` }); continue; }
       const res = await registerTrack({ id, title, storage_path: path, license_note: licence });
       set(i, res.ok ? { state: "done" } : { state: "error", note: res.error });
     }
