@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { LoadingIframe } from "@/components/ui/loading-iframe";
 
 /** The published invitation, full screen. Relays guest replies from the template to the API. */
 export function PublicFrame({
@@ -49,11 +50,12 @@ export function PublicFrame({
   }, [slug, code]);
 
   return (
-    <iframe
-      ref={ref}
+    <LoadingIframe
+      frameRef={ref}
       src={src}
       title={title}
-      allow="autoplay"
+      fixed
+      label="Opening your invitation"
       className="fixed inset-0 h-full w-full border-0 bg-black"
     />
   );

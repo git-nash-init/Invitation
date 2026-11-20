@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LayoutGrid, LogOut, Mail } from "lucide-react";
 import { Logo } from "@/components/site/logo";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { signOut } from "@/lib/auth/actions";
 
 const NAV = [
@@ -38,17 +39,17 @@ export function Sidebar({ name, email }: { name: string; email: string }) {
             <p className="truncate text-[12px] leading-4 text-muted">{email}</p>
           </div>
           <form action={signOut} className="mt-3">
-            <button type="submit" className="btn btn-ghost !h-9 w-full !justify-start gap-[10px] !px-3">
+            <SubmitButton variant="ghost" pendingText="Logging out" className="!h-9 w-full !justify-start gap-[10px] !px-3">
               <LogOut size={16} strokeWidth={1.5} aria-hidden="true" />
               Log out
-            </button>
+            </SubmitButton>
           </form>
         </div>
 
         <form action={signOut} className="lg:hidden">
-          <button type="submit" className="btn btn-ghost btn-sm" aria-label="Log out">
+          <SubmitButton variant="ghost" size="sm" aria-label="Log out">
             <LogOut size={16} strokeWidth={1.5} />
-          </button>
+          </SubmitButton>
         </form>
       </div>
     </aside>

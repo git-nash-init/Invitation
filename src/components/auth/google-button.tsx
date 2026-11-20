@@ -1,10 +1,11 @@
+import { SubmitButton } from "@/components/ui/submit-button";
 import { signInWithGoogle } from "@/lib/auth/actions";
 
 export function GoogleButton({ next, label }: { next?: string; label: string }) {
   return (
     <form action={signInWithGoogle}>
       {next ? <input type="hidden" name="next" value={next} /> : null}
-      <button type="submit" className="btn btn-glass btn-lg w-full">
+      <SubmitButton variant="glass" size="lg" className="w-full" pendingText="Opening Google">
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
           <path
             fill="#4285F4"
@@ -24,7 +25,7 @@ export function GoogleButton({ next, label }: { next?: string; label: string }) 
           />
         </svg>
         {label}
-      </button>
+      </SubmitButton>
     </form>
   );
 }

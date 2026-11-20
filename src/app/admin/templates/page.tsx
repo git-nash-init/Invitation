@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Flash } from "@/components/admin/flash";
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { createClient } from "@/lib/supabase/server";
 import { saveCategory, saveTemplate } from "../actions";
 
@@ -58,7 +58,7 @@ export default async function TemplatesAdminPage({ searchParams }: { searchParam
               Shown on the website
             </label>
             <div className="sm:text-right">
-              <Button type="submit" className="w-full sm:w-auto">Save {t.name}</Button>
+              <SubmitButton pendingText="Saving" className="w-full sm:w-auto">Save {t.name}</SubmitButton>
             </div>
           </form>
         ))}
@@ -94,7 +94,7 @@ export default async function TemplatesAdminPage({ searchParams }: { searchParam
               Shown on the website
             </label>
             <div className="sm:col-span-2 sm:text-right">
-              <Button type="submit" className="w-full sm:w-auto">{c ? "Save" : "Add category"}</Button>
+              <SubmitButton pendingText="Saving" className="w-full sm:w-auto">{c ? "Save" : "Add category"}</SubmitButton>
             </div>
           </form>
         ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LoadingIframe } from "@/components/ui/loading-iframe";
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
@@ -72,7 +73,7 @@ export function DemoFrame({
   return (
     <>
       <style>{`@media print { body { display: none !important; } } body { user-select: none; -webkit-user-select: none; }`}</style>
-      <iframe src={src} title="Live preview" allow="autoplay" className="fixed inset-0 h-full w-full border-0 bg-black" />
+      <LoadingIframe src={src} title="Live preview" fixed label="Opening the live preview" className="fixed inset-0 h-full w-full border-0 bg-black" />
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-10" style={{ backgroundImage: bg, backgroundSize: "300px 200px" }} />
       <div className="fixed inset-x-0 top-3 z-20 flex justify-center gap-2 px-3">
         <div className="glass-strong flex items-center gap-3 rounded-full py-1.5 pl-4 pr-1.5 text-[14px] leading-5">

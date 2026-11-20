@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { ArrowLeft, Check, Copy, ExternalLink, Monitor, Smartphone, Users, X } from "lucide-react";
 import { Button, LinkButton } from "@/components/ui/button";
+import { FrameLoading } from "@/components/ui/page-loading";
 import { saveConfig, setStatus, updateSettings } from "@/lib/invitations/actions";
 
 type Props = {
@@ -48,6 +49,8 @@ export function StudioClient({
   const [copied, setCopied] = useState(false);
   const [panelError, setPanelError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [frameReady, setFrameReady] = useState(false);
+  const [navigating, startNav] = useTransition();
 
   const published = status === "published";
   // The panel that shows this only renders after a click, so the origin is always
@@ -56,7 +59,7 @@ export function StudioClient({
 
   // Publishing an unpaid invitation goes to the page that explains and takes the payment.
   function openPublish() {
-    if (!published && !paid) router.push(`/studio/${id}/publish`);
+    if (!published && !paid) startNav(() => router.push(`/studio/${id}/publish`));
     else setPanelOpen(true);
   }
 
@@ -117,10 +120,13 @@ export function StudioClient({
           src={src}
           title="Invitation editor"
           allow="autoplay"
+          onLoad={() => setFrameReady(true)}
           className={`h-full border-0 bg-black transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             device === "phone" ? "w-[390px] max-w-full" : "w-full"
           }`}
         />
+
+        <FrameLoading visible={!frameReady} label="Opening your editor" />
 
         <nav
           aria-label="Editor controls"
@@ -172,8 +178,8 @@ export function StudioClient({
             <Users size={16} strokeWidth={1.75} />
             <span className="hidden sm:inline">Share</span>
           </LinkButton>
-          <Button size="sm" onClick={openPublish} className="!rounded-full">
-            {published ? "Share" : "Publish"}
+          <Button size="sm" onClick={openPublish} loading={navigating} className="!rounded-full">
+            {navigating ? "Opening" : published ? "Share" : "Publish"}
           </Button>
         </nav>
 
@@ -270,13 +276,13 @@ export function StudioClient({
                       <LinkButton href={`/dashboard/${id}/guests`} size="lg" className="w-full">
                         Send to your friends
                       </LinkButton>
-                      <Button onClick={togglePublish} disabled={busy} variant="ghost" className="w-full">
-                        Unpublish
+                      <Button onClick={togglePublish} loading={busy} variant="ghost" className="w-full">
+                        {busy ? "Unpublishing" : "Unpublish"}
                       </Button>
                     </>
                   ) : (
-                    <Button onClick={togglePublish} disabled={busy} size="lg" className="w-full">
-                      Publish invitation
+                    <Button onClick={togglePublish} loading={busy} size="lg" className="w-full">
+                      {busy ? "Publishing" : "Publish invitation"}
                     </Button>
                   )}
                 </div>

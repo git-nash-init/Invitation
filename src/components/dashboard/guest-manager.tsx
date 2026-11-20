@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore, useTransition } from "react";
 import { BookUser, Check, Copy, Mail, MessageCircle, Send, Share2, Smartphone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { addGuests, removeGuest } from "@/lib/invitations/actions";
 import type { Guest, MessageTemplate } from "@/lib/invitations/queries";
 import { compose, emailUrl, instagramInboxUrl, smsUrl, telegramUrl, whatsappUrl } from "@/lib/share";
@@ -33,6 +34,7 @@ type RowProps = {
   message: string;
   link: string;
   extra?: React.ReactNode;
+  busy?: boolean;
   reach?: Reach;
   canShare: boolean;
   onShare: (message: string, link: string) => void;
@@ -42,11 +44,11 @@ type RowProps = {
   onInstagram: (key: string, text: string) => void;
 };
 
-function Row({ rowKey, label, plainLabel, sub, message, link, extra, reach, canShare, onShare, published, copiedKey, onCopy, onInstagram }: RowProps) {
+function Row({ rowKey, label, plainLabel, sub, message, link, extra, busy, reach, canShare, onShare, published, copiedKey, onCopy, onInstagram }: RowProps) {
   const disabled = !published;
   const tile = "btn btn-glass !h-11 flex-1 sm:flex-none sm:!px-4";
   return (
-    <li className="grid gap-3 px-4 py-4 sm:px-5">
+    <li className={`grid gap-3 px-4 py-4 transition-opacity sm:px-5 ${busy ? "pointer-events-none opacity-50" : ""}`} aria-busy={busy || undefined}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-[15px] leading-5">{label}</p>
@@ -115,7 +117,9 @@ export function GuestManager({
   const [messageId, setMessageId] = useState(messages[0]?.id ?? "");
   const [notice, setNotice] = useState<Notice>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [pending, start] = useTransition();
+  const [, start] = useTransition();
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
   const nativeShare = useSyncExternalStore(subscribeNone, canNativeShare, no);
   const pickable = useSyncExternalStore(subscribeNone, canPickContacts, no);
   // Phone numbers and emails of the contacts picked in this visit, so each friend's buttons open
@@ -130,7 +134,9 @@ export function GuestManager({
   function submit(e: React.FormEvent) {
     e.preventDefault();
     start(async () => {
+      setAdding(true);
       const res = await addGuests(invitationId, names);
+      setAdding(false);
       if (res.ok) {
         setNames("");
         setNotice({ ok: true, text: res.message ?? "Friends added" });
@@ -155,7 +161,9 @@ export function GuestManager({
         return next;
       });
       start(async () => {
+        setAdding(true);
         const res = await addGuests(invitationId, rows.map((r) => r.name).join("\n"));
+        setAdding(false);
         setNotice(res.ok ? { ok: true, text: res.message ?? "Friends added" } : { ok: false, text: res.error });
       });
     } catch {
@@ -246,13 +254,13 @@ export function GuestManager({
         />
         <div className="mt-3 flex flex-wrap items-center gap-3">
           {pickable && (
-            <Button type="button" variant="glass" onClick={pickContacts} disabled={pending} className="w-full sm:w-auto">
-              <BookUser size={18} strokeWidth={1.75} aria-hidden="true" />
-              Pick from my contacts
+            <Button type="button" variant="glass" onClick={pickContacts} loading={adding} className="w-full sm:w-auto">
+              {!adding && <BookUser size={18} strokeWidth={1.75} aria-hidden="true" />}
+              {adding ? "Adding your contacts" : "Pick from my contacts"}
             </Button>
           )}
-          <Button type="submit" disabled={pending || names.trim() === ""} className="w-full sm:w-auto">
-            {pending ? "Adding" : "Add friends"}
+          <Button type="submit" disabled={names.trim() === ""} loading={adding} className="w-full sm:w-auto">
+            {adding ? "Adding your friends" : "Add friends"}
           </Button>
           {notice && (
             <p role={notice.ok ? "status" : "alert"} className={`text-[14px] ${notice.ok ? "text-positive" : "text-negative"}`}>
@@ -294,6 +302,7 @@ export function GuestManager({
               onCopy={copy}
               onInstagram={instagram}
               plainLabel={g.name}
+              busy={removingId === g.id}
               label={<span className="tag-chip !h-7">{g.name}</span>}
               sub={`${g.first_viewed_at ? `Opened ${new Date(g.first_viewed_at).toLocaleDateString("en-IN")} · ` : ""}/i/${slug}/${g.code}`}
               link={personalLink(g.code)}
@@ -302,10 +311,17 @@ export function GuestManager({
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm !h-9 !w-9 !px-0"
-                  onClick={() => start(async () => void (await removeGuest(invitationId, g.id)))}
+                  disabled={removingId === g.id}
+                  onClick={() =>
+                    start(async () => {
+                      setRemovingId(g.id);
+                      await removeGuest(invitationId, g.id);
+                      setRemovingId(null);
+                    })
+                  }
                   aria-label={`Remove ${g.name}`}
                 >
-                  <X size={16} strokeWidth={1.5} />
+                  {removingId === g.id ? <Spinner size={16} /> : <X size={16} strokeWidth={1.5} />}
                 </button>
               }
             />

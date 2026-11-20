@@ -8,7 +8,8 @@ import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 import { TemplateBrowser } from "@/components/landing/template-browser";
 import { SectionHead } from "@/components/landing/sections";
-import { Button, LinkButton } from "@/components/ui/button";
+import { LinkButton } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { LazyVideo } from "@/components/ui/lazy-video";
 import { startInvitation } from "@/lib/invitations/actions";
 import { getCurrentUser } from "@/lib/invitations/queries";
@@ -111,9 +112,9 @@ export default async function PreviewPage({
 
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <form action={begin}>
-                  <Button type="submit" size="lg" className="btn-glint w-full sm:w-auto">
+                  <SubmitButton size="lg" pendingText="Opening your editor" className="btn-glint w-full sm:w-auto">
                     Customize free
-                  </Button>
+                  </SubmitButton>
                 </form>
                 <LinkButton href={`/demo/${template.slug}`} variant="glass" size="lg" className="w-full sm:w-auto">
                   <Eye size={18} strokeWidth={2} aria-hidden="true" />

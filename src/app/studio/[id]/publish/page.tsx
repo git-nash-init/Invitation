@@ -20,6 +20,7 @@ import {
 import { Logo } from "@/components/site/logo";
 import { CheckoutButton } from "@/components/studio/checkout-button";
 import { LazyVideo } from "@/components/ui/lazy-video";
+import { LoadingIframe } from "@/components/ui/loading-iframe";
 import { mintAssetToken } from "@/lib/asset-token";
 import { BRAND } from "@/lib/brand";
 import { buildPlatformHash } from "@/lib/invitations/payload";
@@ -126,10 +127,10 @@ export default async function PublishPage({ params }: PageProps<"/studio/[id]/pu
               />
               <div className="rounded-[44px] bg-gradient-to-b from-[#5a0f27] to-[#2a0610] p-[10px] shadow-[0_34px_80px_rgba(107,15,43,0.38),0_0_0_1.5px_rgba(255,214,107,0.55)]">
                 <div className="relative aspect-[9/17.4] overflow-hidden rounded-[35px] bg-black">
-                  <iframe
+                  <LoadingIframe
                     src={`/t/${token}/${template.slug}/${hash}`}
                     title="Your invitation"
-                    allow="autoplay"
+                    label="Opening your invitation"
                     className="absolute inset-0 h-full w-full border-0"
                   />
                 </div>

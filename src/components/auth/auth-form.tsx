@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   logIn,
   signUp,
@@ -24,6 +25,13 @@ const SUBMIT_LABEL: Record<Mode, string> = {
   signup: "Create account",
   forgot: "Send reset link",
   reset: "Save new password",
+};
+
+const PENDING_LABEL: Record<Mode, string> = {
+  login: "Logging you in",
+  signup: "Creating your account",
+  forgot: "Sending the link",
+  reset: "Saving",
 };
 
 export function AuthForm({ mode, next }: { mode: Mode; next?: string }) {
@@ -108,9 +116,9 @@ export function AuthForm({ mode, next }: { mode: Mode; next?: string }) {
         {state?.message && <p className="text-[14px] text-positive">{state.message}</p>}
       </div>
 
-      <button type="submit" disabled={pending} className="btn btn-primary btn-lg w-full">
-        {pending ? "One moment" : SUBMIT_LABEL[mode]}
-      </button>
+      <Button type="submit" size="lg" loading={pending} className="w-full">
+        {pending ? PENDING_LABEL[mode] : SUBMIT_LABEL[mode]}
+      </Button>
     </form>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Trash2 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { deleteInvitation } from "@/lib/invitations/actions";
 
 /** Two-step delete without a browser dialog: first click arms it, second confirms. */
@@ -30,6 +31,7 @@ export function DeleteButton({ id }: { id: string }) {
         disabled={pending}
         onClick={() => start(() => deleteInvitation(id))}
       >
+        {pending && <Spinner size={14} />}
         {pending ? "Deleting" : "Delete for good"}
       </button>
       <button type="button" className="btn btn-ghost btn-sm" onClick={() => setArmed(false)}>

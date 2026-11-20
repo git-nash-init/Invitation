@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Flash } from "@/components/admin/flash";
 import { MusicUploader } from "@/components/admin/music-uploader";
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { createClient } from "@/lib/supabase/server";
 import { saveTrack } from "../actions";
 
@@ -78,7 +78,7 @@ export default async function MusicPage({ searchParams }: { searchParams: Promis
                 Offer to buyers
               </label>
               <div className="sm:text-right">
-                <Button type="submit" className="w-full sm:w-auto">{t ? "Save" : "Add track"}</Button>
+                <SubmitButton pendingText="Saving" className="w-full sm:w-auto">{t ? "Save" : "Add track"}</SubmitButton>
               </div>
             </form>
           );

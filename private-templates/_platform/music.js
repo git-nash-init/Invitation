@@ -262,6 +262,7 @@ window.BalconyMusic = (function () {
     var tracks = null;      // the library, fetched once when the popover first opens
     var preview = null;     // the one track being auditioned
     var previewId = '';
+    var uploading = false;  // a track of the host's own is on its way
 
     function esc(t) {
       return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
@@ -322,7 +323,7 @@ window.BalconyMusic = (function () {
         (tracks === null ? '<li class="music-pop__empty">Loading tracks…</li>' : (rows || '<li class="music-pop__empty">No tracks in the library yet.</li>')) +
         '</ul>' +
         '<div class="music-pop__row">' +
-        '<button type="button" class="music-pop__btn" data-music="upload">Upload your own</button>' +
+        '<button type="button" class="music-pop__btn" data-music="upload"' + (uploading ? ' disabled aria-busy="true"' : '') + '>' + (uploading ? 'Uploading your track…' : 'Upload your own') + '</button>' +
         '</div>' +
         '<p class="music-pop__note">Your own track: MP3 or M4A, up to 8 MB.</p>';
       document.body.appendChild(pop);
@@ -399,6 +400,9 @@ window.BalconyMusic = (function () {
       }
 
       if (NS.audioUploadUrl) {
+        uploading = true;
+        errorMsg = '';
+        paint();
         var form = new FormData();
         form.append('audio', file);
         fetch(NS.audioUploadUrl, {
@@ -409,6 +413,7 @@ window.BalconyMusic = (function () {
         })
           .then(function (r) { return r.ok ? r.json() : null; })
           .then(function (res) {
+            uploading = false;
             if (res && res.url) {
               cfg.src = res.url;
               cfg.enabled = true;
@@ -422,6 +427,7 @@ window.BalconyMusic = (function () {
             }
           })
           .catch(function () {
+            uploading = false;
             errorMsg = "Couldn't upload that file - please check your connection.";
             paint();
           });
