@@ -76,6 +76,14 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
   });
 
   if (error) {
+    // The sign-up itself can be fine while the confirmation email cannot be sent (the mail service's hourly
+    // limit, or no sender set up). Say so, instead of blaming the person's details.
+    if (error.status === 429 || error.status === 500 || /email/i.test(error.message) && /send|rate|limit/i.test(error.message)) {
+      return {
+        error: "We could not send the confirmation email just now. Please use Continue with Google, or try again in a little while.",
+        ...keep(formData),
+      };
+    }
     return { error: "We could not create that account. Try a different email or log in.", ...keep(formData) };
   }
 
