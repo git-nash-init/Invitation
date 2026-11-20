@@ -152,7 +152,7 @@ body.is-previewing .frame__slot--photo[data-locked]:hover::after {
   border: 1.5px solid var(--edit-accent);
   border-radius: 14px;
   background: #ffffff;
-  box-shadow: 0 16px 40px rgba(95, 15, 255, 0.25);
+  box-shadow: 0 16px 40px rgba(159, 18, 57, 0.25);
   color: var(--intro-ink);
   font: 400 13px var(--font-sans);
 }
@@ -311,7 +311,7 @@ body.is-previewing .frame__slot--photo[data-locked]:hover::after {
   border: 1.5px solid var(--edit-accent);
   border-radius: 12px;
   background: #fff;
-  box-shadow: 0 14px 34px rgba(95, 15, 255, 0.22);
+  box-shadow: 0 14px 34px rgba(159, 18, 57, 0.22);
 }
 
 .inv-dd.is-open .inv-dd__menu {

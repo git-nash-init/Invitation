@@ -135,7 +135,7 @@ body.is-trial [data-action='compliment-line-remove'] {
   color: var(--edit-accent);
   font: var(--font-regular) 12px var(--font-secondary);
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(95, 15, 255, 0.18);
+  box-shadow: 0 3px 10px rgba(159, 18, 57, 0.18);
   transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -474,7 +474,7 @@ body.is-editing .gallery__scroll::-webkit-scrollbar-track {
   font-size: 26px;
   line-height: 1;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(95, 15, 255, 0.22);
+  box-shadow: 0 4px 14px rgba(159, 18, 57, 0.22);
   transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -510,7 +510,7 @@ body.is-editing .gallery__scroll::-webkit-scrollbar-track {
   color: var(--edit-accent);
   font-size: 13px;
   cursor: pointer;
-  box-shadow: 0 3px 8px rgba(95, 15, 255, 0.2);
+  box-shadow: 0 3px 8px rgba(159, 18, 57, 0.2);
   transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -661,7 +661,7 @@ body.is-editing .cere-card.is-off .cere-card__art {
   color: var(--edit-accent);
   font: var(--font-regular) 12px var(--font-secondary);
   cursor: pointer;
-  box-shadow: 0 3px 8px rgba(95, 15, 255, 0.18);
+  box-shadow: 0 3px 8px rgba(159, 18, 57, 0.18);
 }
 
 .cere-toggle input {
@@ -833,7 +833,7 @@ body.is-editing .rsvp {
   border: 1.5px solid var(--edit-accent);
   border-radius: 14px;
   background: #ffffff;
-  box-shadow: 0 16px 40px rgba(95, 15, 255, 0.25);
+  box-shadow: 0 16px 40px rgba(159, 18, 57, 0.25);
   color: var(--brown);
   font: var(--font-regular) 13px var(--font-secondary);
 }
@@ -999,7 +999,7 @@ body.is-editing .rsvp {
   border: 1.5px solid var(--edit-accent);
   border-radius: 12px;
   background: #fff;
-  box-shadow: 0 14px 34px rgba(95, 15, 255, 0.22);
+  box-shadow: 0 14px 34px rgba(159, 18, 57, 0.22);
 }
 
 .inv-dd.is-open .inv-dd__menu {
@@ -1145,7 +1145,7 @@ body.is-editing .rsvp {
   background: var(--edit-accent);
   color: #ffffff;
   font: var(--font-regular) 13px var(--font-secondary);
-  box-shadow: 0 10px 26px rgba(95, 15, 255, 0.35);
+  box-shadow: 0 10px 26px rgba(159, 18, 57, 0.35);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -1251,7 +1251,7 @@ body.is-editing .cere-card__photo--adjust:active {
   display: grid;
   place-items: center;
   padding: 18% 10% 0 30%;
-  background: rgba(95, 15, 255, 0.16); /* --edit-accent, washed */
+  background: rgba(159, 18, 57, 0.16); /* --edit-accent, washed */
   color: var(--edit-accent);
   font: var(--font-semi-bold) 14px/1.3 var(--font-secondary);
   text-align: center;

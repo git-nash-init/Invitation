@@ -9,18 +9,18 @@
    editor CSS consumes them, so toolbar.css must load before it. */
 
 :root {
-  --edit-accent: #5F0FFF;             /* dusk-500 */
-  --edit-accent-soft: rgba(95, 15, 255, 0.5);
-  --edit-accent-faint: rgba(95, 15, 255, 0.45);
-  --edit-accent-tint: rgba(95, 15, 255, 0.06);
-  --edit-bg: #faf8ff;
+  --edit-accent: #9F1239;             /* dusk-500 */
+  --edit-accent-soft: rgba(159, 18, 57, 0.5);
+  --edit-accent-faint: rgba(159, 18, 57, 0.45);
+  --edit-accent-tint: rgba(159, 18, 57, 0.06);
+  --edit-bg: #fff8ee;
 
   /* Design-system button tokens (mirrored here because template pages don't load
      the platform's token CSS - kept in sync with public/css/tokens). */
-  --ds-dusk-200: #BB99FF;
-  --ds-dusk-600: #4900DB;   /* --color-surface-brand-primary-default */
-  --ds-dusk-700: #3800A8;   /* --color-surface-brand-primary-bold  */
-  --ds-dawn-500: #ffad33;   /* --color-dawn-500 - the primary button's glow */
+  --ds-dusk-200: #E9B8C4;
+  --ds-dusk-600: #6B0F2B;   /* --color-surface-brand-primary-default */
+  --ds-dusk-700: #4A0A1E;   /* --color-surface-brand-primary-bold  */
+  --ds-dawn-500: #FFB800;   /* --color-dawn-500 - the primary button's glow */
   --ds-btn-font: 600 12px/1 "Satoshi", var(--tb-font), system-ui, sans-serif;
   --ds-btn-elevation:
     inset 2px 2px 4px 2px rgba(255, 255, 255, 0.3),
@@ -431,7 +431,7 @@
   padding: 12px;
   border: 1.5px solid transparent;
   border-radius: 12px;
-  background: #faf8ff;
+  background: #fff8ee;
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -635,12 +635,12 @@
    over-constrained box resolution - see the comment in toolbar.js). Fixed +
    click-through like the bar, sitting above the invitation but below the
    bar/buy-CTA/modal so the chrome stays fully legible and usable. The mark is
-   the logo artwork itself (public/landing/logo.svg, 372x145, #5F0FFF) - its
+   the logo artwork itself (public/landing/logo.svg, 372x145, #9F1239) - its
    path data baked into a small tiled SVG rather than loaded as an <img>, which
    matches how the rest of this file avoids image requests, and lets one
    declaration cover any viewport/scroll height with no JS resize handling.
    Regenerate if the logo ever changes: take the path `d`s out of logo.svg, wrap
-   them in <g fill='#5F0FFF' transform='translate(120 90) rotate(-28)
+   them in <g fill='#9F1239' transform='translate(120 90) rotate(-28)
    scale(0.403) translate(-186 -72.5)'> - which centres the 372x145 mark on the
    240x180 tile - then percent-encode space, <, > and #. */
 .trial-watermark {
@@ -728,5 +728,5 @@
      floating over the page is appended after it. */
   box-shadow:
     var(--ds-btn-elevation),
-    0 16px 36px rgba(95, 15, 255, 0.38);
+    0 16px 36px rgba(159, 18, 57, 0.38);
 }

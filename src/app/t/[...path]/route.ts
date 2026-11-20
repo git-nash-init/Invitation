@@ -3,6 +3,7 @@ import path from "node:path";
 import { Readable } from "node:stream";
 import { verifyAssetToken } from "@/lib/asset-token";
 import { clientIp, rateLimit } from "@/lib/security";
+import { withBrandFooter } from "@/lib/template-footer";
 
 // Template files live outside /public, so they are only reachable through this route.
 const ROOT = path.join(process.cwd(), "private-templates");
@@ -93,6 +94,13 @@ export async function GET(request: Request, ctx: RouteContext<"/t/[...path]">) {
       status: 206,
       headers: { ...headers, "Content-Range": `bytes ${start}-${end}/${stat.size}`, "Content-Length": String(end - start + 1) },
     });
+  }
+
+  // A template's own page gets our credit added at the foot (see template-footer.ts).
+  if (path.basename(file) === "index.html" && !SHARED.has(parts[0])) {
+    const html = await fs.promises.readFile(/* turbopackIgnore: true */ file, "utf8");
+    const out = Buffer.from(withBrandFooter(html), "utf8");
+    return new Response(new Uint8Array(out), { status: 200, headers: { ...headers, "Content-Length": String(out.length) } });
   }
 
   const body = Readable.toWeb(fs.createReadStream(/* turbopackIgnore: true */ file)) as ReadableStream;

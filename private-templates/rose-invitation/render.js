@@ -20,10 +20,10 @@
   // delegated handlers (which all match on [data-edit]) never see it. Locking in
   // CSS alone would be theatre - the field would still be typeable.
   function ed(path, opts) {
-    if (!edit) return '';
-    if (!RI.canEdit(path)) return ' data-locked="1" title="Buy this template to edit"';
+    if (!edit) return ' data-fmt="' + path + '"';
+    if (!RI.canEdit(path)) return ' data-fmt="' + path + '" data-locked="1" title="Buy this template to edit"';
     const o = opts || {};
-    return ' data-edit="' + path + '"' +
+    return ' data-fmt="' + path + '" data-edit="' + path + '"' +
       (o.multiline ? ' data-edit-multiline="1"' : '') +
       (o.placeholder ? ' data-edit-placeholder="' + esc(o.placeholder) + '"' : '') +
       ' contenteditable="plaintext-only" spellcheck="false"';

@@ -28,6 +28,7 @@
     if (!el) return;
     const o = opts || {};
     el.textContent = value == null ? '' : value;
+    el.dataset.fmt = path; // lets _platform/text-format.js size and align this line, for guests too
 
     if (!edit) {
       el.removeAttribute('contenteditable');

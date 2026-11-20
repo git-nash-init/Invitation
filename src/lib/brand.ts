@@ -5,6 +5,8 @@ export const BRAND = {
   devanagari: "प्रथम",
   meaning: "first",
   tagline: "Interactive wedding invitations",
+  /** The line shown under the mark at the foot of every live invitation. */
+  motto: "The first impression, beautifully made.",
   description:
     "Choose a royal interactive wedding invitation, add your names and photos, and share one link, or a personal link with every guest's name.",
   watermark: "Pratham Invitation preview",

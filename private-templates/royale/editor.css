@@ -11,7 +11,7 @@
    chrome is not part of the invitation - it is the tooling around it - and a
    host who edits two templates should not have to relearn which colour means
    "you can change this". The accent now comes from _platform/toolbar.css
-   (--edit-accent: #5F0FFF) like everywhere else, and the two names below are
+   (--edit-accent: #9F1239) like everywhere else, and the two names below are
    kept only because royale's own rules use them; they point at the shared
    tokens rather than carrying colours of their own. */
 

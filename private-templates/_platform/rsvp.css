@@ -20,9 +20,9 @@
   /* (2) beats (1) because .brsvp declares the default itself, and a declaration
      always outranks an inherited value - so the payload colour has to arrive as
      a DIFFERENT custom property that this one reads through. */
-  --brsvp-accent: var(--brsvp-accent-set, #6B4E9E);
-  --brsvp-ink: #3E2A63;
-  --brsvp-muted: #8A83A3;
+  --brsvp-accent: var(--brsvp-accent-set, #6B0F2B);
+  --brsvp-ink: #3B0A1A;
+  --brsvp-muted: #8A6F6A;
   --brsvp-surface: #FFFFFF;
 
   /* Accent tints. Roughly 6% / 10% / 22% / 55% of the accent over white. */
@@ -34,11 +34,11 @@
   /* The "Maybe" ring is the one colour NOT derived from the accent: it has to
      stay legible as a distinct middle state whatever the accent becomes. */
   --brsvp-maybe: #D4A24C;
-  --brsvp-no: #B9B4C6;
+  --brsvp-no: #CDBFB5;
 
   /* Submit gradient: the accent, warming toward a rose at the far end. */
   --brsvp-grad-from: var(--brsvp-accent);
-  --brsvp-grad-to: color-mix(in srgb, var(--brsvp-accent) 45%, #E08BB0);
+  --brsvp-grad-to: color-mix(in srgb, var(--brsvp-accent) 45%, #F59E0B);
 
   box-sizing: border-box;
   width: min(94vw, 560px);
@@ -46,7 +46,7 @@
   padding: 28px clamp(16px, 5vw, 34px) 26px;
   border-radius: 26px;
   background: var(--brsvp-surface);
-  box-shadow: 0 18px 60px rgba(62, 42, 99, 0.12);
+  box-shadow: 0 18px 60px rgba(59, 10, 26, 0.12);
   color: var(--brsvp-ink);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   text-align: left;
@@ -54,11 +54,11 @@
 
 @supports not (color: color-mix(in srgb, red 50%, blue)) {
   .brsvp {
-    --brsvp-wash: #F7F4FC;
-    --brsvp-well: #F0EAF9;
-    --brsvp-line: #E7DFF4;
-    --brsvp-line-strong: #C9BAE4;
-    --brsvp-grad-to: #C77DBB;
+    --brsvp-wash: #FFF8EE;
+    --brsvp-well: #FDEEDD;
+    --brsvp-line: #F0DCC4;
+    --brsvp-line-strong: #E3C79C;
+    --brsvp-grad-to: #E11D74;
   }
 }
 
