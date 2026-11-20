@@ -1,0 +1,36 @@
+/* Crimson Monogram Studio Editor Styles */
+[data-edit-field] {
+  cursor: pointer;
+  position: relative;
+  outline: 1px dashed transparent;
+  transition: outline 0.15s ease, background 0.15s ease;
+}
+
+[data-edit-field]:hover {
+  outline: 1px dashed #dfb15b;
+  background: rgba(223, 177, 91, 0.1);
+  border-radius: 4px;
+}
+
+[data-edit-field]::after {
+  content: '✎';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 11px;
+  background: #dfb15b;
+  color: #24030a;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+[data-edit-field]:hover::after {
+  opacity: 1;
+}

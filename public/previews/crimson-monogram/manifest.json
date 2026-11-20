@@ -1,0 +1,14 @@
+{
+  "slug": "crimson-monogram",
+  "video": "preview.mp4",
+  "cover": "cover.webp",
+  "stills": [
+    "still-1.webp",
+    "still-2.webp",
+    "still-3.webp"
+  ],
+  "probe": "720,1280,18.333333",
+  "bytes": 908496,
+  "tapped": true,
+  "pageErrors": []
+}

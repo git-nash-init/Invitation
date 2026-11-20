@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>The Crimson Monogram • Wedding Invitation</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="../_platform/rsvp.css" />
+  <link rel="stylesheet" href="editor.css" />
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #24030a;
+      color: #f7f1e6;
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Container */
+    #templateRoot {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ---- OPENING CARD (COVER) ---- */
+    .crimson-cover {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: radial-gradient(ellipse at center, #4b0b1a 0%, #29030c 70%, #150105 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.7s;
+    }
+
+    .crimson-cover.opened {
+      opacity: 0;
+      transform: scale(0.96) translateY(-40px);
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .crimson-frame {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      background: linear-gradient(145deg, #380713 0%, #200208 100%);
+      border: 1.5px solid #dfb15b;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), inset 0 0 24px rgba(223, 177, 91, 0.15);
+      border-radius: 20px;
+      padding: 36px 24px 32px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      outline: 1px solid rgba(223, 177, 91, 0.35);
+      outline-offset: -7px;
+    }
+
+    .corner-ornament {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-color: #dfb15b;
+      border-style: solid;
+      pointer-events: none;
+    }
+    .corner-tl { top: 12px; left: 12px; border-width: 2px 0 0 2px; }
+    .corner-tr { top: 12px; right: 12px; border-width: 2px 2px 0 0; }
+    .corner-bl { bottom: 12px; left: 12px; border-width: 0 0 2px 2px; }
+    .corner-br { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; }
+
+    .crimson-crest {
+      margin-bottom: 20px;
+    }
+
+    .monogram-ring {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 1.5px solid #dfb15b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, rgba(223, 177, 91, 0.2) 0%, rgba(36, 3, 10, 0.8) 100%);
+      box-shadow: 0 0 16px rgba(223, 177, 91, 0.3);
+    }
+
+    .monogram-text {
+      font-family: 'Cinzel', serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #dfb15b;
+      letter-spacing: 0.1em;
+    }
+
+    .cover-subtitle {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #c9a770;
+      margin-bottom: 12px;
+    }
+
+    .cover-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.2;
+      margin-bottom: 14px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .cover-title .amp {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      color: #dfb15b;
+      font-weight: 400;
+      font-size: 2rem;
+    }
+
+    .cover-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 70%;
+      margin: 0 auto 16px;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #dfb15b, transparent);
+    }
+
+    .divider-diamond {
+      color: #dfb15b;
+      font-size: 0.75rem;
+    }
+
+    .cover-desc {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.12rem;
+      font-style: italic;
+      color: #e2d2bd;
+      line-height: 1.45;
+      margin-bottom: 20px;
+    }
+
+    .cover-date-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(223, 177, 91, 0.12);
+      border: 1px solid rgba(223, 177, 91, 0.35);
+      border-radius: 30px;
+      padding: 7px 18px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #dfb15b;
+      margin-bottom: 12px;
+    }
+
+    .cover-venue {
+      font-size: 0.82rem;
+      color: #ba9e83;
+      margin-bottom: 28px;
+    }
+
+    .open-seal-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #c7963b 0%, #e2be6c 50%, #b2832c 100%);
+      color: #24030a;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(223, 177, 91, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .open-seal-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(223, 177, 91, 0.55);
+    }
+
+    .seal-ring {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      background: #24030a;
+      color: #dfb15b;
+      border-radius: 50%;
+    }
+
+    .seal-icon {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ---- UNFOLDED INVITATION MAIN ---- */
+    .crimson-main {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      background-color: #2a030c;
+      padding-bottom: 80px;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .crimson-main.visible {
+      opacity: 1;
+    }
+
+    /* Hero Header */
+    .main-hero {
+      padding: 56px 24px 36px;
+      text-align: center;
+      background: radial-gradient(ellipse at top, #480918 0%, #2a030c 100%);
+    }
+
+    .invocation-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      color: #dfb15b;
+      margin-bottom: 20px;
+      letter-spacing: 0.05em;
+    }
+
+    .hero-crest {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      border: 1px solid #dfb15b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(223, 177, 91, 0.1);
+    }
+
+    .hero-monogram {
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #dfb15b;
+    }
+
+    .hero-lead {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      color: #c9a770;
+      margin-bottom: 12px;
+    }
+
+    .hero-couple {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .hero-date {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #dfb15b;
+      margin-bottom: 6px;
+    }
+
+    .hero-venue {
+      font-size: 0.88rem;
+      color: #d6beaa;
+    }
+
+    /* Torn divider */
+    .torn-divider {
+      width: 100%;
+      height: 24px;
+      background-image: url('_assets/media/1173755d0cc99b0e45adb9c6e19bf78e.png');
+      background-repeat: repeat-x;
+      background-size: contain;
+      margin: 10px 0 28px;
+      opacity: 0.9;
+    }
+
+    /* Section Utilities */
+    .section-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #dfb15b;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      color: #ffffff;
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+
+    .section-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      color: #d1bba4;
+      margin-bottom: 28px;
+    }
+
+    /* Ceremonies Section */
+    .ceremonies-section {
+      padding: 0 20px 48px;
+      text-align: center;
+    }
+
+    .ceremonies-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .ceremony-card {
+      background: linear-gradient(180deg, #380713 0%, #220208 100%);
+      border: 1px solid rgba(223, 177, 91, 0.4);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+      text-align: center;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .ceremony-card:hover {
+      border-color: #dfb15b;
+      transform: translateY(-2px);
+    }
+
+    .ceremony-art-wrap {
+      width: 100%;
+      height: 220px;
+      background: radial-gradient(circle, #520c1c 0%, #260209 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      border-bottom: 1px solid rgba(223, 177, 91, 0.25);
+    }
+
+    .ceremony-art {
+      max-height: 190px;
+      max-width: 90%;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6));
+    }
+
+    .ceremony-details {
+      padding: 24px 20px 22px;
+    }
+
+    .ceremony-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #dfb15b;
+      margin-bottom: 10px;
+    }
+
+    .ceremony-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.88rem;
+      color: #f7ede1;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .ceremony-venue {
+      font-size: 0.85rem;
+      color: #c7b099;
+      line-height: 1.4;
+      margin-bottom: 18px;
+    }
+
+    .ceremony-map-btn {
+      display: inline-block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #dfb15b;
+      text-decoration: none;
+      padding: 8px 18px;
+      border: 1px solid rgba(223, 177, 91, 0.5);
+      border-radius: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .ceremony-map-btn:hover {
+      background: #dfb15b;
+      color: #24030a;
+    }
+
+    /* Story Section */
+    .story-section {
+      padding: 0 20px 48px;
+      text-align: center;
+    }
+
+    .story-card {
+      background: linear-gradient(180deg, #350611 0%, #1e0207 100%);
+      border: 1px solid rgba(223, 177, 91, 0.35);
+      border-radius: 18px;
+      padding: 32px 22px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+    }
+
+    .story-image-wrap {
+      width: 100%;
+      max-width: 340px;
+      margin: 0 auto 24px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #dfb15b;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .story-photo {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .story-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.25rem;
+      color: #dfb15b;
+      line-height: 1.45;
+      margin-bottom: 16px;
+      padding: 0 8px;
+    }
+
+    .story-body {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: #d6beaa;
+    }
+
+    /* Travel Guide */
+    .travel-section {
+      padding: 0 20px 48px;
+    }
+
+    .travel-box {
+      background: linear-gradient(180deg, #320510 0%, #1b0106 100%);
+      border: 1px solid rgba(223, 177, 91, 0.3);
+      border-radius: 18px;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    .travel-list {
+      list-style: none;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .travel-point {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.88rem;
+      color: #ded0c0;
+      line-height: 1.5;
+    }
+
+    .point-bullet {
+      color: #dfb15b;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    /* Gallery Section */
+    .gallery-section {
+      padding: 0 20px 48px;
+      text-align: center;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .gallery-cell {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(223, 177, 91, 0.3);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .gallery-photo {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .gallery-photo:hover {
+      transform: scale(1.05);
+    }
+
+    /* RSVP Wrapper */
+    .rsvp-wrapper {
+      padding: 0 16px 40px;
+    }
+
+    /* Footer */
+    .crimson-footer {
+      text-align: center;
+      padding: 24px 20px;
+      border-top: 1px solid rgba(223, 177, 91, 0.2);
+    }
+
+    .footer-couple {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #dfb15b;
+      margin-bottom: 6px;
+    }
+
+    .footer-note {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      color: #baa490;
+    }
+  </style>
+</head>
+<body>
+  <div id="templateRoot"></div>
+
+  <!-- Shared Platform Scripts -->
+  <script src="../_platform/date-display.js"></script>
+  <script src="../_platform/fit-text.js"></script>
+  <script src="../_platform/music.js"></script>
+  <script src="../_platform/rsvp.js"></script>
+
+  <!-- Template Scripts -->
+  <script src="config.js"></script>
+  <script src="platform-adapter.js"></script>
+  <script src="render.js"></script>
+  <script src="app.js"></script>
+
+  <!-- Studio Edit Integration -->
+  <script>
+    const p = new URLSearchParams(location.search);
+    if (p.has('edit') || p.has('preview')) {
+      const s = document.createElement('script');
+      s.src = 'editor.js';
+      document.body.appendChild(s);
+    }
+    if (window.BalconyMusic && typeof window.BalconyMusic.mount === 'function') {
+      window.BalconyMusic.mount(window.CrimsonMonogram);
+    }
+  </script>
+</body>
+</html>

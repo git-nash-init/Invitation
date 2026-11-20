@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>The Sage Envelope - Wedding Invitation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <base href="./">
+
+  <!-- Google Fonts: Cormorant Garamond, Cinzel & Manrope -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Great+Vibes&family=Manrope:wght@300;400;500;600&display=swap">
+
+  <!-- Platform Chrome Stylesheets -->
+  <link rel="stylesheet" href="../_platform/toolbar.css">
+  <link rel="stylesheet" href="../_platform/rsvp.css">
+  <link rel="stylesheet" href="../_platform/music.css">
+  <link rel="stylesheet" href="editor.css">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #f4f6f0;
+      color: #2c3826;
+      font-family: 'Cormorant Garamond', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Envelope Opening Cover */
+    .sage-envelope-cover {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(circle at center, #f8fbf5 0%, #e8ede3 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .sage-envelope-cover--opened {
+      opacity: 0;
+      transform: scale(1.06);
+      pointer-events: none;
+    }
+    .sage-envelope-box {
+      max-width: 360px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .sage-welcome-title {
+      font-size: 1.3rem;
+      color: #4c663f;
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+    .sage-cover-names {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3.4rem;
+      line-height: 1.1;
+      color: #102f75;
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+    .sage-envelope-graphic {
+      position: relative;
+      width: 280px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      cursor: pointer;
+    }
+    .sage-envelope-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 24px rgba(64, 85, 53, 0.15));
+    }
+    .sage-wax-seal {
+      position: relative;
+      width: 58px;
+      height: 58px;
+      z-index: 2;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
+      transition: transform 0.25s ease;
+    }
+    .sage-wax-seal:hover {
+      transform: scale(1.08);
+    }
+    .sage-open-btn {
+      position: relative;
+      z-index: 3;
+      margin-top: -24px;
+      background: #4c663f;
+      color: #ffffff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(76, 102, 63, 0.3);
+      transition: all 0.2s ease;
+    }
+    .sage-open-btn:hover {
+      background: #3a4f30;
+      transform: translateY(-2px);
+    }
+    .sage-cover-date {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.88rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #102f75;
+      font-weight: 700;
+      margin-top: 16px;
+    }
+
+    /* Main Letter Container */
+    .sage-page-wrapper {
+      max-width: 520px;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #dde5d7;
+      box-shadow: 0 12px 36px rgba(44, 56, 38, 0.08);
+      border-radius: 18px;
+      margin: 24px auto;
+      padding: 48px 24px;
+      text-align: center;
+    }
+    .sage-letter-header h1 {
+      font-size: 3.6rem;
+      line-height: 1.1;
+      color: #102f75;
+      margin-bottom: 8px;
+    }
+    .sage-letter-header .amp {
+      font-family: 'Cormorant Garamond', serif;
+      color: #4c663f;
+      display: block;
+      font-size: 2rem;
+    }
+    .sage-date-badge {
+      display: inline-block;
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #4c663f;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border-top: 1px solid #d8e2d2;
+      border-bottom: 1px solid #d8e2d2;
+      padding: 8px 18px;
+      margin: 16px 0;
+    }
+    .sage-note {
+      font-size: 1.15rem;
+      color: #55634e;
+      line-height: 1.6;
+      font-style: italic;
+      margin: 16px 0 36px;
+      padding: 0 12px;
+    }
+
+    /* Section Headings */
+    .sage-section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.45rem;
+      color: #102f75;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin: 40px 0 20px;
+      position: relative;
+    }
+    .sage-section-title::after {
+      content: '';
+      display: block;
+      width: 48px;
+      height: 2px;
+      background: #4c663f;
+      margin: 8px auto 0;
+    }
+
+    /* Ceremony Card */
+    .sage-ceremony-card {
+      background: #fafcf8;
+      border: 1px solid #e2ebd9;
+      border-radius: 14px;
+      padding: 22px 18px;
+      margin-bottom: 20px;
+      text-align: left;
+      transition: transform 0.2s ease;
+    }
+    .sage-ceremony-card:hover {
+      transform: translateY(-2px);
+    }
+    .sage-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .sage-card-header h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem;
+      color: #102f75;
+      font-weight: 700;
+    }
+    .sage-time {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #4c663f;
+    }
+    .sage-date {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.9rem;
+      color: #3b4735;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .sage-venue {
+      font-size: 1.05rem;
+      color: #5c6955;
+      margin-bottom: 10px;
+    }
+    .sage-map-link {
+      display: inline-block;
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #4c663f;
+      text-decoration: underline;
+    }
+
+    /* Journey */
+    .sage-journey-card {
+      background: #f7f9f4;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .sage-journey-date {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.78rem;
+      color: #4c663f;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .sage-journey-card h4 {
+      font-size: 1.3rem;
+      color: #102f75;
+      margin: 4px 0;
+    }
+    .sage-journey-card p {
+      font-size: 1rem;
+      color: #55634e;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Opening Envelope Cover Screen ("Tap to open") -->
+  <div class="sage-envelope-cover" id="envelopeCover">
+    <div class="sage-envelope-box">
+      <p class="sage-welcome-title">Welcome to the wedding of</p>
+      <h2 class="sage-cover-names">
+        <span id="coverBride">Ankita</span> &amp; <span id="coverGroom">Kaushik</span>
+      </h2>
+      <div class="sage-envelope-graphic">
+        <img src="_assets/media/04b16248a1ef76990e68b6ca58b274e3.png" alt="Envelope" class="sage-envelope-bg">
+        <img src="_assets/media/c71d50d162babdb218ef63aee82c06bc.png" alt="Wax Seal" class="sage-wax-seal">
+      </div>
+      <button class="sage-open-btn" id="openEnvelope">Tap to open</button>
+      <p class="sage-cover-date" id="coverDate">Sunday, 07th Feb 2026</p>
+    </div>
+  </div>
+
+  <!-- Unfolded Wedding Letter -->
+  <div class="sage-page-wrapper">
+    <div class="sage-letter-header">
+      <p style="font-family:'Manrope', sans-serif; font-size:0.8rem; letter-spacing:0.18em; text-transform:uppercase; color:#4c663f; font-weight:700;">The Wedding Of</p>
+      <h1>
+        <span id="letterBride">Ankita</span>
+        <span class="amp">&amp;</span>
+        <span id="letterGroom">Kaushik</span>
+      </h1>
+      <div class="sage-date-badge" id="letterDate">Sunday, 07th Feb 2026</div>
+      <p style="font-family:'Cormorant Garamond', serif; font-size:1.25rem; color:#2c3826;" id="letterVenue">Fairmont, Udaipur</p>
+      <p class="sage-note" id="letterNote">“We’re counting down to the day we say forever, and we’re grateful to have you with us as we begin this new chapter.”</p>
+    </div>
+
+    <!-- Event Flow (Ceremonies) -->
+    <h2 class="sage-section-title">Event Flow</h2>
+    <div id="eventFlowContainer"></div>
+
+    <!-- Our Journey -->
+    <h2 class="sage-section-title">Our Journey</h2>
+    <div id="journeyContainer"></div>
+
+    <!-- RSVP Section -->
+    <h2 class="sage-section-title" id="rsvpTitle">RSVP</h2>
+    <p style="font-family:'Manrope', sans-serif; font-size:0.9rem; color:#55634e; margin-bottom:20px;">Kindly respond to let us know if you can join our celebration.</p>
+    <div id="rsvpContainer"></div>
+  </div>
+
+  <!-- Scripts in Required Order -->
+  <script src="config.js"></script>
+  <script src="platform-adapter.js"></script>
+  <script src="../_platform/fit-text.js"></script>
+  <script src="render.js"></script>
+  <script src="app.js"></script>
+  <script src="../_platform/toolbar.js"></script>
+  <script src="../_platform/rsvp.js"></script>
+  <script src="../_platform/date-display.js"></script>
+  <script src="../_platform/editor-kit.js"></script>
+  <script src="editor.js"></script>
+  <script src="../_platform/music.js"></script>
+  <script>
+    if (window.BalconyMusic && typeof window.BalconyMusic.mount === 'function') {
+      window.BalconyMusic.mount(window.SageEnvelope);
+    }
+  </script>
+</body>
+</html>

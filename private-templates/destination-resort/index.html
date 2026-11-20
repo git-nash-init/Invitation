@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>The Grand Resort - Wedding Invitation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="icon" href="images/favicon.png" type="image/x-icon">
+
+  <!-- Google Fonts: Cinzel & Manrope -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Great+Vibes&family=Manrope:wght@300;400;500;600;700&display=swap">
+
+  <!-- Shared platform chrome styling -->
+  <link rel="stylesheet" href="../_platform/toolbar.css">
+  <link rel="stylesheet" href="../_platform/rsvp.css">
+  <link rel="stylesheet" href="../_platform/music.css">
+
+  <!-- Template styling -->
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="editor.css">
+
+  <style>
+    /* Opening Cover Screen */
+    .resort-cover {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(circle at center, #fffdf8 0%, #f7f0e1 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .resort-cover--opened {
+      opacity: 0;
+      transform: scale(1.05);
+      pointer-events: none;
+    }
+    .resort-card {
+      max-width: 380px;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #dfc79b;
+      box-shadow: 0 16px 40px rgba(138, 92, 28, 0.12);
+      border-radius: 20px;
+      padding: 40px 24px 36px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .resort-card::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(192, 137, 59, 0.3);
+      border-radius: 14px;
+      pointer-events: none;
+    }
+    .resort-invocation {
+      font-size: 1.15rem;
+      color: #9c6c2e;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: 0.05em;
+    }
+    .resort-intro-note {
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #6d675e;
+      margin-bottom: 18px;
+    }
+    .resort-names {
+      font-family: 'Great Vibes', cursive;
+      font-size: 3.2rem;
+      line-height: 1.1;
+      color: #2b2520;
+      margin-bottom: 16px;
+    }
+    .resort-names .amp {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      color: #c0893b;
+      display: block;
+      margin: 4px 0;
+    }
+    .resort-meta {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.9rem;
+      color: #7a7369;
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+    .resort-btn {
+      background: linear-gradient(135deg, #c0893b 0%, #a47029 100%);
+      color: #ffffff;
+      border: none;
+      padding: 14px 34px;
+      border-radius: 30px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(192, 137, 59, 0.35);
+      transition: all 0.25s ease;
+    }
+    .resort-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(192, 137, 59, 0.45);
+    }
+
+    /* Cleaned up Template sections */
+    .banner-section {
+      padding: 80px 0 60px !important;
+      background: #faf6ee;
+    }
+    .main-header {
+      position: relative !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      padding: 24px 0 0 !important;
+    }
+    .logo img {
+      max-height: 5.5rem !important;
+    }
+    .ceremony-block {
+      margin-bottom: 30px;
+    }
+    .ceremony-block .inner-box {
+      background: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      border: 1px solid #eddcc4;
+      text-align: center;
+      padding-bottom: 20px;
+    }
+    .ceremony-block .image-box img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+    }
+    .ceremony-block .lower-content {
+      padding: 20px 16px 8px;
+    }
+    .ceremony-block h3 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.35rem;
+      color: #2b2520;
+      margin-bottom: 8px;
+    }
+    .ceremony-block .date-time {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 600;
+      color: #c0893b;
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+    .ceremony-block .venue-location p {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.88rem;
+      color: #6d675e;
+      margin-bottom: 10px;
+    }
+    .ceremony-block .map-link {
+      display: inline-block;
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: #c0893b;
+      text-decoration: underline;
+    }
+    .story-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 28px;
+      background: #fff;
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid #eedec9;
+    }
+    .story-img img {
+      width: 100px;
+      height: 100px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+    .story-text h4 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+    }
+    .story-date {
+      font-size: 0.8rem;
+      color: #c0893b;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .time-counter {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .counter-column {
+      background: #ffffff;
+      border: 1px solid #ebd8bf;
+      border-radius: 12px;
+      padding: 12px 16px;
+      min-width: 64px;
+      text-align: center;
+    }
+    .counter-column .count {
+      display: block;
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #c0893b;
+    }
+    .counter-column sub {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: #8c8273;
+    }
+    .sec-title h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.1rem;
+      color: #2b2520;
+    }
+    .sec-title .sub-title {
+      color: #c0893b;
+      font-family: 'Manrope', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- The Opening Cover Screen ("Tap to open") -->
+  <div class="resort-cover" id="resortCover">
+    <div class="resort-card">
+      <div class="resort-invocation">श्री गणेशाय नमः</div>
+      <div class="resort-intro-note">Together with their families</div>
+      <div class="resort-names">
+        <span id="coverBride">Ankita</span>
+        <span class="amp">&amp;</span>
+        <span id="coverGroom">Kaushik</span>
+      </div>
+      <div class="resort-meta">
+        <div id="coverDate">February 14 &amp; 15, 2026</div>
+        <div id="coverVenue">The Grand Heritage Palace, Udaipur</div>
+      </div>
+      <button class="resort-btn" id="openInvite">Tap to open</button>
+    </div>
+  </div>
+
+  <div class="page-wrapper">
+    <!-- Main Header -->
+    <header class="main-header">
+      <div class="container text-center">
+        <div class="logo">
+          <img src="images/logo.png" alt="Wedding Logo">
+        </div>
+      </div>
+    </header>
+
+    <!-- Banner Section -->
+    <section class="banner-section text-center">
+      <div class="container">
+        <div class="sec-title mb-3">
+          <span class="sub-title">Save the Auspicious Dates</span>
+          <h2 id="heroDate">February 14 &amp; 15, 2026</h2>
+          <p class="text-muted" id="heroVenue">The Grand Heritage Palace, Udaipur</p>
+        </div>
+        <h1 class="couple-name mb-3" style="font-family:'Great Vibes', cursive; font-size:3.8rem; color:#2b2520;">
+          <span id="heroBride">Ankita</span>
+          <span style="color:#c0893b; margin:0 0.3em; font-family:'Cinzel', serif; font-size:2rem;">&amp;</span>
+          <span id="heroGroom">Kaushik</span>
+        </h1>
+        <p class="lead" id="heroTagline1">We're making it official.</p>
+        <p class="lead" id="heroTagline2">You're making it special.</p>
+
+        <!-- Countdown -->
+        <div class="time-counter">
+          <div class="counter-column counter-days"><span class="count">00</span><sub>Days</sub></div>
+          <div class="counter-column counter-hours"><span class="count">00</span><sub>Hours</sub></div>
+          <div class="counter-column counter-mins"><span class="count">00</span><sub>Mins</sub></div>
+          <div class="counter-column counter-secs"><span class="count">00</span><sub>Secs</sub></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Couple Section -->
+    <section class="py-5" style="background:#ffffff;">
+      <div class="container">
+        <div class="sec-title text-center mb-5">
+          <span class="sub-title">The Bride &amp; Groom</span>
+          <h2>Meet the Couple</h2>
+        </div>
+        <div class="row align-items-center mb-5">
+          <div class="col-md-5 text-center mb-3 mb-md-0" data-pick-photo="groom.photo">
+            <img src="images/couple-1.png" alt="Groom" id="groomImg" style="width:240px; height:240px; border-radius:50%; object-fit:cover; border:4px solid #dfc79b;">
+          </div>
+          <div class="col-md-7">
+            <h3 id="groomNameText" style="font-family:'Cinzel', serif; color:#2b2520;">Kaushik Sharma</h3>
+            <p class="text-muted" id="groomParentsText">Son of Smt. Sunita &amp; Shri Ramesh Chandra Sharma</p>
+            <p id="groomBioText" style="font-family:'Manrope', sans-serif; font-size:1rem; color:#5c564d; line-height:1.7;">Kindhearted, thoughtful, and the calm in any storm. Kaushik brings warmth and laughter to every single room he enters.</p>
+          </div>
+        </div>
+        <div class="row align-items-center">
+          <div class="col-md-5 order-md-2 text-center mb-3 mb-md-0" data-pick-photo="bride.photo">
+            <img src="images/couple-2.png" alt="Bride" id="brideImg" style="width:240px; height:240px; border-radius:50%; object-fit:cover; border:4px solid #dfc79b;">
+          </div>
+          <div class="col-md-7 order-md-1">
+            <h3 id="brideNameText" style="font-family:'Cinzel', serif; color:#2b2520;">Ankita Mehta</h3>
+            <p class="text-muted" id="brideParentsText">Daughter of Smt. Nandini &amp; Shri Vikram Mehta</p>
+            <p id="brideBioText" style="font-family:'Manrope', sans-serif; font-size:1rem; color:#5c564d; line-height:1.7;">Vibrant, passionate, and an endless spark of joy. Ankita loves deep conversations, spontaneous road trips, and warm filter coffee.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ceremonies Section -->
+    <section class="py-5" style="background:#faf6ee;">
+      <div class="container">
+        <div class="sec-title text-center mb-5">
+          <span class="sub-title">Auspicious Functions</span>
+          <h2>Wedding Ceremonies</h2>
+        </div>
+        <div class="row" id="ceremonyContainer"></div>
+      </div>
+    </section>
+
+    <!-- Story Timeline Section -->
+    <section class="py-5" style="background:#ffffff;">
+      <div class="container" style="max-width:700px;">
+        <div class="sec-title text-center mb-5">
+          <span class="sub-title">Our Journey</span>
+          <h2>Moments Together</h2>
+        </div>
+        <div id="storyContainer"></div>
+      </div>
+    </section>
+
+    <!-- Photo Gallery -->
+    <section class="py-5" style="background:#faf6ee;">
+      <div class="container">
+        <div class="sec-title text-center mb-4">
+          <span class="sub-title">Memories in Frames</span>
+          <h2>Photo Gallery</h2>
+        </div>
+        <div class="gallery-grid" id="galleryContainer"></div>
+      </div>
+    </section>
+
+    <!-- RSVP Section (Integrated with _platform/rsvp.js) -->
+    <section class="py-5" style="background:#ffffff;" id="rsvpSection">
+      <div class="container" style="max-width:600px;">
+        <div class="sec-title text-center mb-4">
+          <span class="sub-title">Honour Us With Your Blessings</span>
+          <h2>RSVP</h2>
+          <p class="text-muted">Kindly confirm your attendance to help us prepare your stay and celebrations.</p>
+        </div>
+        <div id="rsvpContainer"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Scripts in required platform order -->
+  <script src="config.js"></script>
+  <script src="platform-adapter.js"></script>
+  <script src="../_platform/fit-text.js"></script>
+  <script src="render.js"></script>
+  <script src="app.js"></script>
+  <script src="../_platform/toolbar.js"></script>
+  <script src="../_platform/rsvp.js"></script>
+  <script src="../_platform/date-display.js"></script>
+  <script src="../_platform/editor-kit.js"></script>
+  <script src="editor.js"></script>
+  <script src="../_platform/music.js"></script>
+  <script>
+    if (window.BalconyMusic && typeof window.BalconyMusic.mount === 'function') {
+      window.BalconyMusic.mount(window.DestinationResort);
+    }
+  </script>
+</body>
+</html>

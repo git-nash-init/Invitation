@@ -1,0 +1,17 @@
+/* The Sage Envelope - Studio Editor Styling */
+[contenteditable="plaintext-only"] {
+  outline: 1px dashed rgba(64, 85, 53, 0.4);
+  outline-offset: 4px;
+  cursor: text;
+  transition: outline 0.2s ease, background 0.2s ease;
+}
+
+[contenteditable="plaintext-only"]:hover {
+  outline: 1px solid rgba(64, 85, 53, 0.8);
+  background: rgba(64, 85, 53, 0.05);
+}
+
+[contenteditable="plaintext-only"]:focus {
+  outline: 2px solid #405535;
+  background: rgba(64, 85, 53, 0.08);
+}

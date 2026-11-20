@@ -15,7 +15,7 @@ export async function GET(_req: Request, ctx: RouteContext<"/try/[slug]/meta">) 
     category: t.category,
     checkoutUrl: "/signup",
     dashboardUrl: "/dashboard",
-    priceLabel: "₹699",
+    priceLabel: "",
     includes: [],
     addOns: [],
   });

@@ -25,6 +25,21 @@ export const SHOWCASE: Record<string, { useCase: string; feel: string }> = {
     useCase:
       "An intimate wedding with a modern taste. Clean ceremony cards, a keepsake note and a photo for each function.",
   },
+  "destination-resort": {
+    feel: "Opulent, celebratory, majestic",
+    useCase:
+      "A destination wedding or multi-day resort celebration. Guests track the live countdown, view each ceremony venue on maps, and confirm attendance.",
+  },
+  "sage-envelope": {
+    feel: "Handcrafted, botanical, intimate",
+    useCase:
+      "An elegant floral or garden wedding. Guests unseal the watercolor envelope to reveal the day's itinerary, couple journey, and RSVP form.",
+  },
+  "crimson-monogram": {
+    feel: "Regal, bespoke, timeless",
+    useCase:
+      "A grand palace wedding. Guests open the gold-embossed crimson monogram card to discover ceremony rituals, destination travel guides, and photo memories.",
+  },
 };
 
 export const FALLBACK_SLIDES = [
@@ -33,6 +48,9 @@ export const FALLBACK_SLIDES = [
   { slug: "rose-invitation", name: "The Rose Pavilion" },
   { slug: "papercut-magenta", name: "The Magenta Lotus" },
   { slug: "papercut", name: "The Sage Lotus" },
+  { slug: "destination-resort", name: "The Grand Resort" },
+  { slug: "sage-envelope", name: "The Sage Envelope" },
+  { slug: "crimson-monogram", name: "The Crimson Monogram" },
 ];
 
 export const previewVideo = (slug: string) => `/previews/${slug}/preview.mp4`;
@@ -58,4 +76,7 @@ export const TEMPLATE_GROUPS: Record<string, string[]> = {
   "rose-invitation": ["floral"],
   "papercut-magenta": ["papercut", "festive"],
   papercut: ["papercut", "floral"],
+  "destination-resort": ["royal", "festive"],
+  "sage-envelope": ["floral", "papercut"],
+  "crimson-monogram": ["royal", "festive"],
 };

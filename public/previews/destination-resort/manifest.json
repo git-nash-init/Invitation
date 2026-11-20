@@ -1,0 +1,14 @@
+{
+  "slug": "destination-resort",
+  "video": "preview.mp4",
+  "cover": "cover.webp",
+  "stills": [
+    "still-1.webp",
+    "still-2.webp",
+    "still-3.webp"
+  ],
+  "probe": "720,1280,15.600000",
+  "bytes": 869753,
+  "tapped": true,
+  "pageErrors": []
+}

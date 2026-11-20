@@ -48,6 +48,7 @@ const OPTS = {
   royale: { coverFrom: 1 },
   papercut: { coverFrom: 1 },
   "papercut-magenta": { coverFrom: 3 },
+  "sage-envelope": { coverFrom: 1 },
 };
 const opt = (slug, key, dflt) => OPTS[slug]?.[key] ?? dflt;
 const args = process.argv.slice(2);

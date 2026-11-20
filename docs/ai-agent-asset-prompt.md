@@ -1,6 +1,9 @@
-# Prompt for the AI agent: bring the licensed templates into Pratham Invitation and build every preview asset
+ bring the licensed templates into Pratham Invitation and build every preview asset
 
-Fill in the three `{{...}}` values, then give everything below the line to the agent.
+
+https://site.ospreyinvites.com/TrishawedsDhruv/
+https://website.ospreyinvites.com/mosam-krunal/
+https://website.ospreyinvites.com/karanandsanvi
 
 ---
 
@@ -11,7 +14,7 @@ You are working on **Pratham Invitation** (प्रथम, "first"): a Next.js 
 Inputs you will use:
 - Repository: **{{REPO_URL_OR_LOCAL_PATH}}** (branch `main`; read `AGENTS.md` and `README.md` first).
 - Live site: **https://pratham-invitation.vercel.app**
-- Licence evidence: **{{WHERE_THE_LICENCE_OR_OWNERSHIP_PROOF_IS}}**. Copy it to `docs/licences/` and list every asset family it covers. If an asset is not covered, do not use it and say so in the report.
+
 
 ## 1. Rules that never bend
 
