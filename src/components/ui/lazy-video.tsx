@@ -42,7 +42,8 @@ export function LazyVideo({
       muted
       loop
       playsInline
-      preload="metadata"
+      // Nothing is downloaded until the video scrolls into view; the poster (its own first frame) shows until then.
+      preload="none"
       aria-label={label}
       className={className}
     />
