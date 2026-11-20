@@ -75,7 +75,7 @@ export function TemplateCard({ template, priority }: { template: Template; prior
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="none"
           aria-hidden="true"
           onPlaying={() => setLive(true)}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-200 ${
