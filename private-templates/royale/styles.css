@@ -1893,6 +1893,11 @@ body::before {
   color: var(--royale-gold);
 }
 
+/* The editor's "add a ceremony" tile always takes a row of its own, so the cards above stay centred. */
+.ryc-add {
+  grid-column: 1 / -1;
+}
+
 .ryc-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -1951,9 +1956,10 @@ body::before {
   }
 
   .ryc-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--ryc-cols, 3), minmax(0, 1fr));
     align-items: start;
-    max-width: 1120px;
+    max-width: calc(1120px * var(--ryc-cols, 3) / 3);
+    margin-inline: auto;
   }
 
   /* Three across, so a divider under every card would cut the rows apart.
@@ -2039,7 +2045,7 @@ body::before {
    cards give up the width to it. */
 @media (orientation: landscape) and (min-width: 900px) {
   .ryc-grid {
-    max-width: 1500px;
+    max-width: calc(1500px * var(--ryc-cols, 3) / 3);
     column-gap: clamp(40px, 6.5vw, 120px);
   }
 

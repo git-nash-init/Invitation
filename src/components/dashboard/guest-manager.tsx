@@ -1,11 +1,23 @@
 "use client";
 
 import { useState, useSyncExternalStore, useTransition } from "react";
-import { Check, Copy, Mail, MessageCircle, Send, Share2, Smartphone, X } from "lucide-react";
+import { BookUser, Check, Copy, Mail, MessageCircle, Send, Share2, Smartphone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { addGuests, removeGuest } from "@/lib/invitations/actions";
 import type { Guest, MessageTemplate } from "@/lib/invitations/queries";
 import { compose, emailUrl, instagramInboxUrl, smsUrl, telegramUrl, whatsappUrl } from "@/lib/share";
+
+/** What the phone's contact picker hands back (Chrome on Android). It never leaves this browser. */
+type PickedContact = { name?: string[]; tel?: string[]; email?: string[] };
+type ContactsApi = { select: (props: string[], opts?: { multiple?: boolean }) => Promise<PickedContact[]> };
+const contactsApi = (): ContactsApi | undefined => (navigator as Navigator & { contacts?: ContactsApi }).contacts;
+const nameKey = (n: string) => n.replace(/[<>]/g, "").replace(/["'`]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+type Reach = { tel?: string; email?: string };
+
+const subscribeNone = () => () => {};
+const canPickContacts = () => typeof contactsApi()?.select === "function";
+const canNativeShare = () => typeof navigator.share === "function";
+const no = () => false;
 
 type Notice = { ok: boolean; text: string } | null;
 
@@ -21,13 +33,16 @@ type RowProps = {
   message: string;
   link: string;
   extra?: React.ReactNode;
+  reach?: Reach;
+  canShare: boolean;
+  onShare: (message: string, link: string) => void;
   published: boolean;
   copiedKey: string | null;
   onCopy: (key: string, text: string) => void;
   onInstagram: (key: string, text: string) => void;
 };
 
-function Row({ rowKey, label, plainLabel, sub, message, link, extra, published, copiedKey, onCopy, onInstagram }: RowProps) {
+function Row({ rowKey, label, plainLabel, sub, message, link, extra, reach, canShare, onShare, published, copiedKey, onCopy, onInstagram }: RowProps) {
   const disabled = !published;
   const tile = "btn btn-glass !h-11 flex-1 sm:flex-none sm:!px-4";
   return (
@@ -40,9 +55,19 @@ function Row({ rowKey, label, plainLabel, sub, message, link, extra, published, 
         {extra}
       </div>
       <div className={`flex flex-wrap gap-2 ${disabled ? "pointer-events-none opacity-50" : ""}`} aria-disabled={disabled}>
+        {canShare && (
+          <button
+            type="button"
+            className="btn btn-primary !h-11 flex-1 sm:flex-none sm:!px-4"
+            onClick={() => onShare(message, link)}
+            aria-label={`Choose who to send ${plainLabel}'s invitation to`}
+          >
+            <BookUser size={18} strokeWidth={1.75} /> Choose contact
+          </button>
+        )}
         <a
           className={tile}
-          href={whatsappUrl(message)}
+          href={whatsappUrl(message, reach?.tel)}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Send to ${plainLabel} on WhatsApp`}
@@ -52,13 +77,13 @@ function Row({ rowKey, label, plainLabel, sub, message, link, extra, published, 
         <a className={tile} href={telegramUrl(message, link)} target="_blank" rel="noopener noreferrer">
           <Send size={18} strokeWidth={1.5} /> Telegram
         </a>
-        <a className={tile} href={smsUrl(message)}>
+        <a className={tile} href={smsUrl(message, reach?.tel)}>
           <Smartphone size={18} strokeWidth={1.5} /> SMS
         </a>
         <button type="button" className={tile} onClick={() => onInstagram(rowKey, message)}>
           <Share2 size={18} strokeWidth={1.5} /> Instagram
         </button>
-        <a className={tile} href={emailUrl(message, "You are invited")}>
+        <a className={tile} href={emailUrl(message, "You are invited", reach?.email)}>
           <Mail size={18} strokeWidth={1.5} /> Email
         </a>
         <button type="button" className={tile} onClick={() => onCopy(rowKey, message)}>
@@ -91,6 +116,11 @@ export function GuestManager({
   const [notice, setNotice] = useState<Notice>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const nativeShare = useSyncExternalStore(subscribeNone, canNativeShare, no);
+  const pickable = useSyncExternalStore(subscribeNone, canPickContacts, no);
+  // Phone numbers and emails of the contacts picked in this visit, so each friend's buttons open
+  // straight in their chat. They stay in this browser; only the names are saved to the invitation.
+  const [reachByName, setReachByName] = useState<Record<string, Reach>>({});
 
   const body = messages.find((m) => m.id === messageId)?.body ?? "Hi {friend}! {host} invites you: {link}";
   const everyoneLink = `${origin}/i/${slug}`;
@@ -108,6 +138,38 @@ export function GuestManager({
         setNotice({ ok: false, text: res.error });
       }
     });
+  }
+
+  async function pickContacts() {
+    const api = contactsApi();
+    if (!api) return;
+    try {
+      const picked = await api.select(["name", "tel", "email"], { multiple: true });
+      const rows = picked
+        .map((c) => ({ name: (c.name?.[0] ?? "").trim(), tel: c.tel?.[0], email: c.email?.[0] }))
+        .filter((c) => c.name);
+      if (rows.length === 0) return;
+      setReachByName((prev) => {
+        const next = { ...prev };
+        for (const r of rows) next[nameKey(r.name)] = { tel: r.tel, email: r.email };
+        return next;
+      });
+      start(async () => {
+        const res = await addGuests(invitationId, rows.map((r) => r.name).join("\n"));
+        setNotice(res.ok ? { ok: true, text: res.message ?? "Friends added" } : { ok: false, text: res.error });
+      });
+    } catch {
+      /* the picker was closed */
+    }
+  }
+
+  // The phone's own share sheet lists saved contacts and every messaging app that is installed.
+  async function shareSheet(message: string, link: string) {
+    try {
+      await navigator.share({ title: "You are invited", text: message.replaceAll(link, "").trim(), url: link });
+    } catch {
+      /* the person closed the share sheet */
+    }
   }
 
   async function copy(key: string, text: string) {
@@ -172,7 +234,7 @@ export function GuestManager({
         <label htmlFor="friend-names" className="text-[15px] font-medium leading-5">
           2. Add your friends
         </label>
-        <p className="mt-1 text-[13px] leading-5 text-text-2">One name per line. Each friend gets a personal link that shows their name on the invitation.</p>
+        <p className="mt-1 text-[13px] leading-5 text-text-2">One name per line. Each friend gets a personal link that shows their name on the invitation.{pickable ? " Or pick them straight from your phone's contacts: their buttons below then open in their own chat." : ""}</p>
         <textarea
           id="friend-names"
           className="field mt-3"
@@ -183,6 +245,12 @@ export function GuestManager({
           maxLength={8000}
         />
         <div className="mt-3 flex flex-wrap items-center gap-3">
+          {pickable && (
+            <Button type="button" variant="glass" onClick={pickContacts} disabled={pending} className="w-full sm:w-auto">
+              <BookUser size={18} strokeWidth={1.75} aria-hidden="true" />
+              Pick from my contacts
+            </Button>
+          )}
           <Button type="submit" disabled={pending || names.trim() === ""} className="w-full sm:w-auto">
             {pending ? "Adding" : "Add friends"}
           </Button>
@@ -202,6 +270,8 @@ export function GuestManager({
         <ul className="glass divide-y divide-(--hairline) overflow-hidden rounded-[16px]">
           <Row
             rowKey="everyone"
+            canShare={nativeShare}
+            onShare={shareSheet}
             published={published}
             copiedKey={copiedKey}
             onCopy={copy}
@@ -216,6 +286,9 @@ export function GuestManager({
             <Row
               key={g.id}
               rowKey={g.id}
+              canShare={nativeShare}
+              onShare={shareSheet}
+              reach={reachByName[nameKey(g.name)]}
               published={published}
               copiedKey={copiedKey}
               onCopy={copy}

@@ -44,3 +44,23 @@ test("Telegram link carries the link separately and does not repeat it in the te
   assert.ok(!url.searchParams.get("text").includes(link));
   assert.ok(url.searchParams.get("text").includes("Aarti"));
 });
+
+import { phoneDigits } from "../src/lib/share.ts";
+
+test("phone numbers become WhatsApp digits: +91 and bare Indian numbers, junk is dropped", () => {
+  assert.equal(phoneDigits("+91 98765-43210"), "919876543210");
+  assert.equal(phoneDigits("098765 43210"), "919876543210");
+  assert.equal(phoneDigits("9876543210"), "919876543210");
+  assert.equal(phoneDigits("0044 7700 900123"), "447700900123");
+  assert.equal(phoneDigits("12345"), "");
+  assert.equal(phoneDigits(undefined), "");
+});
+
+test("a picked contact's number opens their own chat; without one nothing breaks", () => {
+  assert.equal(whatsappUrl("Hi", "+91 98765 43210"), "https://wa.me/919876543210?text=Hi");
+  assert.equal(whatsappUrl("Hi"), "https://wa.me/?text=Hi");
+  assert.equal(smsUrl("Hi", "9876543210"), "sms:+919876543210?&body=Hi");
+  assert.equal(smsUrl("Hi"), "sms:?&body=Hi");
+  assert.equal(emailUrl("Hi", "S", "aarti@example.com"), "mailto:aarti@example.com?subject=S&body=Hi");
+  assert.equal(emailUrl("Hi", "S", "not an email"), "mailto:?subject=S&body=Hi");
+});

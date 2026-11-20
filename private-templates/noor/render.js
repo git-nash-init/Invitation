@@ -620,6 +620,8 @@
         '</div></div>';
     }
 
+    // One or two ceremonies sit in the middle of the page, not in the first columns of a three-column grid.
+    grid.style.setProperty('--ryc-cols', String(Math.max(1, Math.min(list.length, 3))));
     grid.innerHTML = html;
     frameImages(grid);
     // A name that wraps onto a second line comes down to fit on one, within
