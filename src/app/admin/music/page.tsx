@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Flash } from "@/components/admin/flash";
+import { MusicUploader } from "@/components/admin/music-uploader";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { saveTrack } from "../actions";
@@ -26,10 +27,10 @@ export default async function MusicPage({ searchParams }: { searchParams: Promis
     <>
       <h1 className="display text-[32px] leading-[1.15] sm:text-[36px]">Music</h1>
       <p className="mt-2 max-w-[42rem] text-[14px] leading-5 text-text-2">
-        Up to three tracks per category are offered to buyers. Upload the audio file to the <b>music</b> storage bucket
-        first, then add it here. Every live track must record where it came from, so you can always show its licence.
+        Every track switched on here is offered to hosts in the invitation editor, where they can listen and choose it. Every live track must record where it came from, so you can always show its licence.
       </p>
       <Flash ok={ok} e={e} />
+      <MusicUploader />
 
       <div className="mt-6 grid gap-4">
         {[...(tracks ?? []), null].map((t) => {

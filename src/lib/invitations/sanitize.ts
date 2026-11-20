@@ -65,7 +65,9 @@ function safeFile(v: string): string {
   const origin = supabaseOrigin();
   try {
     const u = new URL(v);
-    if (origin && u.origin === origin && u.pathname.startsWith("/storage/v1/object/public/invite-media/")) {
+    // A host's own uploads, and the tracks and pictures of our own library.
+    const ours = ["invite-media", "music"].some((b) => u.pathname.startsWith(`/storage/v1/object/public/${b}/`));
+    if (origin && u.origin === origin && ours) {
       return u.toString().slice(0, 500);
     }
   } catch {

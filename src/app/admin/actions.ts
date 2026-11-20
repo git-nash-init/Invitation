@@ -136,3 +136,34 @@ export async function saveTrack(formData: FormData) {
   }
   back("/admin/music", "Track saved", true);
 }
+
+// Called by the bulk uploader after the browser has put the file in the music bucket.
+const uploadedTrackSchema = z.object({
+  id: z.string().regex(/^[a-z0-9-]{2,60}$/),
+  title: z.string().trim().min(1).max(80),
+  storage_path: z.string().trim().min(3).max(200).regex(/^[A-Za-z0-9._-]+$/),
+  license_note: z.string().trim().min(3).max(400),
+});
+
+export async function registerTrack(input: unknown): Promise<{ ok: true } | { ok: false; error: string }> {
+  await requireAdmin();
+  const parsed = uploadedTrackSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Check the track details." };
+
+  const supabase = await createClient();
+  const { data: last } = await supabase.from("music_tracks").select("sort").order("sort", { ascending: false }).limit(1).maybeSingle();
+  const { error } = await supabase.from("music_tracks").upsert({
+    id: parsed.data.id,
+    title: cleanText(parsed.data.title, 80),
+    vibe: "",
+    category_slugs: [],
+    storage_path: parsed.data.storage_path,
+    source: "other",
+    license_url: "",
+    license_note: cleanText(parsed.data.license_note, 400),
+    is_active: true,
+    sort: (last?.sort ?? 0) + 1,
+  });
+  revalidatePath("/admin/music");
+  return error ? { ok: false, error: "Could not save that track." } : { ok: true };
+}

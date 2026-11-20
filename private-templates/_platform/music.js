@@ -253,32 +253,84 @@ window.BalconyMusic = (function () {
 
     var input = document.createElement('input');
     input.type = 'file';
-    input.accept = 'audio/*';
+    input.accept = 'audio/mpeg,audio/mp4,audio/x-m4a,.mp3,.m4a';
     input.hidden = true;
     document.body.appendChild(input);
 
     var pop = null;
     var errorMsg = '';
+    var tracks = null;      // the library, fetched once when the popover first opens
+    var preview = null;     // the one track being auditioned
+    var previewId = '';
 
-    function closePop() { if (pop) { pop.remove(); pop = null; } }
+    function esc(t) {
+      return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function stopPreview() {
+      if (preview) { preview.pause(); preview = null; }
+      previewId = '';
+    }
+
+    function closePop() { stopPreview(); if (pop) { pop.remove(); pop = null; } }
+
+    function loadTracks() {
+      if (tracks) return Promise.resolve(tracks);
+      return fetch('/api/music', { credentials: 'same-origin' })
+        .then(function (r) { return r.ok ? r.json() : { tracks: [] }; })
+        .then(function (d) { tracks = (d && d.tracks) || []; return tracks; })
+        .catch(function () { tracks = []; return tracks; });
+    }
+
+    function find(id) { return (tracks || []).filter(function (t) { return t.id === id; })[0]; }
+
+    function currentLabel() {
+      if (cfg.enabled === false) return 'No music';
+      var src = (cfg.src || '').trim();
+      if (!src) return 'No music chosen yet';
+      var hit = (tracks || []).filter(function (t) { return t.id === cfg.trackId || t.url === src; })[0];
+      return hit ? hit.title : 'Your uploaded track';
+    }
 
     function paint() {
-      closePop();
-      var hasOwn = (cfg.src || '').trim() !== '';
+      stopPreview();
+      var old = pop ? pop.querySelector('.music-pop__list') : null;
+      var scroll = old ? old.scrollTop : 0;
+      if (pop) { pop.remove(); pop = null; }
+      var none = cfg.enabled === false;
+      var chosen = (cfg.src || '').trim();
       pop = document.createElement('div');
       pop.className = 'music-pop';
+      var rows = (tracks || []).map(function (t) {
+        var on = !none && (t.id === cfg.trackId || t.url === chosen);
+        return '<li class="music-pop__item' + (on ? ' is-on' : '') + '">' +
+          '<button type="button" class="music-pop__play" data-music="play" data-id="' + esc(t.id) + '" aria-label="Listen to ' + esc(t.title) + '">&#9654;</button>' +
+          '<span class="music-pop__name">' + esc(t.title) + (t.vibe ? '<small>' + esc(t.vibe) + '</small>' : '') + '</span>' +
+          '<button type="button" class="music-pop__use" data-music="choose" data-id="' + esc(t.id) + '"' + (on ? ' aria-pressed="true"' : '') + '>' + (on ? 'Chosen' : 'Use') + '</button>' +
+          '</li>';
+      }).join('');
       pop.innerHTML =
         '<p class="music-pop__title">Background music</p>' +
-        '<p class="music-pop__current">' + (hasOwn ? 'Your uploaded track' : 'Default track - Jashn-e-Bahara') + '</p>' +
-        (errorMsg ? '<p class="music-pop__error">' + errorMsg + '</p>' : '') +
+        '<p class="music-pop__current">Now: <b>' + esc(currentLabel()) + '</b></p>' +
+        (errorMsg ? '<p class="music-pop__error">' + esc(errorMsg) + '</p>' : '') +
+        '<ul class="music-pop__list">' +
+        '<li class="music-pop__item' + (none ? ' is-on' : '') + '"><span class="music-pop__mute" aria-hidden="true">&#128263;</span>' +
+        '<span class="music-pop__name">No music<small>The invitation stays silent</small></span>' +
+        '<button type="button" class="music-pop__use" data-music="none"' + (none ? ' aria-pressed="true"' : '') + '>' + (none ? 'Chosen' : 'Use') + '</button></li>' +
+        (tracks === null ? '<li class="music-pop__empty">Loading tracks…</li>' : (rows || '<li class="music-pop__empty">No tracks in the library yet.</li>')) +
+        '</ul>' +
         '<div class="music-pop__row">' +
         '<button type="button" class="music-pop__btn" data-music="upload">Upload your own</button>' +
-        (hasOwn ? '<button type="button" class="music-pop__btn music-pop__btn--ghost" data-music="reset">Use default</button>' : '') +
-        '</div>';
+        '</div>' +
+        '<p class="music-pop__note">Your own track: MP3 or M4A, up to 8 MB.</p>';
       document.body.appendChild(pop);
       var r = btn.getBoundingClientRect();
-      pop.style.top = (r.bottom + window.scrollY + 8) + 'px';
-      pop.style.right = (window.innerWidth - r.right) + 'px';
+      pop.style.top = Math.max(8, r.bottom + 8) + 'px';
+      pop.style.right = Math.max(8, window.innerWidth - r.right) + 'px';
+      var list = pop.querySelector('.music-pop__list');
+      if (list) list.scrollTop = scroll;
     }
 
     btn.addEventListener('click', function (e) {
@@ -286,6 +338,7 @@ window.BalconyMusic = (function () {
       if (pop) { closePop(); return; }
       errorMsg = '';
       paint();
+      if (tracks === null) loadTracks().then(function () { if (pop) paint(); });
     });
 
     document.addEventListener('pointerdown', function (e) {
@@ -295,13 +348,40 @@ window.BalconyMusic = (function () {
     document.addEventListener('click', function (e) {
       var t = e.target.closest && e.target.closest('[data-music]');
       if (!t || !pop || !pop.contains(t)) return;
-      if (t.dataset.music === 'upload') {
+      var act = t.dataset.music;
+      if (act === 'upload') {
         input.click();
-      } else if (t.dataset.music === 'reset') {
-        cfg.src = '';
+      } else if (act === 'none') {
+        cfg.enabled = false;
         errorMsg = '';
         paint();
         persist();
+      } else if (act === 'choose') {
+        var tr = find(t.dataset.id);
+        if (!tr) return;
+        cfg.enabled = true;
+        cfg.src = tr.url;
+        cfg.trackId = tr.id;
+        errorMsg = '';
+        paint();
+        persist();
+      } else if (act === 'play') {
+        var id = t.dataset.id;
+        var again = previewId === id;
+        var tp = find(id);
+        stopPreview();
+        pop.querySelectorAll('.music-pop__play').forEach(function (b) { b.innerHTML = '&#9654;'; });
+        if (again || !tp) return;
+        preview = new Audio(tp.url);
+        preview.volume = 0.7;
+        previewId = id;
+        t.innerHTML = '&#10074;&#10074;';
+        preview.addEventListener('ended', function () { t.innerHTML = '&#9654;'; previewId = ''; });
+        preview.play().catch(function () {
+          previewId = '';
+          t.innerHTML = '&#9654;';
+          errorMsg = "Couldn't play that track.";
+        });
       }
     });
 
@@ -331,6 +411,8 @@ window.BalconyMusic = (function () {
           .then(function (res) {
             if (res && res.url) {
               cfg.src = res.url;
+              cfg.enabled = true;
+              cfg.trackId = '';
               errorMsg = '';
               paint();
               persist();
@@ -348,6 +430,8 @@ window.BalconyMusic = (function () {
         // object URL previews the pick; like editor-kit's own pickPhoto in
         // this same mode, it doesn't survive a reload.
         cfg.src = URL.createObjectURL(file);
+        cfg.enabled = true;
+        cfg.trackId = '';
         errorMsg = '';
         paint();
         persist();
