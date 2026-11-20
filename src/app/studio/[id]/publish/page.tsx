@@ -81,7 +81,9 @@ export default async function PublishPage({ params }: PageProps<"/studio/[id]/pu
     .select("id", { count: "exact", head: true })
     .eq("invitation_id", id)
     .eq("status", "paid");
-  const paid = (paidCount ?? 0) > 0;
+  const { data: premiumFlag } = await supabase.rpc("is_premium");
+  const premium = premiumFlag === true;
+  const paid = premium || (paidCount ?? 0) > 0;
 
   const token = mintAssetToken(template.slug, 3600);
   const hash = buildPlatformHash({ status: "published", config: invitation.config, commonLink: true, guestName: null });
@@ -143,20 +145,34 @@ export default async function PublishPage({ params }: PageProps<"/studio/[id]/pu
               Publish and share, <em>all in one go</em>
             </h2>
 
-            <div className="mt-7 flex flex-wrap items-end gap-x-4 gap-y-1">
-              <p className="num text-[64px] font-semibold leading-none text-[#ffd66b]">₹{price.toLocaleString("en-IN")}</p>
-              {was && (
-                <p className="pb-2 text-[22px] text-text-2">
-                  <s className="num">₹{was.toLocaleString("en-IN")}</s>
-                  <span className="ml-3 rounded-full bg-[#ffd66b] px-3 py-1 align-middle text-[13px] font-bold text-[#3b0a1a]">
-                    {off}% off
-                  </span>
+            {premium ? (
+              <>
+                <p className="mt-7 flex items-center gap-3 text-[34px] font-semibold leading-none text-[#ffd66b]">
+                  <BadgeCheck size={34} strokeWidth={1.9} aria-hidden="true" />
+                  Premium member
                 </p>
-              )}
-            </div>
-            <p className="mt-3 text-[16px] leading-6 text-text-2">
-              One-time payment for this invitation. No subscription, no hidden charges.
-            </p>
+                <p className="mt-3 text-[16px] leading-6 text-text-2">
+                  Every design is included in your premium membership. Publish this one at no charge.
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="mt-7 flex flex-wrap items-end gap-x-4 gap-y-1">
+                  <p className="num text-[64px] font-semibold leading-none text-[#ffd66b]">₹{price.toLocaleString("en-IN")}</p>
+                  {was && (
+                    <p className="pb-2 text-[22px] text-text-2">
+                      <s className="num">₹{was.toLocaleString("en-IN")}</s>
+                      <span className="ml-3 rounded-full bg-[#ffd66b] px-3 py-1 align-middle text-[13px] font-bold text-[#3b0a1a]">
+                        {off}% off
+                      </span>
+                    </p>
+                  )}
+                </div>
+                <p className="mt-3 text-[16px] leading-6 text-text-2">
+                  One-time payment for this invitation. No subscription, no hidden charges.
+                </p>
+              </>
+            )}
 
             <ul className="mt-7 grid gap-3 text-[16px] leading-6">
               {["Live on your own link right away", "Personal links and messages for every guest", "RSVPs, music and animation included", "Edit any time, the link never changes"].map((x) => (
@@ -175,16 +191,18 @@ export default async function PublishPage({ params }: PageProps<"/studio/[id]/pu
               )}
             </div>
 
-            <div className="mt-6 grid gap-2 text-[14px] text-text-2">
-              <p className="flex items-center gap-2.5">
-                <ShieldCheck size={18} strokeWidth={1.9} className="shrink-0 text-[#ffd66b]" aria-hidden="true" />
-                Secure payment by Razorpay: UPI, cards, netbanking, wallets
-              </p>
-              <p className="flex items-center gap-2.5">
-                <Lock size={17} strokeWidth={1.9} className="shrink-0 text-[#ffd66b]" aria-hidden="true" />
-                We never see your card or bank details
-              </p>
-            </div>
+            {!premium && (
+              <div className="mt-6 grid gap-2 text-[14px] text-text-2">
+                <p className="flex items-center gap-2.5">
+                  <ShieldCheck size={18} strokeWidth={1.9} className="shrink-0 text-[#ffd66b]" aria-hidden="true" />
+                  Secure payment by Razorpay: UPI, cards, netbanking, wallets
+                </p>
+                <p className="flex items-center gap-2.5">
+                  <Lock size={17} strokeWidth={1.9} className="shrink-0 text-[#ffd66b]" aria-hidden="true" />
+                  We never see your card or bank details
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
