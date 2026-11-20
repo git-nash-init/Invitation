@@ -85,17 +85,19 @@ try {
 
     // 2. The size and alignment bar.
     const target = await page.evaluate(() => {
-      const el = [...document.querySelectorAll("[data-fmt][data-edit]")].find((e) => { const r = e.getBoundingClientRect(); return r.width > 40 && r.height > 8 && (e.textContent || "").trim().length > 3; });
+      const seen = (e) => { const r = e.getBoundingClientRect(); if (r.width <= 40 || r.height <= 8 || (e.textContent || "").trim().length <= 3) return false; const t = document.elementFromPoint(Math.min(r.left + 20, innerWidth - 1), Math.min(r.top + r.height / 2, innerHeight - 1)); return !!t && (t === e || e.contains(t)); };
+      const el = [...document.querySelectorAll("[data-fmt]")].find(seen);
       if (!el) return null;
+      el.setAttribute("data-tf-test", "1");
       el.scrollIntoView({ block: "center" });
       return el.getAttribute("data-fmt");
     });
     if (!target) { check(false, `${slug}: found an editable line`); await page.close(); continue; }
     await sleep(1200);
     const pos = await page.evaluate((t) => {
-      const el = document.querySelector(`[data-fmt="${CSS.escape(t)}"][data-edit]`) ?? [...document.querySelectorAll("[data-fmt][data-edit]")].find((e) => e.getAttribute("data-fmt") === t);
+      const el = document.querySelector("[data-tf-test]");
       const r = el.getBoundingClientRect();
-      return { x: r.left + Math.min(r.width / 2, 40), y: r.top + r.height / 2 };
+      return { x: r.left + 20, y: r.top + r.height / 2 };
     }, target);
     await page.mouse.click(pos.x, pos.y);
     await sleep(500);
@@ -105,7 +107,7 @@ try {
       const sel = (a) => `#tf-bar [data-tf="${a}"]`;
       for (const a of ["bigger", "bigger", "center"]) { await page.click(sel(a)); await sleep(150); }
       const r = await page.evaluate((t) => {
-        const el = [...document.querySelectorAll("[data-fmt]")].find((e) => e.getAttribute("data-fmt") === t);
+        const el = document.querySelector("[data-tf-test]");
         const rt = Object.values(window).find((v) => v && typeof v === "object" && v.config && typeof v.mode === "string");
         return { zoom: el.style.zoom, align: el.style.textAlign, saved: JSON.stringify(rt?.config?.textStyle ?? null) };
       }, target);

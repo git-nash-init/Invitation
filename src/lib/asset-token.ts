@@ -16,7 +16,13 @@ function secret(): string {
 const sign = (payload: string) => createHmac("sha256", secret()).update(payload).digest("base64url");
 
 export function mintAssetToken(templateSlug: string, ttlSeconds: number): string {
-  const exp = Math.floor(Date.now() / 1000) + Math.max(30, Math.floor(ttlSeconds));
+  const ttl = Math.max(30, Math.floor(ttlSeconds));
+  const now = Math.floor(Date.now() / 1000);
+  // A token that changes on every page load makes every file a new address, so the browser can never
+  // reuse the template's pictures and scripts from one visit to the next. Rounding the expiry up to a
+  // shared boundary gives the same token to everyone for a while. Short demo tokens stay exact.
+  const bucket = ttl >= 6 * 3600 ? 3 * 3600 : ttl >= 3600 ? 3600 : 0;
+  const exp = bucket ? Math.ceil((now + ttl) / bucket) * bucket : now + ttl;
   const payload = `${templateSlug}.${exp}`;
   return `${payload}.${sign(payload)}`;
 }

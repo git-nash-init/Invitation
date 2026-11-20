@@ -10,6 +10,7 @@
   function editable(el, path, val) {
     if (!el) return;
     el.textContent = val == null ? '' : val;
+    el.dataset.fmt = path; // size and alignment, for guests too
     if (edit) {
       el.setAttribute('contenteditable', 'plaintext-only');
       el.dataset.edit = path;
@@ -36,12 +37,12 @@
       flowContainer.innerHTML = cfg.ceremonies.map((c, i) => `
         <div class="sage-ceremony-card">
           <div class="sage-card-header">
-            <h3 ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].name"` : ''}>${esc(c.name)}</h3>
-            <span class="sage-time" ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].time"` : ''}>${esc(c.time)}</span>
+            <h3 data-fmt="ceremonies[${i}].name" ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].name"` : ''}>${esc(c.name)}</h3>
+            <span class="sage-time" data-fmt="ceremonies[${i}].time" ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].time"` : ''}>${esc(c.time)}</span>
           </div>
           <div class="sage-card-body">
-            <p class="sage-date" ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].date"` : ''}>${esc(c.date)}</p>
-            <p class="sage-venue" ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].venue"` : ''}>${esc(c.venue)}</p>
+            <p class="sage-date" data-fmt="ceremonies[${i}].date" ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].date"` : ''}>${esc(c.date)}</p>
+            <p class="sage-venue" data-fmt="ceremonies[${i}].venue" ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].venue"` : ''}>${esc(c.venue)}</p>
             <a href="${esc(c.mapUrl)}" target="_blank" rel="noopener" class="sage-map-link">Google Maps Location ›</a>
           </div>
         </div>
@@ -53,9 +54,9 @@
     if (journeyContainer && Array.isArray(cfg.journey)) {
       journeyContainer.innerHTML = cfg.journey.map((j, i) => `
         <div class="sage-journey-card">
-          <span class="sage-journey-date" ${edit ? `contenteditable="plaintext-only" data-edit="journey[${i}].date"` : ''}>${esc(j.date)}</span>
-          <h4 ${edit ? `contenteditable="plaintext-only" data-edit="journey[${i}].title"` : ''}>${esc(j.title)}</h4>
-          <p ${edit ? `contenteditable="plaintext-only" data-edit="journey[${i}].desc"` : ''}>${esc(j.desc)}</p>
+          <span class="sage-journey-date" data-fmt="journey[${i}].date" ${edit ? `contenteditable="plaintext-only" data-edit="journey[${i}].date"` : ''}>${esc(j.date)}</span>
+          <h4 data-fmt="journey[${i}].title" ${edit ? `contenteditable="plaintext-only" data-edit="journey[${i}].title"` : ''}>${esc(j.title)}</h4>
+          <p data-fmt="journey[${i}].desc" ${edit ? `contenteditable="plaintext-only" data-edit="journey[${i}].desc"` : ''}>${esc(j.desc)}</p>
         </div>
       `).join('');
     }

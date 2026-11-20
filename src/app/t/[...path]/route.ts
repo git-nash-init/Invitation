@@ -73,8 +73,9 @@ export async function GET(request: Request, ctx: RouteContext<"/t/[...path]">) {
   const headers: Record<string, string> = {
     "Content-Type": type,
     "Accept-Ranges": "bytes",
-    // Private: shared caches and CDNs must not keep copies of paid templates.
-    "Cache-Control": "private, max-age=600",
+    // Private: shared caches and CDNs must not keep copies of paid templates. The address carries a token that
+    // stays the same for hours (see mintAssetToken), so a guest's browser can keep the files between visits.
+    "Cache-Control": path.extname(file).toLowerCase() === ".html" ? "private, max-age=300" : "private, max-age=3600, stale-while-revalidate=86400",
     "X-Robots-Tag": "noindex, nofollow",
     "Cross-Origin-Resource-Policy": "same-origin",
   };
@@ -99,7 +100,8 @@ export async function GET(request: Request, ctx: RouteContext<"/t/[...path]">) {
   // A template's own page gets our credit added at the foot (see template-footer.ts).
   if (path.basename(file) === "index.html" && !SHARED.has(parts[0])) {
     const html = await fs.promises.readFile(/* turbopackIgnore: true */ file, "utf8");
-    const out = Buffer.from(withBrandFooter(html), "utf8");
+    const editing = new URL(request.url).searchParams.has("edit");
+    const out = Buffer.from(withBrandFooter(html, editing), "utf8");
     return new Response(new Uint8Array(out), { status: 200, headers: { ...headers, "Content-Length": String(out.length) } });
   }
 

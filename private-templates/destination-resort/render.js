@@ -10,6 +10,7 @@
   function editable(el, path, val) {
     if (!el) return;
     el.textContent = val == null ? '' : val;
+    el.dataset.fmt = path; // size and alignment, for guests too
     if (edit) {
       el.setAttribute('contenteditable', 'plaintext-only');
       el.dataset.edit = path;
@@ -38,6 +39,7 @@
     editable(document.getElementById('groomParentsText'), 'groom.parents', cfg.groom.parents);
     const groomImg = document.getElementById('groomImg');
     if (groomImg && cfg.groom.photo) groomImg.src = cfg.groom.photo;
+    if (groomImg && edit) groomImg.setAttribute('data-pick-photo', 'groom.photo');
 
     // Bride profile
     editable(document.getElementById('brideNameText'), 'bride.name', cfg.bride.name);
@@ -45,6 +47,7 @@
     editable(document.getElementById('brideParentsText'), 'bride.parents', cfg.bride.parents);
     const brideImg = document.getElementById('brideImg');
     if (brideImg && cfg.bride.photo) brideImg.src = cfg.bride.photo;
+    if (brideImg && edit) brideImg.setAttribute('data-pick-photo', 'bride.photo');
 
     // Ceremonies list
     const ceremonyContainer = document.getElementById('ceremonyContainer');
@@ -53,7 +56,7 @@
         <div class="col-lg-6 col-md-6 col-sm-12 ceremony-block">
           <div class="inner-box wow fadeInUp animated" style="visibility: visible; animation-name: fadeInUp;">
             <div class="image-box">
-              <figure class="image"><img src="${esc(c.img)}" alt="${esc(c.name)}"></figure>
+              <figure class="image"><img src="${esc(c.img)}" alt="${esc(c.name)}" loading="lazy" decoding="async"${edit ? ` data-pick-photo="ceremonies[${i}].img"` : ''}></figure>
             </div>
             <div class="lower-content">
               <h3 data-fmt="ceremonies[${i}].name" ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].name"` : ''}>${esc(c.name)}</h3>
@@ -77,7 +80,7 @@
     if (storyContainer && cfg.story && Array.isArray(cfg.story.chapters)) {
       storyContainer.innerHTML = cfg.story.chapters.map((ch, i) => `
         <div class="story-item">
-          <div class="story-img"><img src="${esc(ch.img)}" alt="${esc(ch.title)}"></div>
+          <div class="story-img"><img src="${esc(ch.img)}" alt="${esc(ch.title)}" loading="lazy" decoding="async"${edit ? ` data-pick-photo="story.chapters[${i}].img"` : ''}></div>
           <div class="story-text">
             <span class="story-date" data-fmt="story.chapters[${i}].date" ${edit ? `contenteditable="plaintext-only" data-edit="story.chapters[${i}].date"` : ''}>${esc(ch.date)}</span>
             <h4 data-fmt="story.chapters[${i}].title" ${edit ? `contenteditable="plaintext-only" data-edit="story.chapters[${i}].title"` : ''}>${esc(ch.title)}</h4>
@@ -92,7 +95,7 @@
     if (galleryContainer && Array.isArray(cfg.gallery)) {
       galleryContainer.innerHTML = cfg.gallery.map((g, i) => `
         <div class="gallery-item" ${edit ? `data-gallery-idx="${i}"` : ''}>
-          <img src="${esc(g.src)}" alt="${esc(g.caption || '')}">
+          <img src="${esc(g.src)}" alt="${esc(g.caption || '')}" loading="lazy" decoding="async"${edit ? ` data-pick-photo="gallery[${i}].src"` : ''}>
           ${g.caption ? `<div class="gallery-caption" data-fmt="gallery[${i}].caption" ${edit ? `contenteditable="plaintext-only" data-edit="gallery[${i}].caption"` : ''}>${esc(g.caption)}</div>` : ''}
         </div>
       `).join('');
