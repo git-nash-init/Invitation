@@ -114,6 +114,45 @@ try {
       if (SHOTS) { fs.mkdirSync(SHOTS, { recursive: true }); await page.screenshot({ path: `${SHOTS}/${slug}-editor.png` }); }
       await page.click(sel("reset"));
     }
+    // 3. Every symbol offered in the invocation picker actually loads.
+    const syms = await page.evaluate(async () => {
+      const rt = Object.values(window).find((v) => v && typeof v === "object" && Array.isArray(v.SYMBOLS));
+      if (!rt) return null;
+      const out = [];
+      for (const sy of rt.SYMBOLS) {
+        if (!sy.src) continue;
+        const r = await fetch(new URL(sy.src, location.href)).catch(() => null);
+        out.push([sy.label, r ? r.status : 0, r ? r.headers.get("content-type") : ""]);
+      }
+      return out;
+    });
+    if (syms) {
+      const bad = syms.filter(([, st, ct]) => st !== 200 || !/svg/.test(ct));
+      check(bad.length === 0, `${slug}: all ${syms.length} symbols load${bad.length ? " -> missing: " + bad.map((b) => b[0]).join(", ") : ""}`);
+    }
+
+    // 4. A ceremony venue and date row can be sized and aligned too (royale, noor).
+    const venue = await page.evaluate(() => {
+      const el = document.querySelector("[data-fmt$=\".venue\"][data-edit]");
+      if (!el) return null;
+      el.scrollIntoView({ block: "center" });
+      return el.getAttribute("data-fmt");
+    });
+    if (venue) {
+      await sleep(1200);
+      const p = await page.evaluate((t) => {
+        const el = [...document.querySelectorAll("[data-fmt]")].find((e) => e.getAttribute("data-fmt") === t);
+        const r = el.getBoundingClientRect();
+        return { x: r.left + 20, y: r.top + r.height / 2 };
+      }, venue);
+      await page.mouse.click(p.x, p.y);
+      await sleep(500);
+      await page.click("#tf-bar [data-tf=\"smaller\"]");
+      await page.click("#tf-bar [data-tf=\"center\"]");
+      const v = await page.evaluate((t) => { const el = [...document.querySelectorAll("[data-fmt]")].find((e) => e.getAttribute("data-fmt") === t); return { z: el.style.zoom, a: getComputedStyle(el).textAlign }; }, venue);
+      check(v.z === "0.9" && v.a === "center", `${slug}: venue line (${venue}) resizes and centres (${v.z}, ${v.a})`);
+      if (SHOTS) await page.screenshot({ path: `${SHOTS}/${slug}-venue.png` });
+    }
     await page.close();
   }
 } finally {

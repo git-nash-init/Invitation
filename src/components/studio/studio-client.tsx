@@ -109,59 +109,9 @@ export function StudioClient({
   }
 
   return (
-    <div className="flex h-screen flex-col bg-bg-deep">
-      <header className="glass-strong z-20 flex h-14 shrink-0 items-center gap-3 border-x-0 border-t-0 px-3 sm:px-4">
-        <Link href="/dashboard" className="btn btn-ghost btn-sm" aria-label="Back to dashboard">
-          <ArrowLeft size={16} strokeWidth={1.5} />
-          <span className="hidden sm:inline">Dashboard</span>
-        </Link>
-
-        <div className="min-w-0 flex-1">
-          <p className="flex items-center gap-2 truncate text-[14px] leading-5">
-            <span
-              className={`seal ${published ? "" : "seal-draft"}`}
-              aria-label={published ? "Published" : "Draft"}
-            />
-            <span className="truncate">{title}</span>
-            <span className="num hidden text-[12px] text-muted sm:inline">
-              {saveState === "saving" && "Saving"}
-              {saveState === "saved" && "Saved"}
-              {saveState === "error" && "Not saved"}
-            </span>
-          </p>
-        </div>
-
-        <div className="hidden items-center gap-1 sm:flex" role="group" aria-label="Preview size">
-          <button
-            type="button"
-            className={`btn btn-sm ${device === "phone" ? "btn-glass" : "btn-ghost"}`}
-            onClick={() => setDevice("phone")}
-            aria-pressed={device === "phone"}
-            aria-label="Phone width"
-          >
-            <Smartphone size={16} strokeWidth={1.5} />
-          </button>
-          <button
-            type="button"
-            className={`btn btn-sm ${device === "desktop" ? "btn-glass" : "btn-ghost"}`}
-            onClick={() => setDevice("desktop")}
-            aria-pressed={device === "desktop"}
-            aria-label="Desktop width"
-          >
-            <Monitor size={16} strokeWidth={1.5} />
-          </button>
-        </div>
-
-        <LinkButton href={`/dashboard/${id}/guests`} variant="ghost" size="sm">
-          <Users size={16} strokeWidth={1.5} />
-          <span className="hidden sm:inline">Share</span>
-        </LinkButton>
-        <Button size="sm" onClick={openPublish}>
-          {published ? "Share" : "Publish"}
-        </Button>
-      </header>
-
-      <main className="relative flex min-h-0 flex-1 justify-center">
+    <div className="h-screen bg-bg-deep">
+      <main className="relative flex h-full justify-center">
+        {/* No bar across the top: the invitation fills the screen and every control floats over it. */}
         <iframe
           ref={iframeRef}
           src={src}
@@ -171,6 +121,61 @@ export function StudioClient({
             device === "phone" ? "w-[390px] max-w-full" : "w-full"
           }`}
         />
+
+        <nav
+          aria-label="Editor controls"
+          className="glass-strong pointer-events-auto fixed bottom-4 left-1/2 z-40 flex max-w-[calc(100vw-24px)] -translate-x-1/2 items-center gap-1 rounded-full p-1.5 shadow-[0_14px_40px_rgba(74,10,30,0.35)]"
+        >
+          <Link href="/dashboard" className="btn btn-ghost btn-sm !rounded-full" aria-label="Back to dashboard">
+            <ArrowLeft size={16} strokeWidth={1.75} />
+            <span className="hidden sm:inline">Dashboard</span>
+          </Link>
+
+          <span className="mx-1 hidden h-6 w-px bg-[rgba(107,15,43,0.18)] sm:block" aria-hidden="true" />
+          <p className="hidden max-w-[220px] items-center gap-2 px-2 text-[14px] leading-5 sm:flex">
+            <span
+              className={`seal shrink-0 ${published ? "" : "seal-draft"}`}
+              aria-label={published ? "Published" : "Draft"}
+            />
+            <span className="truncate">{title}</span>
+            <span className="num shrink-0 text-[12px] text-muted" aria-live="polite">
+              {saveState === "saving" && "Saving"}
+              {saveState === "saved" && "Saved"}
+              {saveState === "error" && "Not saved"}
+            </span>
+          </p>
+
+          <span className="mx-1 hidden h-6 w-px bg-[rgba(107,15,43,0.18)] md:block" aria-hidden="true" />
+          <div className="hidden items-center gap-1 md:flex" role="group" aria-label="Preview size">
+            <button
+              type="button"
+              className={`btn btn-sm !rounded-full ${device === "phone" ? "btn-glass" : "btn-ghost"}`}
+              onClick={() => setDevice("phone")}
+              aria-pressed={device === "phone"}
+              aria-label="Phone width"
+            >
+              <Smartphone size={16} strokeWidth={1.75} />
+            </button>
+            <button
+              type="button"
+              className={`btn btn-sm !rounded-full ${device === "desktop" ? "btn-glass" : "btn-ghost"}`}
+              onClick={() => setDevice("desktop")}
+              aria-pressed={device === "desktop"}
+              aria-label="Desktop width"
+            >
+              <Monitor size={16} strokeWidth={1.75} />
+            </button>
+          </div>
+
+          <span className="mx-1 hidden h-6 w-px bg-[rgba(107,15,43,0.18)] sm:block" aria-hidden="true" />
+          <LinkButton href={`/dashboard/${id}/guests`} variant="ghost" size="sm" className="!rounded-full">
+            <Users size={16} strokeWidth={1.75} />
+            <span className="hidden sm:inline">Share</span>
+          </LinkButton>
+          <Button size="sm" onClick={openPublish} className="!rounded-full">
+            {published ? "Share" : "Publish"}
+          </Button>
+        </nav>
 
         {panelOpen && (
           <div

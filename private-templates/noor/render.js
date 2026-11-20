@@ -344,10 +344,11 @@
 
   /** editable()'s attribute half, for markup built as a string. */
   function ed(path, opts) {
-    if (!edit) return '';
-    if (!RY.canEdit(path)) return ' data-locked="1" title="Buy this template to edit"';
+    // data-fmt lets _platform/text-format.js size and align the line, for guests too.
+    if (!edit) return ' data-fmt="' + path + '"';
+    if (!RY.canEdit(path)) return ' data-fmt="' + path + '" data-locked="1" title="Buy this template to edit"';
     const o = opts || {};
-    return ' data-edit="' + path + '"' +
+    return ' data-fmt="' + path + '" data-edit="' + path + '"' +
       (o.multiline ? ' data-edit-multiline="1"' : '') +
       (o.placeholder ? ' data-edit-placeholder="' + esc(o.placeholder) + '"' : '') +
       ' contenteditable="plaintext-only" spellcheck="false"';
@@ -538,7 +539,7 @@
       '</div>' +
       // The time is optional: a ceremony with none simply shows its date,
       // and the field is left empty for a host who has not fixed one yet.
-      '<p class="ryc-card__when">' +
+      '<p class="ryc-card__when" data-fmt="ceremonies.' + i + '.when">' +
       (editable
         ? '<span class="ry-cere-field"><input type="date" data-edit-input="ceremonies.' + i + '.date" value="' + esc(c.date || '') + '"></span>' +
           (c.time

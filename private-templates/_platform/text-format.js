@@ -200,12 +200,12 @@
   });
 
   document.addEventListener('focusin', function (e) {
-    var el = e.target.closest && e.target.closest('[data-fmt][data-edit]');
+    var el = e.target.closest && e.target.closest('[data-fmt]');
     if (el) show(el); else if (!bar.contains(e.target)) hide();
   });
   document.addEventListener('focusout', hide);
   document.addEventListener('click', function (e) {
-    var el = e.target.closest && e.target.closest('[data-fmt][data-edit]');
+    var el = e.target.closest && e.target.closest('[data-fmt]');
     if (el) show(el);
   });
   window.addEventListener('scroll', place, true);
