@@ -614,22 +614,25 @@
     // The host picks from the six rites the template ships with - each one
     // with its own artwork - rather than uploading a photo of their own.
     // Picking one switches it on for guests; one already on is shown as added.
+    // The catalogue is the template's own six rites (RY.DEFAULTS), so a
+    // ceremony the host has never had on the invitation - or deleted - is still
+    // offered. Matched to the saved list by its artwork.
     if (edit && RY.canEdit('ceremonies')) {
-      const presets = all
-        .map((c, idx) => ({ c, idx }))
-        .filter(({ c }) => !c.custom);
-      const picks = presets.map(({ c, idx }) => {
-        const on = c.enabled !== false;
+      const catalog = (RY.DEFAULTS.ceremonies || []).filter((d) => d && d.art);
+      let left = 0;
+      const picks = catalog.map((d, ci) => {
+        const saved = all.find((c) => !c.custom && c.art === d.art);
+        const on = !!saved && saved.enabled !== false;
+        if (!on) left++;
         return '<button type="button" class="ryc-pick' + (on ? ' is-on' : '') + '"' +
-          ' data-action="ceremony-pick" data-index="' + idx + '"' +
+          ' data-action="ceremony-pick" data-index="' + ci + '"' +
           (on ? ' disabled' : '') +
-          ' aria-label="' + esc(on ? c.name + ' is already on the invitation' : 'Add ' + c.name) + '">' +
-          '<img src="' + esc(c.art || '') + '" alt="" loading="lazy" decoding="async">' +
-          '<span class="ryc-pick__name">' + esc(c.name || '') + '</span>' +
+          ' aria-label="' + esc(on ? d.name + ' is already on the invitation' : 'Add ' + d.name) + '">' +
+          '<img src="' + esc(d.art) + '" alt="" loading="lazy" decoding="async">' +
+          '<span class="ryc-pick__name">' + esc(d.name || '') + '</span>' +
           '<span class="ryc-pick__state">' + (on ? 'Added' : '+ Add') + '</span>' +
           '</button>';
       }).join('');
-      const left = presets.filter(({ c }) => c.enabled === false).length;
       html +=
         '<div class="ryc-add ryc-picks">' +
         '<p class="ryc-picks__lead">' +

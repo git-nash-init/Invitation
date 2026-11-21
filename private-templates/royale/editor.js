@@ -624,19 +624,45 @@
       if (input) { input.focus(); if (input.showPicker) try { input.showPicker(); } catch (_) { /* ignore */ } }
     },
 
-    // Adds one of the six rites the template ships with: it was switched off
-    // (or never on), so turning it on puts it on the invitation for guests.
+    // Adds one of the six rites the template ships with (RY.DEFAULTS). One the
+    // invitation already has is switched back on; one it lacks is copied in
+    // from the template, placed on the wedding date's own offset and at the
+    // venue and map link the other ceremonies use.
     'ceremony-pick': (btn) => {
       if (!RY.canEdit('ceremonies')) return;
-      const list = cfg.ceremonies || [];
-      const c = list[+btn.dataset.index];
-      if (!c || c.custom || c.enabled !== false) return;
-      c.enabled = true;
+      const catalog = (RY.DEFAULTS.ceremonies || []).filter((d) => d && d.art);
+      const d = catalog[+btn.dataset.index];
+      if (!d) return;
+      if (!Array.isArray(cfg.ceremonies)) cfg.ceremonies = [];
+      const list = cfg.ceremonies;
+      let at = list.findIndex((c) => !c.custom && c.art === d.art);
+      if (at >= 0) {
+        if (list[at].enabled !== false) return;
+        list[at].enabled = true;
+      } else {
+        const ref = RY.DEFAULTS.eventISO || (catalog.find((x) => x.name === 'Vivaah') || {}).date || d.date;
+        const shift = Math.round((Date.parse(d.date) - Date.parse(ref)) / 864e5);
+        const wedding = Date.parse(cfg.eventISO || ref);
+        const date = Number.isNaN(wedding) || Number.isNaN(shift)
+          ? d.date
+          : new Date(wedding + shift * 864e5).toISOString().slice(0, 10);
+        const shared = list[0] || {};
+        list.push({
+          name: d.name,
+          art: d.art,
+          date,
+          time: d.time || '',
+          venue: shared.venue || d.venue || '',
+          mapUrl: shared.mapUrl || '',
+          enabled: true,
+        });
+        at = list.length - 1;
+      }
       kit.saveNow();
       RY.render.ceremonies();
-      const card = document.querySelector('[data-edit="ceremonies.' + (+btn.dataset.index) + '.name"]');
+      const card = document.querySelector('[data-edit="ceremonies.' + at + '.name"]');
       if (card) card.closest('.ryc-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      kit.toast(c.name + ' is on your invitation.');
+      kit.toast(d.name + ' is on your invitation.');
     },
 
     // A ceremony of the host's own (see CUSTOM_CEREMONY_MAX in config.js). It
