@@ -21,6 +21,7 @@ import {
 import type { ReactNode } from "react";
 import { LinkButton } from "@/components/ui/button";
 import { LazyVideo } from "@/components/ui/lazy-video";
+import { PhoneFrame } from "@/components/ui/phone-frame";
 import { Reveal } from "@/components/ui/reveal";
 import { BRAND } from "@/lib/brand";
 import { SHOWCASE, previewPoster, previewStill, previewVideo } from "@/lib/showcase";
@@ -130,16 +131,14 @@ export function TemplateShowcase({ templates }: { templates: Template[] }) {
                       aria-hidden="true"
                       className="absolute inset-[-8%] -z-10 rounded-[60px] bg-[radial-gradient(closest-side,rgba(255,214,107,0.55),transparent_75%)] blur-xl"
                     />
-                    <div className="rounded-[42px] bg-gradient-to-b from-[#5a0f27] to-[#2a0610] p-[9px] shadow-[0_30px_70px_rgba(107,15,43,0.35),0_0_0_1.5px_rgba(255,214,107,0.5)]">
-                      <div className="relative aspect-[9/17.4] overflow-hidden rounded-[34px] bg-[#fdf3e0]">
-                        <LazyVideo
-                          src={previewVideo(t.slug)}
-                          poster={previewPoster(t.slug)}
-                          label={`${t.name} invitation playing`}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                    </div>
+                    <PhoneFrame className="drop-shadow-[0_30px_50px_rgba(107,15,43,0.35)]">
+                      <LazyVideo
+                        src={previewVideo(t.slug)}
+                        poster={previewPoster(t.slug)}
+                        label={`${t.name} invitation playing`}
+                        className="h-full w-full object-cover"
+                      />
+                    </PhoneFrame>
                   </div>
                 </div>
 

@@ -11,6 +11,7 @@ import { SectionHead } from "@/components/landing/sections";
 import { LinkButton } from "@/components/ui/button";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { LazyVideo } from "@/components/ui/lazy-video";
+import { PhoneFrame } from "@/components/ui/phone-frame";
 import { startInvitation } from "@/lib/invitations/actions";
 import { getCurrentUser } from "@/lib/invitations/queries";
 import { SHOWCASE, previewCover, previewPoster, previewStill, previewVideo } from "@/lib/showcase";
@@ -65,16 +66,14 @@ export default async function PreviewPage({
                   aria-hidden="true"
                   className="absolute inset-[-10%] -z-10 rounded-[60px] bg-[radial-gradient(closest-side,rgba(255,214,107,0.6),transparent_75%)] blur-xl"
                 />
-                <div className="rounded-[44px] bg-gradient-to-b from-[#5a0f27] to-[#2a0610] p-[10px] shadow-[0_34px_80px_rgba(107,15,43,0.38),0_0_0_1.5px_rgba(255,214,107,0.55)]">
-                  <div className="relative aspect-[9/17.4] overflow-hidden rounded-[35px] bg-[#fdf3e0]">
-                    <LazyVideo
-                      src={previewVideo(template.slug)}
-                      poster={previewPoster(template.slug)}
-                      label={`${template.name} invitation playing`}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                </div>
+                <PhoneFrame priority className="drop-shadow-[0_30px_50px_rgba(107,15,43,0.35)]">
+                  <LazyVideo
+                    src={previewVideo(template.slug)}
+                    poster={previewPoster(template.slug)}
+                    label={`${template.name} invitation playing`}
+                    className="h-full w-full object-cover"
+                  />
+                </PhoneFrame>
               </div>
               <div className="mx-auto mt-6 flex max-w-[320px] justify-center gap-3">
                 {[1, 2, 3].map((n) => (

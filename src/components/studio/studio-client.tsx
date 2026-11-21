@@ -6,6 +6,8 @@ import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { ArrowLeft, Check, Copy, ExternalLink, Monitor, Smartphone, Users, X } from "lucide-react";
 import { Button, LinkButton } from "@/components/ui/button";
 import { FrameLoading } from "@/components/ui/page-loading";
+import { PHONE_SCREEN, PhoneBezel } from "@/components/ui/phone-frame";
+import { hideFrameScrollbars } from "@/lib/frame";
 import { saveConfig, setStatus, updateSettings } from "@/lib/invitations/actions";
 
 type Props = {
@@ -65,6 +67,12 @@ export function StudioClient({
     else setPanelOpen(true);
   }
 
+  // In phone width the editor sits inside a phone, so no scrollbar is drawn there.
+  useEffect(() => {
+    if (device !== "phone" || !frameReady) return;
+    return hideFrameScrollbars(iframeRef.current);
+  }, [device, frameReady]);
+
   // Messages from the template running in the iframe. Only our own iframe, same origin.
   useEffect(() => {
     async function onMessage(e: MessageEvent) {
@@ -121,16 +129,23 @@ export function StudioClient({
     <div className="h-screen bg-bg-deep">
       <main className="relative flex h-full justify-center">
         {/* No bar across the top: the invitation fills the screen and every control floats over it. */}
-        <iframe
-          ref={iframeRef}
-          src={src}
-          title="Invitation editor"
-          allow="autoplay"
-          onLoad={() => setFrameReady(true)}
-          className={`h-full border-0 bg-black transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-            device === "phone" ? "w-[390px] max-w-full" : "w-full"
-          }`}
-        />
+        {/* The iframe stays in the same place in the tree when the width changes, so the editor never
+            reloads (and never loses an edit). In phone width the wrapper becomes the phone. */}
+        <div
+          className={device === "phone" ? "relative my-3 h-[calc(100%-1.5rem)]" : "relative h-full w-full"}
+          style={device === "phone" ? { aspectRatio: "588 / 1144" } : undefined}
+        >
+          <iframe
+            ref={iframeRef}
+            src={src}
+            title="Invitation editor"
+            allow="autoplay"
+            onLoad={() => setFrameReady(true)}
+            className={device === "phone" ? "absolute border-0 bg-black" : "h-full w-full border-0 bg-black"}
+            style={device === "phone" ? PHONE_SCREEN : undefined}
+          />
+          {device === "phone" && <PhoneBezel />}
+        </div>
 
         <FrameLoading visible={!frameReady} label="Opening your editor" />
 
