@@ -47,7 +47,7 @@ type RowProps = {
 
 function Row({ rowKey, label, plainLabel, sub, message, link, extra, busy, reach, canShare, onShare, published, copiedKey, onCopy, onInstagram }: RowProps) {
   const disabled = !published;
-  const tile = "btn btn-glass !h-11 flex-1 sm:flex-none sm:!px-4";
+  const tile = "btn btn-glass !h-11 !px-0 min-w-11 flex-1 sm:flex-none sm:!px-4";
   return (
     <li className={`grid gap-3 px-4 py-4 transition-opacity sm:px-5 ${busy ? "pointer-events-none opacity-50" : ""}`} aria-busy={busy || undefined}>
       <div className="flex items-start justify-between gap-3">
@@ -61,7 +61,7 @@ function Row({ rowKey, label, plainLabel, sub, message, link, extra, busy, reach
         {canShare && (
           <button
             type="button"
-            className="btn btn-primary !h-11 flex-1 sm:flex-none sm:!px-4"
+            className="btn btn-primary !h-11 !px-0 min-w-11 flex-1 sm:flex-none sm:!px-4"
             onClick={() => onShare(message, link)}
             aria-label={`Choose who to send ${plainLabel}'s invitation to`}
             title="Choose contact"
