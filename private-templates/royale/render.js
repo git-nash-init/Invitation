@@ -611,13 +611,32 @@
 
     // The host's own ceremonies, up to the limit. editor.js enforces it; this
     // only decides whether the tile is drawn and what count it prints.
-    const own = all.filter((c) => c.custom).length;
-    if (edit && RY.canEdit('ceremonies') && own < RY.CUSTOM_CEREMONY_MAX) {
+    // The host picks from the six rites the template ships with - each one
+    // with its own artwork - rather than uploading a photo of their own.
+    // Picking one switches it on for guests; one already on is shown as added.
+    if (edit && RY.canEdit('ceremonies')) {
+      const presets = all
+        .map((c, idx) => ({ c, idx }))
+        .filter(({ c }) => !c.custom);
+      const picks = presets.map(({ c, idx }) => {
+        const on = c.enabled !== false;
+        return '<button type="button" class="ryc-pick' + (on ? ' is-on' : '') + '"' +
+          ' data-action="ceremony-pick" data-index="' + idx + '"' +
+          (on ? ' disabled' : '') +
+          ' aria-label="' + esc(on ? c.name + ' is already on the invitation' : 'Add ' + c.name) + '">' +
+          '<img src="' + esc(c.art || '') + '" alt="" loading="lazy" decoding="async">' +
+          '<span class="ryc-pick__name">' + esc(c.name || '') + '</span>' +
+          '<span class="ryc-pick__state">' + (on ? 'Added' : '+ Add') + '</span>' +
+          '</button>';
+      }).join('');
+      const left = presets.filter(({ c }) => c.enabled === false).length;
       html +=
-        '<div class="ryc-add"><div class="ry-frame-add__box">' +
-        '<p>Have another ceremony? Add it with your own photo (' + own + '/' + RY.CUSTOM_CEREMONY_MAX + ')</p>' +
-        '<button type="button" data-action="ceremony-add">+ Add a ceremony</button>' +
-        '</div></div>';
+        '<div class="ryc-add ryc-picks">' +
+        '<p class="ryc-picks__lead">' +
+        (left ? 'Choose a ceremony to add to your invitation' : 'All six ceremonies are on your invitation') +
+        '</p>' +
+        '<div class="ryc-picks__grid">' + picks + '</div>' +
+        '</div>';
     }
 
     // One or two ceremonies sit in the middle of the page, not in the first columns of a three-column grid.

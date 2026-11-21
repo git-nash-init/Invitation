@@ -624,6 +624,21 @@
       if (input) { input.focus(); if (input.showPicker) try { input.showPicker(); } catch (_) { /* ignore */ } }
     },
 
+    // Adds one of the six rites the template ships with: it was switched off
+    // (or never on), so turning it on puts it on the invitation for guests.
+    'ceremony-pick': (btn) => {
+      if (!RY.canEdit('ceremonies')) return;
+      const list = cfg.ceremonies || [];
+      const c = list[+btn.dataset.index];
+      if (!c || c.custom || c.enabled !== false) return;
+      c.enabled = true;
+      kit.saveNow();
+      RY.render.ceremonies();
+      const card = document.querySelector('[data-edit="ceremonies.' + (+btn.dataset.index) + '.name"]');
+      if (card) card.closest('.ryc-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      kit.toast(c.name + ' is on your invitation.');
+    },
+
     // A ceremony of the host's own (see CUSTOM_CEREMONY_MAX in config.js). It
     // starts on the wedding date at the shared venue, unnamed and without a
     // photo - so hidden from guests until the host has given it both.

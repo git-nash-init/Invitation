@@ -361,6 +361,60 @@ body.is-trial .ryc-add {
   display: none;
 }
 
+/* The six rites to choose from: a row of thumbnails, one tap each. On a
+   phone they wrap to three across; a ceremony already on is shown as added. */
+.ryc-picks {
+  place-items: stretch;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 250, 240, 0.7);
+  border: 1px dashed rgba(159, 18, 57, 0.35);
+}
+.ryc-picks__lead {
+  margin: 0;
+  text-align: center;
+  font-size: 15px;
+  color: #9f1239;
+}
+.ryc-picks__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+.ryc-pick {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(159, 18, 57, 0.25);
+  background: #fffaf0;
+  color: #3b0a1a;
+  cursor: pointer;
+  font: inherit;
+}
+.ryc-pick img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+.ryc-pick__name {
+  font-size: 13px;
+  font-weight: 600;
+}
+.ryc-pick__state {
+  font-size: 12px;
+  color: #9f1239;
+}
+.ryc-pick:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+.ryc-pick:not(:disabled):hover {
+  border-color: #9f1239;
+}
+
 /* The date and its optional time, in the row that prints them for a guest -
    native controls, so each platform brings its own picker and keyboard. */
 .ry-cere-field {
