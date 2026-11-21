@@ -71,9 +71,12 @@ export default async function MusicPage({
         {shown.map((t) => (
           <form key={t.id} action={saveTrack} className="glass grid gap-3 rounded-[16px] p-5">
             <input type="hidden" name="id" value={t.id} />
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="min-w-0 truncate text-[15px] font-semibold">{t.title}</p>
-              <label className="flex items-center gap-3 text-[14px]">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div className="min-w-[14rem] flex-1">
+                <label className="label" htmlFor={`title-${t.id}`}>Name buyers see</label>
+                <input id={`title-${t.id}`} name="title" className="field" defaultValue={t.title} maxLength={80} required />
+              </div>
+              <label className="flex items-center gap-3 pb-2 text-[14px]">
                 <input type="checkbox" name="is_active" defaultChecked={t.is_active} className="size-5 accent-[#f5a300]" />
                 On for hosts
               </label>

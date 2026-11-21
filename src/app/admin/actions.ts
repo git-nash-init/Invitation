@@ -103,11 +103,16 @@ export async function saveTrack(formData: FormData) {
     return;
   }
   const categories = formData.getAll("category").map(String).filter((s) => SLUG.test(s));
+  const title = cleanText(str(formData, "title"), 80);
+  if (!title) {
+    back("/admin/music", "Give the track a name.");
+    return;
+  }
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("music_tracks")
-    .update({ category_slugs: categories, is_active: flag(formData, "is_active") })
+    .update({ title, category_slugs: categories, is_active: flag(formData, "is_active") })
     .eq("id", id);
   revalidatePath("/admin/music");
   if (error) {
