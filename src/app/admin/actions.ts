@@ -92,47 +92,28 @@ export async function saveCategory(formData: FormData) {
 }
 
 // ---------- music ----------
-const trackSchema = z.object({
-  id: z.string().regex(/^[a-z0-9-]{2,60}$/, "Use lowercase letters, numbers and dashes for the code."),
-  title: z.string().trim().min(1).max(80),
-  vibe: z.string().trim().max(120),
-  storage_path: z.string().trim().min(3).max(200),
-  source: z.enum(["original", "pixabay", "flow-music", "owned", "other"]),
-  license_url: z.string().trim().max(300),
-  license_note: z.string().trim().max(400),
-});
+const SLUG = /^[a-z0-9-]{2,40}$/;
 
+/** Saves a track's categories and whether it is on. The track's own details are set when it is uploaded. */
 export async function saveTrack(formData: FormData) {
   await requireAdmin();
-  const parsed = trackSchema.safeParse({
-    id: str(formData, "id"),
-    title: str(formData, "title"),
-    vibe: str(formData, "vibe"),
-    storage_path: str(formData, "storage_path"),
-    source: str(formData, "source"),
-    license_url: str(formData, "license_url"),
-    license_note: str(formData, "license_note"),
-  });
-  if (!parsed.success) back("/admin/music", parsed.error.issues[0]?.message ?? "Check the track details.");
-  if (!parsed.success) return;
-
-  const categories = str(formData, "category_slugs")
-    .split(",")
-    .map((s) => s.trim())
-    .filter((s) => /^[a-z0-9-]{2,40}$/.test(s));
+  const id = str(formData, "id");
+  if (!/^[a-z0-9-]{2,60}$/.test(id)) {
+    back("/admin/music", "That track could not be found.");
+    return;
+  }
+  const categories = formData.getAll("category").map(String).filter((s) => SLUG.test(s));
 
   const supabase = await createClient();
-  const { error } = await supabase.from("music_tracks").upsert({
-    ...parsed.data,
-    title: cleanText(parsed.data.title, 80),
-    vibe: cleanText(parsed.data.vibe, 120),
-    category_slugs: categories,
-    is_active: flag(formData, "is_active"),
-  });
+  const { error } = await supabase
+    .from("music_tracks")
+    .update({ category_slugs: categories, is_active: flag(formData, "is_active") })
+    .eq("id", id);
   revalidatePath("/admin/music");
   if (error) {
     // The database refuses an active track with no licence source written down.
     back("/admin/music", error.message.includes("music_license_documented") ? "Write down the licence link or a licence note before turning a track on." : "Could not save that track.");
+    return;
   }
   back("/admin/music", "Track saved", true);
 }
@@ -143,6 +124,7 @@ const uploadedTrackSchema = z.object({
   title: z.string().trim().min(1).max(80),
   storage_path: z.string().trim().min(3).max(200).regex(/^[A-Za-z0-9._-]+$/),
   license_note: z.string().trim().min(3).max(400),
+  category: z.string().regex(SLUG),
 });
 
 export async function registerTrack(input: unknown): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -156,7 +138,7 @@ export async function registerTrack(input: unknown): Promise<{ ok: true } | { ok
     id: parsed.data.id,
     title: cleanText(parsed.data.title, 80),
     vibe: "",
-    category_slugs: [],
+    category_slugs: [parsed.data.category],
     storage_path: parsed.data.storage_path,
     source: "other",
     license_url: "",

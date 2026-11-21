@@ -8,12 +8,57 @@ import type { Template } from "@/lib/templates";
 import { previewVideo } from "@/lib/showcase";
 
 /**
+ * Preview videos are fetched one step at a time, not all at once. Two start as soon as their
+ * cards come into view; each further one starts only when an earlier one has its first frame
+ * (or has failed). Nothing waits on a timer, so there is no fixed gap between steps.
+ */
+const PRELOAD_AT_ONCE = 2;
+type PreloadJob = { video: HTMLVideoElement; begun: boolean; settle: () => void };
+const preloadQueue: PreloadJob[] = [];
+let preloading = 0;
+
+function startNextPreload() {
+  while (preloading < PRELOAD_AT_ONCE && preloadQueue.length) {
+    const job = preloadQueue.shift();
+    if (!job) return;
+    job.begun = true;
+    preloading++;
+    let settled = false;
+    const done = () => {
+      if (settled) return;
+      settled = true;
+      job.video.removeEventListener("loadeddata", done);
+      job.video.removeEventListener("error", done);
+      preloading--;
+      startNextPreload();
+    };
+    job.settle = done;
+    job.video.addEventListener("loadeddata", done);
+    job.video.addEventListener("error", done);
+    job.video.preload = "auto";
+    job.video.load();
+  }
+}
+
+/** Queues a card's video for its turn. Returns a cancel for when the card leaves the page. */
+function queuePreload(video: HTMLVideoElement): () => void {
+  const job: PreloadJob = { video, begun: false, settle: () => {} };
+  preloadQueue.push(job);
+  startNextPreload();
+  return () => {
+    const at = preloadQueue.indexOf(job);
+    if (at !== -1) preloadQueue.splice(at, 1);
+    if (job.begun) job.settle();
+  };
+}
+
+/**
  * An arch-framed card. The cover is a real frame from the template; hover plays its video.
  *
- * On desktop the video is fetched once its card scrolls into view (phones never hover, so they
- * download nothing extra). It sits invisible on top. It only fades in once it is actually
- * playing, and it always starts from its first frame (the "Tap to open" card), so there is
- * no blank flash, no half-loaded frame and nothing that restarts.
+ * On desktop the video joins the preload queue once its card scrolls into view (phones never
+ * hover, so they download nothing extra). It sits invisible on top. It only fades in once it is
+ * actually playing, and it always starts from its first frame (the "Tap to open" card), so there
+ * is no blank flash, no half-loaded frame and nothing that restarts.
  */
 export function TemplateCard({ template, priority }: { template: Template; priority?: boolean }) {
   const video = useRef<HTMLVideoElement>(null);
@@ -24,16 +69,20 @@ export function TemplateCard({ template, priority }: { template: Template; prior
     const v = video.current;
     const el = card.current;
     if (!v || !el || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    let cancel: (() => void) | null = null;
     const io = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
-        v.preload = "auto";
+        cancel = queuePreload(v);
         io.disconnect();
       },
       { rootMargin: "200px" },
     );
     io.observe(el);
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      if (cancel) cancel();
+    };
   }, []);
 
   const play = (e: React.PointerEvent) => {

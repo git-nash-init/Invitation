@@ -263,6 +263,8 @@ window.BalconyMusic = (function () {
     var preview = null;     // the one track being auditioned
     var previewId = '';
     var uploading = false;  // a track of the host's own is on its way
+    var category = '';      // the chosen category; '' shows every track
+    var catalogue = [];     // the library's categories, in order
 
     function esc(t) {
       return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) {
@@ -281,7 +283,7 @@ window.BalconyMusic = (function () {
       if (tracks) return Promise.resolve(tracks);
       return fetch('/api/music', { credentials: 'same-origin' })
         .then(function (r) { return r.ok ? r.json() : { tracks: [] }; })
-        .then(function (d) { tracks = (d && d.tracks) || []; return tracks; })
+        .then(function (d) { tracks = (d && d.tracks) || []; catalogue = (d && d.categories) || []; return tracks; })
         .catch(function () { tracks = []; return tracks; });
     }
 
@@ -304,7 +306,18 @@ window.BalconyMusic = (function () {
       var chosen = (cfg.src || '').trim();
       pop = document.createElement('div');
       pop.className = 'music-pop';
-      var rows = (tracks || []).map(function (t) {
+      var shownTracks = (tracks || []).filter(function (t) {
+        return !category || (t.categories || []).indexOf(category) !== -1;
+      });
+      var chips = catalogue.length
+        ? '<div class="music-pop__cats" role="group" aria-label="Music categories">' +
+          '<button type="button" class="music-pop__cat" data-music="cat" data-cat="" aria-pressed="' + (category === '' ? 'true' : 'false') + '">All</button>' +
+          catalogue.map(function (c) {
+            return '<button type="button" class="music-pop__cat" data-music="cat" data-cat="' + esc(c.slug) + '" aria-pressed="' + (category === c.slug ? 'true' : 'false') + '">' + esc(c.name) + '</button>';
+          }).join('') +
+          '</div>'
+        : '';
+      var rows = shownTracks.map(function (t) {
         var on = !none && (t.id === cfg.trackId || t.url === chosen);
         return '<li class="music-pop__item' + (on ? ' is-on' : '') + '">' +
           '<button type="button" class="music-pop__play" data-music="play" data-id="' + esc(t.id) + '" aria-label="Listen to ' + esc(t.title) + '">&#9654;</button>' +
@@ -315,12 +328,13 @@ window.BalconyMusic = (function () {
       pop.innerHTML =
         '<p class="music-pop__title">Background music</p>' +
         '<p class="music-pop__current">Now: <b>' + esc(currentLabel()) + '</b></p>' +
+        chips +
         (errorMsg ? '<p class="music-pop__error">' + esc(errorMsg) + '</p>' : '') +
         '<ul class="music-pop__list">' +
         '<li class="music-pop__item' + (none ? ' is-on' : '') + '"><span class="music-pop__mute" aria-hidden="true">&#128263;</span>' +
         '<span class="music-pop__name">No music<small>The invitation stays silent</small></span>' +
         '<button type="button" class="music-pop__use" data-music="none"' + (none ? ' aria-pressed="true"' : '') + '>' + (none ? 'Chosen' : 'Use') + '</button></li>' +
-        (tracks === null ? '<li class="music-pop__empty">Loading tracks…</li>' : (rows || '<li class="music-pop__empty">No tracks in the library yet.</li>')) +
+        (tracks === null ? '<li class="music-pop__empty">Loading tracks…</li>' : (rows || '<li class="music-pop__empty">' + (category ? 'No tracks in this category yet.' : 'No tracks in the library yet.') + '</li>')) +
         '</ul>' +
         '<div class="music-pop__row">' +
         '<button type="button" class="music-pop__btn" data-music="upload"' + (uploading ? ' disabled aria-busy="true"' : '') + '>' + (uploading ? 'Uploading your track…' : 'Upload your own') + '</button>' +
@@ -352,6 +366,10 @@ window.BalconyMusic = (function () {
       var act = t.dataset.music;
       if (act === 'upload') {
         input.click();
+      } else if (act === 'cat') {
+        category = t.dataset.cat || '';
+        errorMsg = '';
+        paint();
       } else if (act === 'none') {
         cfg.enabled = false;
         errorMsg = '';

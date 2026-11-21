@@ -10,22 +10,38 @@ export async function GET() {
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!base || !key) return NextResponse.json({ tracks: [] }, { status: 503 });
 
-  const res = await fetch(
-    `${base}/rest/v1/music_tracks?select=id,title,vibe,storage_path,duration_s&is_active=eq.true&order=sort.asc,title.asc`,
-    { headers: { apikey: key, Authorization: `Bearer ${key}` }, next: { revalidate: 300 } },
-  ).catch(() => null);
-  if (!res?.ok) return NextResponse.json({ tracks: [] }, { status: 502, headers: { "Cache-Control": "no-store" } });
+  const headers = { apikey: key, Authorization: `Bearer ${key}` };
+  const [res, catRes] = await Promise.all([
+    fetch(
+      `${base}/rest/v1/music_tracks?select=id,title,vibe,storage_path,duration_s,category_slugs&is_active=eq.true&order=sort.asc,title.asc`,
+      { headers, next: { revalidate: 300 } },
+    ).catch(() => null),
+    fetch(`${base}/rest/v1/music_categories?select=slug,name&is_active=eq.true&order=sort.asc`, {
+      headers,
+      next: { revalidate: 300 },
+    }).catch(() => null),
+  ]);
+  if (!res?.ok || !catRes?.ok) return NextResponse.json({ tracks: [], categories: [] }, { status: 502, headers: { "Cache-Control": "no-store" } });
 
-  const rows = (await res.json()) as { id: string; title: string; vibe: string; storage_path: string; duration_s: number | null }[];
+  const rows = (await res.json()) as {
+    id: string;
+    title: string;
+    vibe: string;
+    storage_path: string;
+    duration_s: number | null;
+    category_slugs: string[] | null;
+  }[];
+  const categories = (await catRes.json()) as { slug: string; name: string }[];
   const tracks = rows.map((t) => ({
     id: t.id,
     title: t.title,
     vibe: t.vibe,
     seconds: t.duration_s,
+    categories: t.category_slugs ?? [],
     url: `${base}/storage/v1/object/public/music/${t.storage_path.split("/").map(encodeURIComponent).join("/")}`,
   }));
   return NextResponse.json(
-    { tracks },
+    { tracks, categories },
     { headers: { "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=3600" } },
   );
 }
