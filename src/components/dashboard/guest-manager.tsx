@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useSyncExternalStore, useTransition } from "react";
-import { BookUser, Check, Copy, Mail, MessageCircle, Send, Share2, Smartphone, X } from "lucide-react";
+import { BookUser, Check, Copy, Mail, X } from "lucide-react";
+import { EmailLogo, InstagramLogo, SmsLogo, TelegramLogo, WhatsAppLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { addGuests, removeGuest } from "@/lib/invitations/actions";
@@ -63,8 +64,10 @@ function Row({ rowKey, label, plainLabel, sub, message, link, extra, busy, reach
             className="btn btn-primary !h-11 flex-1 sm:flex-none sm:!px-4"
             onClick={() => onShare(message, link)}
             aria-label={`Choose who to send ${plainLabel}'s invitation to`}
+            title="Choose contact"
           >
-            <BookUser size={18} strokeWidth={1.75} /> Choose contact
+            <BookUser size={18} strokeWidth={1.75} aria-hidden="true" />
+            <span className="hidden sm:inline">Choose contact</span>
           </button>
         )}
         <a
@@ -73,24 +76,54 @@ function Row({ rowKey, label, plainLabel, sub, message, link, extra, busy, reach
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`Send to ${plainLabel} on WhatsApp`}
+          title="WhatsApp"
         >
-          <MessageCircle size={18} strokeWidth={1.5} /> WhatsApp
+          <WhatsAppLogo size={18} />
+          <span className="hidden sm:inline">WhatsApp</span>
         </a>
-        <a className={tile} href={telegramUrl(message, link)} target="_blank" rel="noopener noreferrer">
-          <Send size={18} strokeWidth={1.5} /> Telegram
+        <a
+          className={tile}
+          href={telegramUrl(message, link)}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Send to ${plainLabel} on Telegram`}
+          title="Telegram"
+        >
+          <TelegramLogo size={18} />
+          <span className="hidden sm:inline">Telegram</span>
         </a>
-        <a className={tile} href={smsUrl(message, reach?.tel)}>
-          <Smartphone size={18} strokeWidth={1.5} /> SMS
+        <a className={tile} href={smsUrl(message, reach?.tel)} aria-label={`Send to ${plainLabel} by SMS`} title="SMS">
+          <SmsLogo size={18} />
+          <span className="hidden sm:inline">SMS</span>
         </a>
-        <button type="button" className={tile} onClick={() => onInstagram(rowKey, message)}>
-          <Share2 size={18} strokeWidth={1.5} /> Instagram
+        <button
+          type="button"
+          className={tile}
+          onClick={() => onInstagram(rowKey, message)}
+          aria-label={`Share ${plainLabel}'s invitation on Instagram`}
+          title="Instagram"
+        >
+          <InstagramLogo size={18} />
+          <span className="hidden sm:inline">Instagram</span>
         </button>
-        <a className={tile} href={emailUrl(message, "You are invited", reach?.email)}>
-          <Mail size={18} strokeWidth={1.5} /> Email
+        <a
+          className={tile}
+          href={emailUrl(message, "You are invited", reach?.email)}
+          aria-label={`Send to ${plainLabel} by email`}
+          title="Email"
+        >
+          <EmailLogo size={18} />
+          <span className="hidden sm:inline">Email</span>
         </a>
-        <button type="button" className={tile} onClick={() => onCopy(rowKey, message)}>
-          {copiedKey === rowKey ? <Check size={18} strokeWidth={1.5} /> : <Copy size={18} strokeWidth={1.5} />}
-          {copiedKey === rowKey ? "Copied" : "Copy"}
+        <button
+          type="button"
+          className={tile}
+          onClick={() => onCopy(rowKey, message)}
+          aria-label={`Copy ${plainLabel}'s invitation message`}
+          title="Copy"
+        >
+          {copiedKey === rowKey ? <Check size={18} strokeWidth={1.5} aria-hidden="true" /> : <Copy size={18} strokeWidth={1.5} aria-hidden="true" />}
+          <span className="hidden sm:inline">{copiedKey === rowKey ? "Copied" : "Copy"}</span>
         </button>
       </div>
     </li>
