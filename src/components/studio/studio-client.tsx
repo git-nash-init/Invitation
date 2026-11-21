@@ -49,6 +49,8 @@ export function StudioClient({
   const [copied, setCopied] = useState(false);
   const [panelError, setPanelError] = useState("");
   const [busy, setBusy] = useState(false);
+  // What the bar says while a publish, unpublish or name change is on its way.
+  const [busyLabel, setBusyLabel] = useState("");
   const [frameReady, setFrameReady] = useState(false);
   const [navigating, startNav] = useTransition();
 
@@ -86,18 +88,22 @@ export function StudioClient({
 
   const togglePublish = useCallback(async () => {
     setBusy(true);
+    setBusyLabel(published ? "Unpublishing" : "Publishing");
     setPanelError("");
     const res = await setStatus(id, published ? "draft" : "published");
     setBusy(false);
+    setBusyLabel("");
     if (res.ok) setStatusState(published ? "draft" : "published");
     else setPanelError(res.error);
   }, [id, published]);
 
   async function saveSettings() {
     setBusy(true);
+    setBusyLabel("Saving name");
     setPanelError("");
     const res = await updateSettings(id, { title, guest_mode: guestMode });
     setBusy(false);
+    setBusyLabel("");
     if (!res.ok) setPanelError(res.error);
   }
 
@@ -137,18 +143,33 @@ export function StudioClient({
             <span className="hidden sm:inline">Dashboard</span>
           </Link>
 
-          <span className="mx-1 hidden h-6 w-px bg-[rgba(107,15,43,0.18)] sm:block" aria-hidden="true" />
+          {/* Visible on every screen: shows the invitation being saved, published or sent. */}
+          <span
+            role="status"
+            aria-live="polite"
+            className="num flex min-w-[88px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap px-1 text-[13px] text-muted"
+          >
+            {busyLabel || saveState === "saving" ? (
+              <>
+                <span className="inline-block size-3 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" />
+                <span>{busyLabel || "Saving"}…</span>
+              </>
+            ) : saveState === "saved" ? (
+              <>
+                <Check size={14} strokeWidth={2} aria-hidden="true" />
+                <span>Saved</span>
+              </>
+            ) : saveState === "error" ? (
+              <span className="text-negative">Not saved</span>
+            ) : null}
+          </span>
+
           <p className="hidden max-w-[220px] items-center gap-2 px-2 text-[14px] leading-5 sm:flex">
             <span
               className={`seal shrink-0 ${published ? "" : "seal-draft"}`}
               aria-label={published ? "Published" : "Draft"}
             />
             <span className="truncate">{title}</span>
-            <span className="num shrink-0 text-[12px] text-muted" aria-live="polite">
-              {saveState === "saving" && "Saving"}
-              {saveState === "saved" && "Saved"}
-              {saveState === "error" && "Not saved"}
-            </span>
           </p>
 
           <span className="mx-1 hidden h-6 w-px bg-[rgba(107,15,43,0.18)] md:block" aria-hidden="true" />
