@@ -64,7 +64,8 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
   if (!parsed.success) return { error: firstError(parsed.error), ...keep(formData) };
 
   const origin = await getOrigin();
-  const next = safeNext(String(formData.get("next") ?? ""), "/dashboard");
+  // A new person lands on the designs to choose from, unless they came from a specific one (?next=).
+  const next = safeNext(String(formData.get("next") ?? ""), "/templates");
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
@@ -89,7 +90,7 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
 
   // With email confirmation on, there is no session yet.
   if (!data.session) {
-    return { message: "Check your email for a confirmation link to finish signing up." };
+    return { message: "Check your email for a confirmation link to finish signing up.", email: parsed.data.email, name: parsed.data.name };
   }
   redirect(next);
 }
