@@ -617,6 +617,7 @@
     // The catalogue is the template's own six rites (RY.DEFAULTS), so a
     // ceremony the host has never had on the invitation - or deleted - is still
     // offered. Matched to the saved list by its artwork.
+    const own = all.filter((c) => c.custom).length;
     if (edit && RY.canEdit('ceremonies')) {
       const catalog = (RY.DEFAULTS.ceremonies || []).filter((d) => d && d.art);
       let left = 0;
@@ -639,6 +640,9 @@
         (left ? 'Choose a ceremony to add to your invitation' : 'All six ceremonies are on your invitation') +
         '</p>' +
         '<div class="ryc-picks__grid">' + picks + '</div>' +
+        (own < RY.CUSTOM_CEREMONY_MAX
+          ? '<button type="button" class="ryc-picks__own" data-action="ceremony-add">+ Add a ceremony of your own (' + own + '/' + RY.CUSTOM_CEREMONY_MAX + ')</button>'
+          : '') +
         '</div>';
     }
 

@@ -1094,3 +1094,17 @@ body.is-editing .gframe__photo--adjust:active {
   line-height: 1.25;
   white-space: normal;
 }
+
+.ryc-picks__own {
+  justify-self: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px dashed #9f1239;
+  background: #fffaf0;
+  color: #9f1239;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ryc-picks__own:hover { background: #fff1d6; }

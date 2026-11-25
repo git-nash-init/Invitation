@@ -36,6 +36,7 @@
     if (flowContainer && Array.isArray(cfg.ceremonies)) {
       flowContainer.innerHTML = cfg.ceremonies.map((c, i) => `
         <div class="sage-ceremony-card">
+          ${edit && cfg.ceremonies.length > 1 ? `<button type="button" class="ev-remove" data-ev-remove="${i}" aria-label="Remove this event">&times; Remove</button>` : ''}
           <div class="sage-card-header">
             <h3 data-fmt="ceremonies[${i}].name" ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].name"` : ''}>${esc(c.name)}</h3>
             <span class="sage-time" data-fmt="ceremonies[${i}].time" ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].time"` : ''}>${esc(c.time)}</span>
@@ -43,10 +44,11 @@
           <div class="sage-card-body">
             <p class="sage-date" data-fmt="ceremonies[${i}].date" ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].date"` : ''}>${esc(c.date)}</p>
             <p class="sage-venue" data-fmt="ceremonies[${i}].venue" ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].venue"` : ''}>${esc(c.venue)}</p>
-            <a href="${esc(c.mapUrl)}" target="_blank" rel="noopener" class="sage-map-link">Google Maps Location ›</a>
+            ${c.mapUrl ? `<a href="${esc(c.mapUrl)}" target="_blank" rel="noopener" class="sage-map-link">Google Maps Location ›</a>` : ''}
+            ${edit ? `<label class="ev-map"><span>Map link</span><input type="url" data-ev-map="${i}" value="${esc(c.mapUrl || '')}" placeholder="Paste a Google Maps link"></label>` : ''}
           </div>
         </div>
-      `).join('');
+      `).join('') + (edit ? '<div class="ev-add-wrap"><button type="button" class="ev-add" data-ev-add>+ Add an event</button></div>' : '');
     }
 
     // Journey

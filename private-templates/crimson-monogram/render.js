@@ -63,6 +63,7 @@
   function renderCeremonyCard(item, index) {
     return `
       <div class="ceremony-card" data-ceremony-index="${index}">
+        ${CM.mode === 'edit' && CM.config.ceremonies.length > 1 ? `<button type="button" class="ev-remove" data-ev-remove="${index}" aria-label="Remove this event">&times; Remove</button>` : ''}
         <div class="ceremony-art-wrap">
           <img src="${esc(item.image)}" alt="${esc(item.name)}" class="ceremony-art" loading="lazy" decoding="async"${CM.mode === 'edit' ? ` data-pick-photo="ceremonies.${index}.image"` : ''} />
         </div>
@@ -74,6 +75,7 @@
           </div>
           <p class="ceremony-venue" data-fmt="ceremonies.${index}.venue" data-edit-field="ceremonies.${index}.venue">📍 ${esc(item.venue)}</p>
           ${item.mapUrl ? `<a href="${esc(item.mapUrl)}" target="_blank" rel="noopener" class="ceremony-map-btn">View on Google Maps →</a>` : ''}
+          ${CM.mode === 'edit' ? `<label class="ev-map"><span>Map link</span><input type="url" data-ev-map="${index}" value="${esc(item.mapUrl || '')}" placeholder="Paste a Google Maps link"></label>` : ''}
         </div>
       </div>
     `;
@@ -155,6 +157,7 @@
           <div class="ceremonies-stack">
             ${ceremoniesHtml}
           </div>
+          ${CM.mode === 'edit' ? '<div class="ev-add-wrap"><button type="button" class="ev-add" data-ev-add>+ Add an event</button></div>' : ''}
         </section>
 
         <!-- Our Story Section -->

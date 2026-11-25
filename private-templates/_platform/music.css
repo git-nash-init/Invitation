@@ -8,7 +8,7 @@
   position: fixed;
   top: 16px;
   right: 16px;
-  z-index: 90;
+  z-index: 2147482990; /* above any opening cover a template draws */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -94,7 +94,7 @@ body.is-previewing .music-toggle {
 /* ---------- Edit-mode popover ---------- */
 .music-pop {
   position: fixed;
-  z-index: 400;
+  z-index: 2147482995;
   min-width: 220px;
   max-width: min(88vw, 300px);
   padding: 16px;

@@ -55,6 +55,7 @@
       ceremonyContainer.innerHTML = cfg.ceremonies.map((c, i) => `
         <div class="col-lg-6 col-md-6 col-sm-12 ceremony-block">
           <div class="inner-box wow fadeInUp animated" style="visibility: visible; animation-name: fadeInUp;">
+            ${edit && cfg.ceremonies.length > 1 ? `<button type="button" class="ev-remove" data-ev-remove="${i}" aria-label="Remove this event">&times; Remove</button>` : ''}
             <div class="image-box">
               <figure class="image"><img src="${esc(c.img)}" alt="${esc(c.name)}" loading="lazy" decoding="async"${edit ? ` data-pick-photo="ceremonies[${i}].img"` : ''}></figure>
             </div>
@@ -67,12 +68,13 @@
               </div>
               <div class="venue-location">
                 <p data-fmt="ceremonies[${i}].venue" ${edit ? `contenteditable="plaintext-only" data-edit="ceremonies[${i}].venue"` : ''}>${esc(c.venue)}</p>
-                <a href="${esc(c.mapUrl)}" target="_blank" rel="noopener" class="map-link">View on Google Maps ›</a>
+                ${c.mapUrl ? `<a href="${esc(c.mapUrl)}" target="_blank" rel="noopener" class="map-link">View on Google Maps ›</a>` : ''}
+                ${edit ? `<label class="ev-map"><span>Map link</span><input type="url" data-ev-map="${i}" value="${esc(c.mapUrl || '')}" placeholder="Paste a Google Maps link"></label>` : ''}
               </div>
             </div>
           </div>
         </div>
-      `).join('');
+      `).join('') + (edit ? '<div class="col-12 ev-add-wrap"><button type="button" class="ev-add" data-ev-add>+ Add an event</button></div>' : '');
     }
 
     // Story chapters
