@@ -18,6 +18,10 @@
     if (!el) return;
     const path = el.dataset.edit;
     const val = el.textContent.trim();
+    // The same line shown in more than one place (cover and page) follows along as it is typed.
+    document.querySelectorAll('[data-edit="' + path.replace(/"/g, '') + '"]').forEach(function (o) {
+      if (o !== el) o.textContent = el.textContent;
+    });
     setPath(SE.config, path, val);
     if (typeof SE.save === 'function') SE.save();
   });

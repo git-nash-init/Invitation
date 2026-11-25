@@ -36,6 +36,12 @@
     // The icon in front of a date, time or venue is drawn by the template, not part of what is typed.
     setPath(el.getAttribute('data-edit-field'), el.textContent.replace(/^\s*(📅|⏰|📍)\s*/, '').trim());
     CM.syncDerived();
+    // The same line shown in more than one place (the names on the cover, the header and the foot)
+    // follows along as it is typed, and so does the monogram made from the two initials.
+    document.querySelectorAll('[data-edit-field="' + el.getAttribute('data-edit-field') + '"]').forEach(function (o) {
+      if (o !== el) o.textContent = el.textContent;
+    });
+    document.querySelectorAll('.monogram-text, .hero-monogram').forEach(function (o) { o.textContent = CM.config.monogram; });
     clearTimeout(timer);
     timer = setTimeout(function () { if (typeof CM.save === 'function') CM.save(); }, 450);
   });

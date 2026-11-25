@@ -23,7 +23,7 @@
 
           <div class="crimson-crest">
             <div class="monogram-ring">
-              <span class="monogram-text" data-fmt="monogram">${esc(c.monogram || 'AK')}</span>
+              <span class="monogram-text" data-no-wording>${esc(c.monogram || 'AK')}</span>
             </div>
           </div>
 
@@ -105,7 +105,7 @@
     const points = guide.items.map((pt, i) => `
       <li class="travel-point">
         <span class="point-bullet">✦</span>
-        <span class="point-text">${esc(pt)}</span>
+        <span class="point-text" data-fmt="travelGuide.items.${i}" data-edit-field="travelGuide.items.${i}">${esc(pt)}</span>
       </li>
     `).join('');
 
@@ -114,7 +114,7 @@
         <div class="travel-box">
           <div class="section-badge">Destination Guide</div>
           <h2 class="section-title" data-fmt="travelGuide.title" data-edit-field="travelGuide.title">${esc(guide.title || 'Travel & Destination')}</h2>
-          <p class="section-sub">${esc(guide.subtitle || 'Essential information for our beloved guests')}</p>
+          <p class="section-sub" data-fmt="travelGuide.subtitle" data-edit-field="travelGuide.subtitle">${esc(guide.subtitle || 'Essential information for our beloved guests')}</p>
           <ul class="travel-list">
             ${points}
           </ul>
@@ -135,12 +135,12 @@
         <header class="main-hero">
           <div class="invocation-badge" data-fmt="invocation.text" data-edit-field="invocation.text">${esc(c.invocation?.text || '॥ श्री गणेशाय नमः ॥')}</div>
           <div class="hero-crest">
-            <span class="hero-monogram">${esc(c.monogram || 'AK')}</span>
+            <span class="hero-monogram" data-no-wording>${esc(c.monogram || 'AK')}</span>
           </div>
           <div class="hero-lead">The Wedding Celebration of</div>
-          <h1 class="hero-couple">${esc(c.brideName || 'Ankita')} &amp; ${esc(c.groomName || 'Kaushik')}</h1>
-          <div class="hero-date">${esc(c.eventDate || '27th & 28th February, 2026')}</div>
-          <div class="hero-venue">${esc(c.venue || 'Umaid Bhawan Palace, Udaipur')}</div>
+          <h1 class="hero-couple"><span data-fmt="brideName" data-edit-field="brideName">${esc(c.brideName || 'Ankita')}</span> <span class="amp">&amp;</span> <span data-fmt="groomName" data-edit-field="groomName">${esc(c.groomName || 'Kaushik')}</span></h1>
+          <div class="hero-date" data-fmt="eventDate" data-edit-field="eventDate">${esc(c.eventDate || '27th & 28th February, 2026')}</div>
+          <div class="hero-venue" data-fmt="venue" data-edit-field="venue">${esc(c.venue || 'Umaid Bhawan Palace, Udaipur')}</div>
         </header>
 
         <!-- Torn paper divider -->
@@ -187,7 +187,7 @@
         </section>
 
         <footer class="crimson-footer">
-          <div class="footer-couple">${esc(c.brideName || 'Ankita')} &amp; ${esc(c.groomName || 'Kaushik')}</div>
+          <div class="footer-couple"><span data-fmt="brideName" data-edit-field="brideName">${esc(c.brideName || 'Ankita')}</span> <span class="amp">&amp;</span> <span data-fmt="groomName" data-edit-field="groomName">${esc(c.groomName || 'Kaushik')}</span></div>
           <div class="footer-note">We eagerly await your gracious presence &amp; blessings.</div>
         </footer>
       </main>

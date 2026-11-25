@@ -55,14 +55,15 @@ if(document.readyState==='complete')setTimeout(build,0);else window.addEventList
 
 /**
  * Adds the shared page additions to a template's index.html, just before the page closes: the text
- * size and alignment bar (_platform/text-format.js, every page), the photo picker (editor only) and the credit
+ * size and alignment bar (_platform/text-format.js, every page), the fixed-wording editor
+ * (_platform/wording.js, every page), the photo picker (editor only) and the credit
  * (live pages only).
  */
 export function withBrandFooter(html: string, editing = false): string {
   // The editor gets the photo picker; a live page gets the credit. Both get the text size and alignment.
   const tag = editing
-    ? '<script src="../_platform/text-format.js"></script><script src="../_platform/photo-pick.js"></script>'
-    : '<script src="../_platform/text-format.js"></script>' + footerScript();
+    ? '<script src="../_platform/text-format.js"></script><script src="../_platform/wording.js"></script><script src="../_platform/photo-pick.js"></script>'
+    : '<script src="../_platform/text-format.js"></script><script src="../_platform/wording.js"></script>' + footerScript();
   const at = html.lastIndexOf("</body>");
   return at === -1 ? html + tag : html.slice(0, at) + tag + html.slice(at);
 }
