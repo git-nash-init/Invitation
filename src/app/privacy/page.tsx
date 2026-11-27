@@ -11,11 +11,11 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <LegalPage title="Privacy Policy" updated="19 November 2026">
+    <LegalPage title="Privacy Policy" updated="27 November 2026">
       <section>
         <h2>Who we are</h2>
         <p>
-          {BRAND.name} is run by {BUSINESS.name}
+          {BRAND.name} is owned and operated by {BUSINESS.owner}
           {BUSINESS.address ? <> ({BUSINESS.address})</> : null}. We make interactive digital wedding
           invitations that hosts customize, publish and share by link. This policy explains what
           personal information that involves and how we handle it. It is written to follow

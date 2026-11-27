@@ -4,6 +4,8 @@
  */
 export const BUSINESS = {
   name: process.env.NEXT_PUBLIC_BUSINESS_NAME?.trim() || "Pratham Invitation",
+  /** The person who owns and runs the business; shown in the site footer and the privacy policy. */
+  owner: "AVINASH KR THAKUR",
   email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || "",
   phone: process.env.NEXT_PUBLIC_SUPPORT_PHONE?.trim() || "",
   address: process.env.NEXT_PUBLIC_BUSINESS_ADDRESS?.trim() || "",

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BRAND } from "@/lib/brand";
+import { BUSINESS } from "@/lib/business";
 import { Logo } from "./logo";
 
 const COLS = [
@@ -54,7 +55,8 @@ export function SiteFooter() {
         ))}
       </div>
       <p className="mx-auto mt-12 max-w-6xl border-t border-(--hairline) pt-6 text-[13px] text-muted">
-        © {new Date().getFullYear()} {BRAND.name}. Made with care for Indian weddings.
+        © {new Date().getFullYear()} {BRAND.name}. Owned and operated by {BUSINESS.owner}. Made with
+        care for Indian weddings.
       </p>
     </footer>
   );
