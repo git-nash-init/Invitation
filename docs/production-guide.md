@@ -36,6 +36,15 @@ Remove `NEXT_PUBLIC_BOT_USERNAME` if it is still there; nothing uses it now.
 
 Admin → **Payments setup** shows which of these are in place (names only, never values).
 
+## 2a. Cashfree (used when its keys are set)
+
+1. In the Cashfree dashboard, Developers, API Keys, copy the **App ID** and **Secret Key**.
+2. In Vercel, Settings, Environment Variables, add `CASHFREE_APP_ID` and `CASHFREE_SECRET_KEY` (mark the secret **Sensitive**), then redeploy. Leave `CASHFREE_ENV` unset: test keys use the sandbox, live keys take real payments.
+3. In the Cashfree dashboard, whitelist the site address (`https://pratham-invitation.vercel.app`) for the payment gateway.
+4. No webhook needs to be created by hand: every order tells Cashfree to call `/api/cashfree/webhook`, and the call is checked with the Secret Key.
+
+When both Cashfree keys are present the checkout uses Cashfree and asks the payer for a mobile number (Cashfree requires it). Remove the two keys to go back to Razorpay.
+
 ## 2. Razorpay
 
 1. Create an account at razorpay.com. **Test mode** works immediately and moves no real money. Live mode needs KYC (PAN, bank account, business details) and a website with the Terms, Privacy, Refund and Contact pages (all four exist on this site).

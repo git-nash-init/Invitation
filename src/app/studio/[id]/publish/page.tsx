@@ -24,6 +24,7 @@ import { LoadingIframe } from "@/components/ui/loading-iframe";
 import { PhoneFrame } from "@/components/ui/phone-frame";
 import { mintAssetToken } from "@/lib/asset-token";
 import { BRAND } from "@/lib/brand";
+import { cashfreeKeys } from "@/lib/cashfree";
 import { buildPlatformHash } from "@/lib/invitations/payload";
 import { getMyInvitation } from "@/lib/invitations/queries";
 import { SHOWCASE, previewCover, previewVideo } from "@/lib/showcase";
@@ -41,20 +42,20 @@ const UNLOCKS = [
   { icon: PenLine, title: "Edit any time", text: "Change a time or venue later. The same link updates for everyone." },
 ];
 
-const STEPS = [
-  ["Pay securely", "UPI, cards, netbanking or wallets, through Razorpay."],
+const steps = (partner: string) => [
+  ["Pay securely", `UPI, cards, netbanking or wallets, through ${partner}.`],
   ["It goes live", "Your invitation is published on its own link straight away."],
   ["Send it to everyone", "Pick a message, add friends' names and share in a tap."],
 ];
 
-const FAQ = [
+const faq = (partner: string) => [
   {
     q: "Is this a subscription?",
     a: "No. It is a one-time payment for this invitation. There is nothing to renew and no hidden charge.",
   },
   {
     q: "Which payment methods can I use?",
-    a: "UPI (Google Pay, PhonePe, Paytm), debit and credit cards, netbanking and wallets. Payment is handled by Razorpay, so we never see your card or bank details.",
+    a: `UPI (Google Pay, PhonePe, Paytm), debit and credit cards, netbanking and wallets. Payment is handled by ${partner}, so we never see your card or bank details.`,
   },
   {
     q: "Can I still edit after I pay?",
@@ -66,8 +67,11 @@ const FAQ = [
   },
 ];
 
-export default async function PublishPage({ params }: PageProps<"/studio/[id]/publish">) {
+export default async function PublishPage({ params, searchParams }: PageProps<"/studio/[id]/publish">) {
   const { id } = await params;
+  const cfOrder = (await searchParams).cf_order;
+  // Set when a bank or UPI app sends the customer back here after a Cashfree payment.
+  const resumeOrderId = typeof cfOrder === "string" && z.string().uuid().safeParse(cfOrder).success ? cfOrder : undefined;
   if (!z.string().uuid().safeParse(id).success) notFound();
 
   const invitation = await getMyInvitation(id);
@@ -92,6 +96,11 @@ export default async function PublishPage({ params }: PageProps<"/studio/[id]/pu
   const info = SHOWCASE[template.slug];
   const price = template.price;
   const was = template.list_price && template.list_price > price ? template.list_price : null;
+  const useCashfree = cashfreeKeys() !== null;
+  const partner = useCashfree ? "Cashfree Payments" : "Razorpay";
+  const askPhone = useCashfree && !paid;
+  const STEPS = steps(partner);
+  const FAQ = faq(partner);
   const off = was ? Math.round(((was - price) / was) * 100) : 0;
 
   return (
@@ -188,7 +197,13 @@ export default async function PublishPage({ params }: PageProps<"/studio/[id]/pu
               {paid ? (
                 <CheckoutButton invitationId={id} label="Publish my invitation" description={`${template.name} invitation`} />
               ) : (
-                <CheckoutButton invitationId={id} label={`Pay ₹${price.toLocaleString("en-IN")} and publish`} description={`${template.name} invitation`} />
+                <CheckoutButton
+                  invitationId={id}
+                  label={`Pay ₹${price.toLocaleString("en-IN")} and publish`}
+                  description={`${template.name} invitation`}
+                  askPhone={askPhone}
+                  resumeOrderId={resumeOrderId}
+                />
               )}
             </div>
 
@@ -196,7 +211,7 @@ export default async function PublishPage({ params }: PageProps<"/studio/[id]/pu
               <div className="mt-6 grid gap-2 text-[14px] text-text-2">
                 <p className="flex items-center gap-2.5">
                   <ShieldCheck size={18} strokeWidth={1.9} className="shrink-0 text-[#ffd66b]" aria-hidden="true" />
-                  Secure payment by Razorpay: UPI, cards, netbanking, wallets
+                  Secure payment by {partner}: UPI, cards, netbanking, wallets
                 </p>
                 <p className="flex items-center gap-2.5">
                   <Lock size={17} strokeWidth={1.9} className="shrink-0 text-[#ffd66b]" aria-hidden="true" />
@@ -280,6 +295,7 @@ export default async function PublishPage({ params }: PageProps<"/studio/[id]/pu
                 invitationId={id}
                 label={paid ? "Publish my invitation" : `Pay ₹${price.toLocaleString("en-IN")} and publish`}
                 description={`${template.name} invitation`}
+                askPhone={askPhone}
               />
             </div>
           </div>

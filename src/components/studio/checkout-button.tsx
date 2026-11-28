@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { setStatus } from "@/lib/invitations/actions";
@@ -9,59 +9,97 @@ import { BRAND } from "@/lib/brand";
 
 type RazorpaySuccess = { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };
 type RazorpayInstance = { open: () => void; on: (event: string, cb: (r: { error?: { description?: string } }) => void) => void };
+type CashfreeResult = { error?: { message?: string }; redirect?: boolean; paymentDetails?: unknown };
+type CashfreeInstance = {
+  checkout: (options: { paymentSessionId: string; redirectTarget: "_modal" | "_self" }) => Promise<CashfreeResult>;
+};
 declare global {
   interface Window {
     Razorpay?: new (options: Record<string, unknown>) => RazorpayInstance;
+    Cashfree?: (options: { mode: "sandbox" | "production" }) => CashfreeInstance;
   }
 }
 
 type Checkout = {
   alreadyPaid?: boolean;
-  keyId: string;
+  provider: "razorpay" | "cashfree";
   orderId: string;
+  // Razorpay
+  keyId: string;
   razorpayOrderId: string;
   amount: number;
   currency: string;
   email: string;
   name: string;
+  // Cashfree
+  paymentSessionId: string;
+  mode: "sandbox" | "production";
 };
 
-let scriptPromise: Promise<boolean> | null = null;
-function loadCheckout(): Promise<boolean> {
+const scripts = new Map<string, Promise<boolean>>();
+function loadScript(src: string): Promise<boolean> {
   if (typeof window === "undefined") return Promise.resolve(false);
-  if (window.Razorpay) return Promise.resolve(true);
-  scriptPromise ??= new Promise((resolve) => {
-    const s = document.createElement("script");
-    s.src = "https://checkout.razorpay.com/v1/checkout.js";
-    s.async = true;
-    s.onload = () => resolve(true);
-    s.onerror = () => {
-      scriptPromise = null;
-      resolve(false);
-    };
-    document.body.appendChild(s);
-  });
-  return scriptPromise;
+  let p = scripts.get(src);
+  if (!p) {
+    p = new Promise<boolean>((resolve) => {
+      const s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      s.onload = () => resolve(true);
+      s.onerror = () => {
+        scripts.delete(src);
+        resolve(false);
+      };
+      document.body.appendChild(s);
+    });
+    scripts.set(src, p);
+  }
+  return p;
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const PHONE_KEY = "pi-checkout-phone";
+const validPhone = (v: string) => /^[6-9]\d{9}$/.test(v.replace(/\D/g, "").replace(/^(91|0)(?=\d{10}$)/, ""));
+const NOT_COMPLETED = "The payment was not completed, so you have not been charged. You can try again.";
 
 /**
- * Opens Razorpay Checkout, waits for the server to confirm the payment, then publishes.
- * If the confirmation is slow (the webhook is still on its way), it keeps checking for a short while.
+ * Opens the payment window (Cashfree or Razorpay, whichever the server says), waits for the
+ * server to confirm the payment, then publishes. If the confirmation is slow (the webhook is
+ * still on its way), it keeps checking for a short while.
+ *
+ * `askPhone` shows a mobile-number field: Cashfree needs it for every payment.
+ * `resumeOrderId` is set when a bank or UPI app has just sent the customer back to this page.
  */
 export function CheckoutButton({
   invitationId,
   label,
   description,
+  askPhone = false,
+  resumeOrderId,
 }: {
   invitationId: string;
   label: string;
   description: string;
+  askPhone?: boolean;
+  resumeOrderId?: string;
 }) {
   const router = useRouter();
+  const phoneId = useId();
   const [state, setState] = useState<"idle" | "opening" | "confirming">("idle");
   const [error, setError] = useState("");
+  const [phone, setPhone] = useState("");
+  const resumed = useRef(false);
+
+  useEffect(() => {
+    if (!askPhone) return;
+    try {
+      const saved = window.localStorage.getItem(PHONE_KEY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- read once from the browser after mount
+      if (saved) setPhone(saved);
+    } catch {
+      /* private window: nothing remembered */
+    }
+  }, [askPhone]);
 
   async function publishAndGo() {
     const res = await setStatus(invitationId, "published");
@@ -74,32 +112,108 @@ export function CheckoutButton({
     router.refresh();
   }
 
-  async function confirm(orderId: string, r: RazorpaySuccess) {
+  async function confirm(body: Record<string, unknown>, sawPayment: boolean) {
     setState("confirming");
     for (let attempt = 0; attempt < 12; attempt++) {
       const res = await fetch("/api/checkout/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId, ...r }),
+        body: JSON.stringify(body),
       }).catch(() => null);
-      if (res?.status === 200) return publishAndGo();
+      if (res?.status === 200) {
+        const json = (await res.json().catch(() => ({}))) as { status?: string };
+        if (json.status === "paid") return publishAndGo();
+        setError(NOT_COMPLETED);
+        return setState("idle");
+      }
       if (res && res.status >= 400 && res.status !== 429) break;
       await sleep(2500);
     }
     setError(
-      "Your payment went through, but we are still confirming it. Wait a minute and refresh this page. You will not be charged twice.",
+      sawPayment
+        ? "Your payment went through, but we are still confirming it. Wait a minute and refresh this page. You will not be charged twice."
+        : "We are still checking this payment. Wait a minute and refresh this page. You will not be charged twice.",
     );
     setState("idle");
   }
 
+  // Back from a bank or UPI app: check that order straight away.
+  useEffect(() => {
+    if (!resumeOrderId || resumed.current) return;
+    resumed.current = true;
+    void confirm({ provider: "cashfree", orderId: resumeOrderId }, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumeOrderId]);
+
+  async function payWithCashfree(data: Partial<Checkout>) {
+    if (!data.paymentSessionId || !data.orderId || !data.mode) {
+      setError("We could not start the payment. Please try again.");
+      return setState("idle");
+    }
+    if (!(await loadScript("https://sdk.cashfree.com/js/v3/cashfree.js")) || !window.Cashfree) {
+      setError("The payment window could not load. Check your connection and try again.");
+      return setState("idle");
+    }
+    const result = await window.Cashfree({ mode: data.mode }).checkout({
+      paymentSessionId: data.paymentSessionId,
+      redirectTarget: "_modal",
+    });
+    // The page is leaving for a bank or UPI app; it comes back with the order in the address.
+    if (result.redirect) return;
+    // Closed without paying and a real attempt both end here, so always ask the server.
+    return confirm({ provider: "cashfree", orderId: data.orderId }, Boolean(result.paymentDetails));
+  }
+
+  async function payWithRazorpay(data: Partial<Checkout>) {
+    if (!data.keyId || !data.razorpayOrderId || !data.orderId) {
+      setError("We could not start the payment. Please try again.");
+      return setState("idle");
+    }
+    if (!(await loadScript("https://checkout.razorpay.com/v1/checkout.js")) || !window.Razorpay) {
+      setError("The payment window could not load. Check your connection and try again.");
+      return setState("idle");
+    }
+    const orderId = data.orderId;
+    const rzp = new window.Razorpay({
+      key: data.keyId,
+      amount: data.amount,
+      currency: data.currency,
+      name: BRAND.name,
+      description,
+      order_id: data.razorpayOrderId,
+      prefill: { email: data.email, name: data.name },
+      notes: { invitation_id: invitationId },
+      theme: { color: "#6B0F2B" },
+      modal: { ondismiss: () => setState((s) => (s === "opening" ? "idle" : s)) },
+      handler: (r: RazorpaySuccess) => void confirm({ orderId, ...r }, true),
+    });
+    rzp.on("payment.failed", (r) => {
+      setError(r.error?.description ?? "The payment did not go through. You have not been charged. Please try again.");
+      setState("idle");
+    });
+    rzp.open();
+  }
+
   async function start() {
     setError("");
+    if (askPhone && !validPhone(phone)) {
+      setError("Enter your 10-digit mobile number to continue. It is needed for the payment.");
+      document.getElementById(phoneId)?.focus();
+      return;
+    }
     setState("opening");
     try {
+      if (askPhone) {
+        try {
+          window.localStorage.setItem(PHONE_KEY, phone);
+        } catch {
+          /* not remembered, nothing else changes */
+        }
+      }
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ invitationId }),
+        body: JSON.stringify(askPhone ? { invitationId, phone } : { invitationId }),
       });
       const data = (await res.json().catch(() => ({}))) as Partial<Checkout> & { error?: string };
 
@@ -109,35 +223,15 @@ export function CheckoutButton({
         return setState("idle");
       }
       if (res.status === 401) return router.push(`/login?next=${encodeURIComponent(`/studio/${invitationId}/publish`)}`);
-      if (!res.ok || !data.keyId || !data.razorpayOrderId || !data.orderId) {
+      if (data.error === "phone_required") {
+        setError("Enter your 10-digit mobile number to continue. It is needed for the payment.");
+        return setState("idle");
+      }
+      if (!res.ok) {
         setError("We could not start the payment. Please try again.");
         return setState("idle");
       }
-
-      if (!(await loadCheckout()) || !window.Razorpay) {
-        setError("The payment window could not load. Check your connection and try again.");
-        return setState("idle");
-      }
-
-      const orderId = data.orderId;
-      const rzp = new window.Razorpay({
-        key: data.keyId,
-        amount: data.amount,
-        currency: data.currency,
-        name: BRAND.name,
-        description,
-        order_id: data.razorpayOrderId,
-        prefill: { email: data.email, name: data.name },
-        notes: { invitation_id: invitationId },
-        theme: { color: "#6B0F2B" },
-        modal: { ondismiss: () => setState((s) => (s === "opening" ? "idle" : s)) },
-        handler: (r: RazorpaySuccess) => void confirm(orderId, r),
-      });
-      rzp.on("payment.failed", (r) => {
-        setError(r.error?.description ?? "The payment did not go through. You have not been charged. Please try again.");
-        setState("idle");
-      });
-      rzp.open();
+      return data.provider === "cashfree" ? await payWithCashfree(data) : await payWithRazorpay(data);
     } catch {
       setError("Something went wrong. Please try again.");
       setState("idle");
@@ -147,6 +241,26 @@ export function CheckoutButton({
   const busy = state !== "idle";
   return (
     <div>
+      {askPhone && (
+        <div className="mb-4 text-left">
+          <label htmlFor={phoneId} className="mb-1.5 block text-[14px] font-semibold">
+            Mobile number
+          </label>
+          <input
+            id={phoneId}
+            type="tel"
+            inputMode="numeric"
+            autoComplete="tel-national"
+            placeholder="10-digit mobile number"
+            maxLength={16}
+            value={phone}
+            disabled={busy}
+            onChange={(e) => setPhone(e.target.value.replace(/[^\d+ ]/g, ""))}
+            className="num h-12 w-full rounded-xl border border-black/15 bg-white px-4 text-[16px] text-[#2b1210] outline-none placeholder:text-black/40 focus-visible:ring-2 focus-visible:ring-[#f5a300]"
+          />
+          <p className="mt-1.5 text-[13px] opacity-75">Needed by the payment partner for your receipt. We do not use it for anything else.</p>
+        </div>
+      )}
       <Button size="lg" className="btn-glint w-full" onClick={start} disabled={busy}>
         {busy ? (
           <>

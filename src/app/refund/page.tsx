@@ -75,8 +75,8 @@ export default function RefundPage() {
         <h2>How to ask</h2>
         <p>
           Write to us through {contact} within 7 days of the payment. Please include the email you
-          signed up with, the date of the payment and, if you have it, the Razorpay payment ID from
-          your receipt (it starts with <span className="num">pay_</span>). We reply within 2 working
+          signed up with, the date of the payment and, if you have it, the payment ID or reference
+          number from your receipt. We reply within 2 working
           days.
         </p>
       </section>
@@ -85,7 +85,7 @@ export default function RefundPage() {
         <h2>How long a refund takes</h2>
         <p>
           Once we approve a refund we start it straight away, to the same account, card or UPI ID
-          you paid with, through Razorpay. Banks and card networks usually show it within 5 to 7
+          you paid with, through the same payment partner (Cashfree Payments or Razorpay). Banks and card networks usually show it within 5 to 7
           working days; some take up to 10. We cannot speed up the bank&apos;s part.
         </p>
       </section>
@@ -95,7 +95,7 @@ export default function RefundPage() {
         <p>
           If your bank took the money but the payment did not complete, it is normally returned
           automatically to your account within 5 to 7 working days. If it has not arrived after
-          that, contact us with the payment reference and we will check it with Razorpay.
+          that, contact us with the payment reference and we will check it with the payment partner.
         </p>
       </section>
     </LegalPage>

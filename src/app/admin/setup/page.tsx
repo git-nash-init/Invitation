@@ -1,3 +1,4 @@
+import { cashfreeKeys } from "@/lib/cashfree";
 import type { Metadata } from "next";
 import { CheckCircle2, CircleAlert } from "lucide-react";
 import { SITE_URL } from "@/lib/brand";
@@ -27,6 +28,8 @@ export default async function SetupPage() {
   const keyId = (process.env.RAZORPAY_KEY_ID ?? "").trim();
   const mode = keyId.startsWith("rzp_live_") ? "Live" : keyId.startsWith("rzp_test_") ? "Test" : null;
 
+  const cashfree = cashfreeKeys();
+
   const supabase = await createClient();
   const { data: priced } = await supabase.from("templates").select("slug").eq("is_active", true).gt("price", 0);
 
@@ -38,6 +41,18 @@ export default async function SetupPage() {
       </p>
 
       <ul className="glass mt-6 divide-y divide-(--hairline) rounded-[20px] px-6">
+        <Row ok={cashfree !== null} title="Cashfree keys">
+          Set <code className="num">CASHFREE_APP_ID</code> and <code className="num">CASHFREE_SECRET_KEY</code> in Vercel, then redeploy. When
+          both are set, payments go through Cashfree; otherwise Razorpay below is used. Cashfree calls{" "}
+          <code className="num break-all rounded bg-[rgba(107,15,43,0.07)] px-1.5 py-0.5">{SITE_URL}/api/cashfree/webhook</code> by itself for
+          every order, and the site address must be whitelisted in the Cashfree dashboard.
+          {cashfree && (
+            <span className="mt-1 block font-semibold text-maroon">
+              Running in {cashfree.mode === "production" ? "Live" : "Test"} mode.
+              {cashfree.mode === "sandbox" && " No real money moves until you switch to live keys."}
+            </span>
+          )}
+        </Row>
         <Row ok={has("RAZORPAY_KEY_ID") && has("NEXT_PUBLIC_RAZORPAY_KEY_ID") && has("RAZORPAY_KEY_SECRET")} title="Razorpay keys">
           Set <code className="num">RAZORPAY_KEY_ID</code>, <code className="num">NEXT_PUBLIC_RAZORPAY_KEY_ID</code> (the same Key ID) and{" "}
           <code className="num">RAZORPAY_KEY_SECRET</code> in Vercel, then redeploy.

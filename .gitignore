@@ -56,3 +56,6 @@ next-env.d.ts
 # Licensed music is never committed: add tracks through Admin > Music
 *.mp3
 *.m4a
+.claude/skills/
+# Written by the Cashfree skills installer for the local AI assistant
+/CLAUDE.md

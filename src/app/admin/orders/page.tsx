@@ -47,7 +47,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
     <>
       <h1 className="display text-[36px] leading-[1.1]">Orders</h1>
       <p className="mt-2 max-w-[42rem] text-[15px] leading-6 text-text-2">
-        Every checkout, newest first. Refunds are made in the Razorpay dashboard; they show here as soon as Razorpay confirms them.
+        Every checkout, newest first. Refunds are made in the Cashfree or Razorpay dashboard; they show here as soon as the provider confirms them.
       </p>
 
       <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Filter">
@@ -62,7 +62,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
         <table className="w-full min-w-[820px] border-collapse text-left text-[14px] leading-5">
           <thead>
             <tr className="border-b border-(--hairline) text-text-2">
-              {["When", "Customer", "Design", "Amount", "Status", "Razorpay payment"].map((h) => (
+              {["When", "Customer", "Design", "Amount", "Status", "Payment ID"].map((h) => (
                 <th key={h} scope="col" className="px-4 py-3 font-medium">
                   {h}
                 </th>
