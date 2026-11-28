@@ -6,8 +6,8 @@ import { SectionHead } from "@/components/landing/sections";
 import { getTemplates } from "@/lib/templates";
 
 export const metadata: Metadata = {
-  title: "Wedding invitation designs",
-  description: "Five royal interactive wedding invitation designs. Watch each one play, then make it yours for free.",
+  title: "Invitation designs",
+  description: "Interactive invitation designs for weddings, birthdays, baby showers, naming ceremonies, housewarmings and festive parties. Watch each one play, then make it yours for free.",
 };
 
 export default async function TemplatesPage() {

@@ -49,6 +49,16 @@ const OPTS = {
   papercut: { coverFrom: 1 },
   "papercut-magenta": { coverFrom: 3 },
   "sage-envelope": { coverFrom: 1 },
+  // The celebration designs each have their own words on the button that opens them.
+  "birthday-arcade": { tap: "press start", coverFrom: 1 },
+  "birthday-confetti": { tap: "tap to pop", coverFrom: 1 },
+  "birthday-polaroid": { tap: "tap to flip", coverFrom: 1 },
+  "baby-cloud": { tap: "open the surprise", coverFrom: 1 },
+  "baby-jungle": { tap: "peek inside", coverFrom: 1 },
+  "baby-namkaran": { tap: "reveal the name", coverFrom: 2, openWait: 4200 },
+  "home-griha": { tap: "open the door", coverFrom: 1 },
+  "home-keys": { tap: "unlock", coverFrom: 2, openWait: 4200 },
+  "festive-lights": { tap: "light the diya", coverFrom: 2, openWait: 4200 },
 };
 const opt = (slug, key, dflt) => OPTS[slug]?.[key] ?? dflt;
 const args = process.argv.slice(2);

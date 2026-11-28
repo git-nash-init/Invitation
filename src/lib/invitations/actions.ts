@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { isCelebration } from "@/lib/showcase";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -27,7 +28,7 @@ export async function startInvitation(slug: string): Promise<void> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("invitations")
-    .insert({ template_slug: parsedSlug.data, title: "Our wedding invitation" })
+    .insert({ template_slug: parsedSlug.data, title: isCelebration(parsedSlug.data) ? "Our invitation" : "Our wedding invitation" })
     .select("id")
     .single();
 

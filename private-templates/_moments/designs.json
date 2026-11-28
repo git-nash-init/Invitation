@@ -1,0 +1,11 @@
+[
+  { "slug": "birthday-arcade", "name": "Level Up", "theme": "#0b0620", "wish": "Leave a birthday wish (optional)", "fonts": "family=Bungee&family=Press+Start+2P&family=Space+Grotesk:wght@400;500;700" },
+  { "slug": "birthday-confetti", "name": "Confetti Pop", "theme": "#fff6e9", "wish": "Leave a birthday wish (optional)", "fonts": "family=Lilita+One&family=Fredoka:wght@400;500;600;700" },
+  { "slug": "birthday-polaroid", "name": "Polaroid Party", "theme": "#f1e6d2", "wish": "Leave a birthday wish (optional)", "fonts": "family=Permanent+Marker&family=Caveat:wght@500;700&family=Karla:wght@400;500;700" },
+  { "slug": "baby-cloud", "name": "Cloud Nine", "theme": "#dff1ff", "wish": "Leave a wish for the baby (optional)", "fonts": "family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700" },
+  { "slug": "baby-jungle", "name": "Little Jungle", "theme": "#f4f1e4", "wish": "Leave a wish for the baby (optional)", "fonts": "family=Grandstander:wght@600;700;800&family=Nunito:wght@500;600;700;800" },
+  { "slug": "baby-namkaran", "name": "Namkaran", "theme": "#fff7e6", "wish": "Leave a blessing (optional)", "fonts": "family=Yatra+One&family=Mukta:wght@400;500;600;700" },
+  { "slug": "home-griha", "name": "Griha Pravesh", "theme": "#fdf0d5", "wish": "Leave a blessing for the new home (optional)", "fonts": "family=Rozha+One&family=Hind:wght@400;500;600" },
+  { "slug": "home-keys", "name": "New Keys", "theme": "#111111", "wish": "Leave a note for the hosts (optional)", "fonts": "family=Unbounded:wght@500;700;800&family=Inter:wght@400;500;600" },
+  { "slug": "festive-lights", "name": "Festival of Lights", "theme": "#120a2e", "wish": "Leave a festive wish (optional)", "fonts": "family=Yeseva+One&family=Poppins:wght@400;500;600" }
+]

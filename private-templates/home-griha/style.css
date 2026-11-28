@@ -1,0 +1,80 @@
+/* Griha Pravesh - carved doors, toran and rangoli */
+:root {
+  --mo-bg: #fdf0d5; --mo-bg-2: #f7dcaa; --mo-ink: #3a1f0d; --mo-muted: #7a5a3f;
+  --mo-accent: #c1121f; --mo-accent-2: #f4a300; --gp-gold: #f4a300; --gp-leaf: #386641; --gp-wood: #7f4f24; --gp-wood-2: #582f0e;
+  --mo-on-accent: #ffffff; --mo-card: rgba(255, 252, 244, 0.9); --mo-line: color-mix(in srgb, var(--gp-wood) 30%, transparent);
+  --mo-shadow: 0 14px 34px color-mix(in srgb, var(--gp-wood-2) 20%, transparent); --mo-radius: 16px;
+  --mo-font-display: "Rozha One", Georgia, serif;
+  --mo-font-body: "Hind", system-ui, sans-serif;
+}
+body, .mo-cover {
+  background:
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--gp-wood) 16%, transparent) 1px, transparent 1.5px) 0 0 / 18px 18px,
+    linear-gradient(180deg, var(--mo-bg), var(--mo-bg-2));
+  background-attachment: fixed;
+}
+body { font-size: 17px; }
+.gp-toran { position: absolute; top: 0; left: 0; width: 100%; z-index: 4; }
+
+/* ---- Cover ---- */
+.mo-cover__in { gap: 10px; }
+.gp-top { font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; font-size: 13px; color: var(--mo-accent); }
+.gp-house { position: relative; width: min(64vw, 250px); margin-bottom: 30px; }
+.gp-arch {
+  position: relative; aspect-ratio: 0.72; border: 9px solid var(--gp-wood-2); border-bottom-width: 0; border-radius: 50% 50% 0 0 / 30% 30% 0 0;
+  overflow: hidden; perspective: 900px; background: radial-gradient(circle at 50% 70%, #fff6c9, #ffd166 45%, #f4a300 100%);
+  box-shadow: 0 0 0 4px var(--gp-gold), 0 20px 40px color-mix(in srgb, var(--gp-wood-2) 35%, transparent);
+}
+.gp-arch .gp-toran { top: 4px; }
+.gp-inside { position: absolute; inset: 0; display: grid; place-items: center; }
+.gp-kalash { width: 46%; transform: scale(0.6); opacity: 0; transition: transform 1.2s cubic-bezier(0.3, 1.4, 0.5, 1) 0.5s, opacity 0.8s ease 0.5s; filter: drop-shadow(0 0 24px #fff); }
+.gp-door { position: absolute; top: 0; bottom: 0; width: 50%; z-index: 2; transition: transform 1.5s cubic-bezier(0.6, 0, 0.25, 1); }
+.gp-door--l { left: 0; transform-origin: 0 50%; }
+.gp-door--r { right: 0; transform-origin: 100% 50%; }
+.gp-leafdoor { width: 100%; height: 100%; }
+.gp-step { position: absolute; left: 50%; bottom: -34px; width: 52%; translate: -50% 0; animation: gp-spin 40s linear infinite; z-index: 3; }
+@keyframes gp-spin { to { rotate: 360deg; } }
+.gp-title { font-family: var(--mo-font-display); font-weight: 400; font-size: clamp(32px, 9.6vw, 46px); line-height: 1.05; color: var(--mo-ink); text-wrap: balance; overflow-wrap: anywhere; }
+.gp-line { color: var(--mo-muted); font-weight: 500; }
+.gp-open { font-family: var(--mo-font-display); font-weight: 400; font-size: 19px; border: 2px solid var(--gp-gold); margin-top: 4px; }
+
+.mo-cover.is-opening .gp-door--l { transform: rotateY(-108deg); }
+.mo-cover.is-opening .gp-door--r { transform: rotateY(108deg); }
+.mo-cover.is-opening .gp-kalash { transform: scale(1); opacity: 1; }
+.mo-cover.is-opening .gp-open, .mo-cover.is-opening .gp-line { opacity: 0; transition: opacity 0.3s; animation: none; }
+.mo-cover.is-opening .gp-house { animation: gp-enter 0.8s ease-in 1.15s forwards; }
+@keyframes gp-enter { to { transform: scale(3.4); opacity: 0; } }
+
+/* ---- Page ---- */
+.gp-rangoli { position: absolute; pointer-events: none; }
+.gp-r1 { width: 380px; left: 50%; top: 50%; margin: -190px 0 0 -190px; opacity: 0.16; animation: gp-spin 80s linear infinite; z-index: 0; }
+.gp-r2 { width: 200px; left: -100px; bottom: -80px; opacity: 0.3; animation: gp-spin 60s linear infinite; }
+.gp-r3 { position: static; width: 110px; animation: gp-spin 40s linear infinite; }
+.gp-kal { position: absolute; width: 60px; right: 14px; top: 20px; opacity: 0.9; }
+.gp-kal .gp-kalash { width: 100%; transform: none; opacity: 1; filter: none; }
+.mo-hero { padding-top: 120px; }
+.mo-kicker { letter-spacing: 0.1em; font-size: 14px; }
+.mo-title { font-weight: 400; font-size: clamp(40px, 12.5vw, 64px); line-height: 1.04; }
+.mo-subtitle { color: var(--mo-ink); }
+.mo-h { font-weight: 400; }
+.mo-h::before, .mo-h::after { content: "❖"; display: inline-block; font-size: 0.42em; vertical-align: middle; color: var(--gp-gold); margin: 0 10px; }
+.mo-chip { border-color: var(--gp-gold); font-weight: 600; }
+[data-rv] { --rv-y: 30px; transition-duration: 0.9s, 1s; }
+
+.mo-count__cell { border: 2px solid var(--gp-wood); border-radius: 44% 44% 10px 10px / 30% 30% 10px 10px; padding-top: 22px; background: linear-gradient(180deg, #fffaf0, color-mix(in srgb, var(--gp-gold) 22%, #fffaf0)); }
+.mo-count__cell b { font-weight: 400; color: var(--mo-accent); }
+.mo-count__cell span { color: #7a5a3f; }
+.mo-note__img { border-radius: 50% 50% 10px 10px / 32% 32% 10px 10px; border: 8px solid var(--gp-wood-2); outline: 3px solid var(--gp-gold); outline-offset: -11px; }
+.mo-note__text { font-size: 19px; }
+.mo-note__sign { font-weight: 400; }
+.mo-ev { border-left: 6px solid var(--mo-accent); }
+.mo-ev__n { background: var(--gp-wood); color: #fff; font-family: var(--mo-font-display); font-weight: 400; border: 2px solid var(--gp-gold); }
+.mo-ev__name, .mo-dt__t, .mo-venue__name { font-weight: 400; }
+.mo-dt { border: 1.5px solid var(--gp-gold); }
+.mo-dt__t::before { content: "✦ "; color: var(--mo-accent); }
+.mo-ph__img { border-radius: 44% 44% 10px 10px / 28% 28% 10px 10px; border: 5px solid var(--gp-wood-2); }
+.mo-venue__card { border: 2px solid var(--gp-wood); outline: 2px solid var(--gp-gold); outline-offset: -8px; }
+.mo-btn { font-family: var(--mo-font-display); font-weight: 400; font-size: 17px; border: 2px solid var(--gp-gold); }
+.mo-btn--ghost { border-color: var(--gp-wood); }
+.mo-closing__t { font-weight: 400; }
+.mo-cover__guest { border-color: var(--gp-gold); font-weight: 600; }

@@ -15,16 +15,19 @@ import {
   ShareStrip,
   TemplateShowcase,
 } from "@/components/landing/sections";
+import { isCelebration } from "@/lib/showcase";
 import { getTemplates } from "@/lib/templates";
 
 export default async function Home() {
   const templates = await getTemplates();
+  // The opening and the showcase are about weddings; every design is in the browser below them.
+  const weddings = templates.filter((t) => !isCelebration(t.slug));
 
   return (
     <>
       <SiteHeader />
       <main>
-        <Hero slides={templates.map((t) => ({ slug: t.slug, name: t.name }))} />
+        <Hero slides={weddings.map((t) => ({ slug: t.slug, name: t.name }))} />
         <ShareStrip />
 
         <Section id="templates">
@@ -42,7 +45,7 @@ export default async function Home() {
           </div>
         </Section>
 
-        <TemplateShowcase templates={templates} />
+        <TemplateShowcase templates={weddings} />
         <HowItWorks />
 
         <Section>

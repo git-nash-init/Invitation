@@ -7,7 +7,7 @@ import { withBrandFooter } from "@/lib/template-footer";
 
 // Template files live outside /public, so they are only reachable through this route.
 const ROOT = path.join(process.cwd(), "private-templates");
-const SHARED = new Set(["_platform", "symbols", "music"]);
+const SHARED = new Set(["_platform", "_moments", "symbols", "music"]);
 
 const TYPES: Record<string, string> = {
   ".html": "text/html; charset=utf-8",

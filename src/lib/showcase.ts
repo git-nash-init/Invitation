@@ -40,7 +40,66 @@ export const SHOWCASE: Record<string, { useCase: string; feel: string }> = {
     useCase:
       "A grand palace wedding. Guests open the gold-embossed crimson monogram card to discover ceremony rituals, destination travel guides, and photo memories.",
   },
+  "birthday-arcade": {
+    feel: "Neon, loud, retro arcade",
+    useCase:
+      "An 18th, a 21st or any birthday with a dance floor. Guests press start, the level loads, and the countdown runs like a high score.",
+  },
+  "birthday-confetti": {
+    feel: "Bright, bold, full of confetti",
+    useCase:
+      "A birthday for anyone who loves colour. Guests pop the balloon to open it and confetti fills the screen.",
+  },
+  "birthday-polaroid": {
+    feel: "Scrapbook, handwritten, nostalgic",
+    useCase:
+      "A milestone birthday told in photos. Guests flip a taped polaroid and scroll through a scrapbook of your pictures.",
+  },
+  "baby-cloud": {
+    feel: "Soft, dreamy, pastel sky",
+    useCase:
+      "A baby shower in gentle colours. The clouds part, the moon rises, and guests find the day, the place and the reply form.",
+  },
+  "baby-jungle": {
+    feel: "Playful, leafy, safari",
+    useCase:
+      "A jungle-themed baby shower. Big leaves swing aside and a lion cub peeks out before the plan for the day appears.",
+  },
+  "baby-namkaran": {
+    feel: "Traditional, warm, marigold",
+    useCase:
+      "A naming ceremony. The name stays veiled above a swinging cradle until each guest taps to reveal it.",
+  },
+  "home-griha": {
+    feel: "Traditional, carved wood, auspicious",
+    useCase:
+      "A Griha Pravesh. Guests open the carved front door of your new home to find the puja timings, lunch and directions.",
+  },
+  "home-keys": {
+    feel: "Modern, minimal, editorial",
+    useCase:
+      "A housewarming party for a first flat. A key turns in the lock, the wall slides open, and the new address is one tap from Maps.",
+  },
+  "festive-lights": {
+    feel: "Glowing, festive, night sky",
+    useCase:
+      "A Diwali party or any festive evening. The screen is dark until the guest lights the diya, then the lights come on.",
+  },
 };
+
+/** Designs for occasions other than weddings. The home page's wedding sections leave these out. */
+export const CELEBRATION_SLUGS = [
+  "birthday-arcade",
+  "birthday-confetti",
+  "birthday-polaroid",
+  "baby-cloud",
+  "baby-jungle",
+  "baby-namkaran",
+  "home-griha",
+  "home-keys",
+  "festive-lights",
+] as const;
+export const isCelebration = (slug: string) => (CELEBRATION_SLUGS as readonly string[]).includes(slug);
 
 export const FALLBACK_SLIDES = [
   { slug: "royale", name: "The Royale Gate" },
@@ -68,6 +127,9 @@ export const FILTERS = [
   { id: "floral", label: "Floral & romantic" },
   { id: "papercut", label: "Papercut & modern" },
   { id: "festive", label: "Festive functions" },
+  { id: "birthday", label: "Birthdays" },
+  { id: "baby", label: "Baby showers & naming" },
+  { id: "home", label: "Housewarming & festive" },
 ] as const;
 
 export const TEMPLATE_GROUPS: Record<string, string[]> = {
@@ -79,4 +141,13 @@ export const TEMPLATE_GROUPS: Record<string, string[]> = {
   "destination-resort": ["royal", "festive"],
   "sage-envelope": ["floral", "papercut"],
   "crimson-monogram": ["royal", "festive"],
+  "birthday-arcade": ["birthday"],
+  "birthday-confetti": ["birthday"],
+  "birthday-polaroid": ["birthday"],
+  "baby-cloud": ["baby"],
+  "baby-jungle": ["baby"],
+  "baby-namkaran": ["baby"],
+  "home-griha": ["home"],
+  "home-keys": ["home"],
+  "festive-lights": ["home"],
 };

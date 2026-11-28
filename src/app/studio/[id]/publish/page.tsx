@@ -248,7 +248,7 @@ export default async function PublishPage({ params, searchParams }: PageProps<"/
           <div>
             <p className="eyebrow !justify-start">
               <CalendarHeart size={15} aria-hidden="true" />
-              How couples use it
+              How hosts use it
             </p>
             <h2 className="display mt-4 text-[36px] leading-[1.08] sm:text-[46px]">
               From &ldquo;I have the link&rdquo; to <em>everyone replied</em>

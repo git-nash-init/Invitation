@@ -1,0 +1,14 @@
+{
+  "slug": "festive-lights",
+  "video": "preview.mp4",
+  "cover": "cover.webp",
+  "stills": [
+    "still-1.webp",
+    "still-2.webp",
+    "still-3.webp"
+  ],
+  "probe": "720,1280,16.566667",
+  "bytes": 1406605,
+  "tapped": true,
+  "pageErrors": []
+}

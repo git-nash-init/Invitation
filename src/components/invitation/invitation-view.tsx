@@ -11,7 +11,10 @@ const CODE_RE = /^[a-z0-9]{6,40}$/;
 function names(config: Record<string, unknown>) {
   const a = typeof config.brideName === "string" ? config.brideName : "";
   const b = typeof config.groomName === "string" ? config.groomName : "";
-  return a && b ? `${a} & ${b}` : "Wedding invitation";
+  if (a && b) return `${a} & ${b}`;
+  // Birthdays, baby showers and housewarmings have one headline instead of two names.
+  const t = typeof config.title === "string" ? config.title.trim() : "";
+  return t || "Invitation";
 }
 
 export async function invitationMetadata(slug: string, code: string | null): Promise<Metadata> {

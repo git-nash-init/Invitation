@@ -31,7 +31,9 @@ export default async function GuestsPage({
   // "Ankita & Kaushik" from the template, or the invitation's own name.
   const cfg = invitation.config;
   const names = [cfg.brideName, cfg.groomName].filter((n): n is string => typeof n === "string" && n.length > 0);
-  const hostName = names.length === 2 ? `${names[0]} & ${names[1]}` : invitation.title;
+  // Designs that are not weddings carry one headline instead of two names.
+  const headline = typeof cfg.title === "string" && cfg.title.trim() ? cfg.title.trim() : invitation.title;
+  const hostName = names.length === 2 ? `${names[0]} & ${names[1]}` : headline;
 
   const going = rsvps.filter((r) => r.attending).reduce((n, r) => n + r.headcount, 0);
 

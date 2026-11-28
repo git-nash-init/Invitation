@@ -19,6 +19,12 @@
   // undefined inside renderForm and crash the whole section.
   var STATUS_LABEL = { attending: 'Yes', maybe: 'Maybe', 'not-attending': 'No' };
 
+  // The wish box speaks of "the couple" unless the page says otherwise (a birthday, a housewarming):
+  // window.BalconyRsvpWords = { wish: '...', wishLabel: '...' }, set before this script.
+  var WORDS = window.BalconyRsvpWords || {};
+  var WISH_LABEL = String(WORDS.wishLabel || 'Message or wishes for the couple').replace(/[<>"&]/g, '');
+  var WISH_HINT = String(WORDS.wish || 'Leave the couple a wish (optional)').replace(/[<>"&]/g, '');
+
   // Generic UI glyphs (a person, a phone, …) drawn inline so the section stays
   // one self-contained file with no image requests. They use currentColor, so
   // they re-tint with the theme like everything else. Ceremonies carry no icon
@@ -265,7 +271,7 @@
         '<div class="brsvp-events">' + rows + '</div>' +
         '<div class="brsvp-host__preview">' +
         fieldHtml('message',
-          '<textarea class="brsvp-input brsvp-message__box" rows="3" aria-label="Message or wishes for the couple" placeholder="Leave the couple a wish (optional)" disabled></textarea>') +
+          '<textarea class="brsvp-input brsvp-message__box" rows="3" aria-label="' + WISH_LABEL + '" placeholder="' + WISH_HINT + '" disabled></textarea>') +
         '</div>' +
         '</div>';
     }
@@ -293,7 +299,7 @@
       '<div class="brsvp-events"></div>' +
       '<div class="brsvp-host__preview">' +
       fieldHtml('message',
-        '<textarea class="brsvp-input brsvp-message__box" rows="3" aria-label="Message or wishes for the couple" placeholder="Leave the couple a wish (optional)" disabled></textarea>') +
+        '<textarea class="brsvp-input brsvp-message__box" rows="3" aria-label="' + WISH_LABEL + '" placeholder="' + WISH_HINT + '" disabled></textarea>') +
       '</div>' +
       '</div>';
 
@@ -531,7 +537,7 @@
       sectionHeadHtml('Event Schedule', 'Let us know which events you’ll be joining.') +
       '<div class="brsvp-events">' + rows + '</div>' +
       fieldHtml('message',
-        '<textarea class="brsvp-input brsvp-message__box" rows="3" maxlength="1000" aria-label="Message or wishes for the couple" placeholder="Leave the couple a wish (optional)">' + esc(savedMessage || '') + '</textarea>') +
+        '<textarea class="brsvp-input brsvp-message__box" rows="3" maxlength="1000" aria-label="' + WISH_LABEL + '" placeholder="' + WISH_HINT + '">' + esc(savedMessage || '') + '</textarea>') +
       '<p class="brsvp__error" hidden>Please answer for each event.</p>' +
       '<button type="submit" class="brsvp__submit">' + glyph('heart', 'brsvp__submit-heart') + 'Send RSVP</button>' +
       '<p class="brsvp__footnote">' + (who.preview

@@ -1,0 +1,14 @@
+{
+  "slug": "baby-namkaran",
+  "video": "preview.mp4",
+  "cover": "cover.webp",
+  "stills": [
+    "still-1.webp",
+    "still-2.webp",
+    "still-3.webp"
+  ],
+  "probe": "720,1280,16.433333",
+  "bytes": 1233561,
+  "tapped": true,
+  "pageErrors": []
+}
