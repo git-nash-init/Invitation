@@ -53,7 +53,7 @@ export default function PrivacyPage() {
             coming, how many people, and any message.
           </li>
           <li>
-            <b>Payments:</b> when you publish, our payment partner (Cashfree Payments or Razorpay)
+            <b>Payments:</b> when you publish, our payment partner, Cashfree Payments,
             processes your payment. Cashfree needs a mobile number for each payment, so we ask for
             yours and pass it to them with your name and email. We receive the confirmation, the amount, the payment method type and the payment reference. We never
             see or store your full card number, UPI PIN, OTP or net-banking login.
@@ -88,7 +88,7 @@ export default function PrivacyPage() {
         <ul className="mt-3">
           <li><b>Supabase:</b> our database, sign-in and file storage, where your account, invitations, photos and replies are kept.</li>
           <li><b>Vercel:</b> hosts the website.</li>
-          <li><b>Cashfree Payments and Razorpay:</b> process payments and refunds.</li>
+          <li><b>Cashfree Payments:</b> processes payments and refunds.</li>
           <li><b>Google:</b> only if you choose Google sign-in.</li>
         </ul>
         <p className="mt-3">

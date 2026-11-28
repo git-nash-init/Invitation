@@ -20,7 +20,7 @@ export default function TermsPage() {
         <h2>Payment</h2>
         <p>
           The one-time charge is shown on the publish page before you pay, in Indian rupees. Payment is taken
-          by our payment partner, Cashfree Payments or Razorpay (UPI, cards, netbanking and wallets); we do not see or store your card or bank
+          by our payment partner, Cashfree Payments (UPI, cards, netbanking and wallets); we do not see or store your card or bank
           details. Your invitation is published once the payment is confirmed. There is no
           subscription and nothing renews. See the <Link href="/refund">Refunds and cancellation</Link>{" "}
           page for what happens if something goes wrong.

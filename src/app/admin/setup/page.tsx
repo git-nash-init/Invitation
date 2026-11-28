@@ -25,9 +25,6 @@ function Row({ ok, title, children }: { ok: boolean; title: string; children?: R
 
 /** A plain checklist of what the payment flow needs. It reads names only, never values. */
 export default async function SetupPage() {
-  const keyId = (process.env.RAZORPAY_KEY_ID ?? "").trim();
-  const mode = keyId.startsWith("rzp_live_") ? "Live" : keyId.startsWith("rzp_test_") ? "Test" : null;
-
   const cashfree = cashfreeKeys();
 
   const supabase = await createClient();
@@ -42,8 +39,8 @@ export default async function SetupPage() {
 
       <ul className="glass mt-6 divide-y divide-(--hairline) rounded-[20px] px-6">
         <Row ok={cashfree !== null} title="Cashfree keys">
-          Set <code className="num">CASHFREE_APP_ID</code> and <code className="num">CASHFREE_SECRET_KEY</code> in Vercel, then redeploy. When
-          both are set, payments go through Cashfree; otherwise Razorpay below is used. Cashfree calls{" "}
+          Set <code className="num">CASHFREE_APP_ID</code> and <code className="num">CASHFREE_SECRET_KEY</code> in Vercel, then redeploy.
+          Payments cannot be taken without both. Cashfree calls{" "}
           <code className="num break-all rounded bg-[rgba(107,15,43,0.07)] px-1.5 py-0.5">{SITE_URL}/api/cashfree/webhook</code> by itself for
           every order, and the site address must be whitelisted in the Cashfree dashboard.
           {cashfree && (
@@ -52,23 +49,6 @@ export default async function SetupPage() {
               {cashfree.mode === "sandbox" && " No real money moves until you switch to live keys."}
             </span>
           )}
-        </Row>
-        <Row ok={has("RAZORPAY_KEY_ID") && has("NEXT_PUBLIC_RAZORPAY_KEY_ID") && has("RAZORPAY_KEY_SECRET")} title="Razorpay keys">
-          Set <code className="num">RAZORPAY_KEY_ID</code>, <code className="num">NEXT_PUBLIC_RAZORPAY_KEY_ID</code> (the same Key ID) and{" "}
-          <code className="num">RAZORPAY_KEY_SECRET</code> in Vercel, then redeploy.
-          {mode && (
-            <span className="mt-1 block font-semibold text-maroon">
-              Running in {mode} mode.{mode === "Test" && " No real money moves until you switch to live keys."}
-            </span>
-          )}
-        </Row>
-        <Row ok={has("RAZORPAY_WEBHOOK_SECRET")} title="Webhook secret">
-          Set <code className="num">RAZORPAY_WEBHOOK_SECRET</code> in Vercel to the same secret you typed in Razorpay when you created the webhook.
-        </Row>
-        <Row ok title="Webhook address in Razorpay">
-          In Razorpay, Settings, Webhooks, add{" "}
-          <code className="num break-all rounded bg-[rgba(107,15,43,0.07)] px-1.5 py-0.5">{SITE_URL}/api/razorpay/webhook</code> and tick{" "}
-          <b>payment.captured</b>, <b>order.paid</b>, <b>payment.failed</b> and <b>refund.processed</b>. This cannot be checked from here.
         </Row>
         <Row ok={has("PAYMENT_BRIDGE_SECRET", 32)} title="Payment confirmation secret">
           <code className="num">PAYMENT_BRIDGE_SECRET</code> lets this site tell the database a payment is confirmed. It must match the one stored in Supabase Vault.

@@ -6,13 +6,13 @@ const isDev = process.env.NODE_ENV !== "production";
 // Next.js needs inline scripts for hydration; 'unsafe-eval' is dev-only (React refresh).
 const appCsp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://checkout.razorpay.com https://sdk.cashfree.com`,
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://sdk.cashfree.com`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com data:",
-  `img-src 'self' data: blob: ${supabaseUrl} https://*.razorpay.com https://*.cashfree.com`,
+  `img-src 'self' data: blob: ${supabaseUrl} https://*.cashfree.com`,
   `media-src 'self' blob: ${supabaseUrl}`,
-  `connect-src 'self' ${supabaseUrl} ${supabaseUrl.replace("https://", "wss://")} https://api.razorpay.com https://lumberjack.razorpay.com https://checkout.razorpay.com https://*.cashfree.com`,
-  "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://*.cashfree.com",
+  `connect-src 'self' ${supabaseUrl} ${supabaseUrl.replace("https://", "wss://")} https://*.cashfree.com`,
+  "frame-src 'self' https://*.cashfree.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self' https://*.cashfree.com",
@@ -40,13 +40,13 @@ const baseHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
     key: "Permissions-Policy",
-    value: 'camera=(), microphone=(), geolocation=(), payment=(self "https://checkout.razorpay.com" "https://api.razorpay.com" "https://sdk.cashfree.com" "https://payments.cashfree.com" "https://api.cashfree.com" "https://sandbox.cashfree.com"), usb=()',
+    value: 'camera=(), microphone=(), geolocation=(), payment=(self "https://sdk.cashfree.com" "https://payments.cashfree.com" "https://api.cashfree.com" "https://sandbox.cashfree.com"), usb=()',
   },
   {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
   },
-  // Razorpay and Cashfree open bank and UPI pages in popups that must keep a link back to this page.
+  // Cashfree opens bank and UPI pages in popups that must keep a link back to this page.
   { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
 ];
 

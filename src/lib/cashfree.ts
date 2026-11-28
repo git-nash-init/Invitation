@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 /**
  * Cashfree Payments, server side only. Nothing here may be imported by a client component.
  *
- * Trust model, the same as for Razorpay: the browser is never believed. An order counts as paid
+ * Trust model: the browser is never believed. An order counts as paid
  * only after this server has asked Cashfree for the order and seen it PAID for the full amount.
  * The webhook does the same after checking Cashfree's signature.
  */
@@ -157,4 +157,31 @@ export function verifyCashfreeWebhook(timestamp: string, rawBody: string, signat
   const x = Buffer.from(cashfreeWebhookSignature(timestamp, rawBody, secret), "utf8");
   const y = Buffer.from(signature, "utf8");
   return x.length === y.length && timingSafeEqual(x, y);
+}
+
+/**
+ * True when a webhook's timestamp is more than ten minutes away from now (or cannot be read), which
+ * is what a captured message sent again later looks like. Cashfree sends the time in milliseconds;
+ * seconds are accepted too.
+ */
+export function isStaleWebhook(timestamp: string, now = Date.now(), maxAgeMs = 10 * 60_000): boolean {
+  const n = Number(timestamp);
+  if (!timestamp || !Number.isFinite(n) || n <= 0) return true;
+  const at = n < 1e12 ? n * 1000 : n;
+  return Math.abs(now - at) > maxAgeMs;
+}
+
+/**
+ * The address Cashfree sends customers back to and reports results to. On the live site this is the
+ * site's own configured address, so it can never be steered by the request; elsewhere (a local or
+ * preview copy) it is the address the request came in on.
+ */
+export function paymentOrigin(requestOrigin: string): string {
+  if (process.env.VERCEL_ENV !== "production") return requestOrigin;
+  try {
+    const u = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "");
+    return u.protocol === "https:" ? u.origin : requestOrigin;
+  } catch {
+    return requestOrigin;
+  }
 }

@@ -1,5 +1,5 @@
 /**
- * Business details shown on the Contact, Terms and Refund pages. Razorpay checks that these
+ * Business details shown on the Contact, Terms and Refund pages. The payment gateway checks that these
  * exist before it approves a live account. Set them in Vercel (all are public on purpose).
  */
 export const BUSINESS = {

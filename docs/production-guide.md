@@ -10,7 +10,7 @@ Live site: **https://pratham-invitation.vercel.app** (Vercel project `sutraluxe`
 | --- | --- |
 | Website, studio, admin, payment routes | Vercel |
 | Database, sign-in, file storage | Supabase (project `znpngvxlmgtpqgsmkzsv`) |
-| Payments | Razorpay |
+| Payments | Cashfree Payments |
 
 ## 1. Vercel environment variables
 
@@ -23,52 +23,31 @@ Vercel → your project → Settings → Environment Variables. Add each for **P
 | `NEXT_PUBLIC_SITE_URL` | `https://pratham-invitation.vercel.app` | already set |
 | `ASSET_TOKEN_SECRET` | long random value that signs template links | already set |
 | `PAYMENT_BRIDGE_SECRET` | lets the site confirm payments in the database | already set (matches Supabase Vault) |
-| `RAZORPAY_KEY_ID` | Razorpay Key ID, e.g. `rzp_test_...` | **you add** |
-| `NEXT_PUBLIC_RAZORPAY_KEY_ID` | the same Key ID (public) | **you add** |
-| `RAZORPAY_KEY_SECRET` | Razorpay Key Secret, mark **Sensitive** | **you add** |
-| `RAZORPAY_WEBHOOK_SECRET` | the secret you type when creating the webhook, mark **Sensitive** | **you add** |
+| `CASHFREE_APP_ID` | Cashfree App ID | already set |
+| `CASHFREE_SECRET_KEY` | Cashfree Secret Key, mark **Sensitive** | already set |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | support email shown on the Contact page | **you add** |
 | `NEXT_PUBLIC_SUPPORT_PHONE` | phone or WhatsApp (optional) | optional |
 | `NEXT_PUBLIC_BUSINESS_NAME` | your legal or trading name | **you add** |
-| `NEXT_PUBLIC_BUSINESS_ADDRESS` | business address (Razorpay asks for it) | **you add** |
+| `NEXT_PUBLIC_BUSINESS_ADDRESS` | business address (the payment gateway asks for it) | **you add** |
 
 Remove `NEXT_PUBLIC_BOT_USERNAME` if it is still there; nothing uses it now.
 
 Admin → **Payments setup** shows which of these are in place (names only, never values).
 
-## 2a. Cashfree (used when its keys are set)
+## 2. Cashfree
 
 1. In the Cashfree dashboard, Developers, API Keys, copy the **App ID** and **Secret Key**.
 2. In Vercel, Settings, Environment Variables, add `CASHFREE_APP_ID` and `CASHFREE_SECRET_KEY` (mark the secret **Sensitive**), then redeploy. Leave `CASHFREE_ENV` unset: test keys use the sandbox, live keys take real payments.
 3. In the Cashfree dashboard, whitelist the site address (`https://pratham-invitation.vercel.app`) for the payment gateway.
 4. No webhook needs to be created by hand: every order tells Cashfree to call `/api/cashfree/webhook`, and the call is checked with the Secret Key.
 
-When both Cashfree keys are present the checkout uses Cashfree and asks the payer for a mobile number (Cashfree requires it). Remove the two keys to go back to Razorpay.
+The checkout asks the payer for a mobile number (Cashfree requires it). Without both keys the site cannot take payments and the publish button says so.
 
-## 2. Razorpay
+How payment is trusted: the browser is never believed. The server asks Cashfree for the order, and only when Cashfree says it is paid in full does it mark the order paid in the database, which re-checks the amount. The webhook does the same if the customer closes the tab right after paying.
 
-1. Create an account at razorpay.com. **Test mode** works immediately and moves no real money. Live mode needs KYC (PAN, bank account, business details) and a website with the Terms, Privacy, Refund and Contact pages (all four exist on this site).
-2. Settings → API Keys → generate keys. Put the Key ID and Key Secret into Vercel as above.
-3. Settings → Webhooks → Add:
-   - URL: `https://pratham-invitation.vercel.app/api/razorpay/webhook`
-   - Secret: invent a long random value and use the same one for `RAZORPAY_WEBHOOK_SECRET`
-   - Events: `payment.captured`, `order.paid`, `payment.failed`, `refund.processed`
-4. Redeploy. Test with a Razorpay test card or test UPI ID from their docs (test mode keys only).
-5. Before real customers: read the refund text on `/refund`. **It is a draft policy written for you; change it to what you actually offer.**
+Before real customers: read the refund text on `/refund`. **It is a draft policy written for you; change it to what you actually offer.**
 
-How payment is trusted: the browser is never believed. The server checks Razorpay's signature, asks Razorpay for the payment and its amount, and only then marks the order paid in the database. The webhook does the same if the customer closes the tab right after paying. The price always comes from the database, never from the browser.
-
-### Switching Razorpay from test to live
-
-Test mode (keys starting `rzp_test_`) and live mode (`rzp_live_`) are two separate worlds in Razorpay: separate keys, separate webhooks, separate payments. Nothing carries over, so switching is a checklist:
-
-1. **Activate the account.** Razorpay dashboard, finish KYC and the website details (give it the live site address and the four policy pages: Terms, Privacy, Refunds, Contact). They review the site, so the business name, email and address variables must be filled in first.
-2. **Generate live keys.** Switch the dashboard to **Live Mode**, Settings, API Keys, Generate Key. The secret is shown once; copy it straight into Vercel.
-3. **Create a new live webhook** (Settings, Webhooks, in Live Mode): same address `https://pratham-invitation.vercel.app/api/razorpay/webhook`, a **new** secret, same four events (`payment.captured`, `order.paid`, `payment.failed`, `refund.processed`). The test webhook does not work for live payments.
-4. **Change three values in Vercel, Production scope only**: `RAZORPAY_KEY_ID` and `NEXT_PUBLIC_RAZORPAY_KEY_ID` (live Key ID, the same value in both), `RAZORPAY_KEY_SECRET` (live secret), and `RAZORPAY_WEBHOOK_SECRET` (the new live webhook secret). Keep the test keys on the Preview and Development scopes so previews never take real money.
-5. **Redeploy.** Environment changes only apply to a new deployment.
-6. **Prove it with a real small payment.** In Admin, Templates, set one price to a few rupees, publish an invitation with a real UPI or card payment, check Admin, Orders shows it Paid and the invitation is live, then refund it from the Razorpay dashboard and confirm Orders shows Refunded. Put the price back.
-7. **If you add a custom domain**: update `NEXT_PUBLIC_SITE_URL`, the Supabase Site URL and redirect URLs, the Google sign-in redirect settings, and the Razorpay webhook address.
+Remove any `RAZORPAY_*` variables still in Vercel; nothing uses them now.
 
 ## 3. Google sign-in
 
@@ -102,13 +81,13 @@ select id from auth.users where email = 'you@example.com';
 
 ## 5. Before you advertise
 
-- [ ] A Razorpay test payment passes end to end (Orders shows it as Paid, publishing unlocks)
+- [ ] A real small payment passes end to end (Orders shows it as Paid, publishing unlocks), then refund it from the Cashfree dashboard
 - [ ] `/refund` text matches what you really offer; Contact details filled in
 - [ ] Custom SMTP sender working (sign up with a new email and check it arrives)
 - [ ] Music: nothing plays by default. Add tracks in Admin → Music with a licence note for each
 - [ ] Vercel Firewall rule rate-limiting `/api/*`, `/t/*`, `/auth/*`
 - [ ] Backups: Supabase free plan has none; upgrade for daily backups
-- [ ] Custom domain connected, then update `NEXT_PUBLIC_SITE_URL`, the Supabase Site URL and redirect URLs, and the Razorpay webhook address
+- [ ] Custom domain connected, then update `NEXT_PUBLIC_SITE_URL`, the Supabase Site URL and redirect URLs, and whitelist the new domain in the Cashfree dashboard
 
 ## Previews
 

@@ -97,7 +97,7 @@ export default async function PublishPage({ params, searchParams }: PageProps<"/
   const price = template.price;
   const was = template.list_price && template.list_price > price ? template.list_price : null;
   const useCashfree = cashfreeKeys() !== null;
-  const partner = useCashfree ? "Cashfree Payments" : "Razorpay";
+  const partner = "Cashfree Payments";
   const askPhone = useCashfree && !paid;
   const STEPS = steps(partner);
   const FAQ = faq(partner);

@@ -37,9 +37,9 @@ Only the Supabase **publishable** key belongs in this app. Never add the `servic
 
 ## Payments and admin
 
-Designing an invitation is free. Publishing needs one paid order, taken by Razorpay on the publish page (`/studio/<id>/publish`, the only place a price is shown). The admin panel is at `/admin`.
+Designing an invitation is free. Publishing needs one paid order, taken by Cashfree on the publish page (`/studio/<id>/publish`, the only place a price is shown). The admin panel is at `/admin`.
 
-- Going live, environment variables, Razorpay and Google sign-in: [docs/production-guide.md](docs/production-guide.md)
+- Going live, environment variables, Cashfree and Google sign-in: [docs/production-guide.md](docs/production-guide.md)
 - Making Flow videos and music, and what to send back: [docs/flow-asset-guide.md](docs/flow-asset-guide.md)
 - Tests: `npm test` (payment signatures, share links)
 - Preview media: `npm run previews:make`

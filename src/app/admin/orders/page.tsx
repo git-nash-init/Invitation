@@ -47,7 +47,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
     <>
       <h1 className="display text-[36px] leading-[1.1]">Orders</h1>
       <p className="mt-2 max-w-[42rem] text-[15px] leading-6 text-text-2">
-        Every checkout, newest first. Refunds are made in the Cashfree or Razorpay dashboard; they show here as soon as the provider confirms them.
+        Every checkout, newest first. Refunds are made in the Cashfree dashboard; they show here as soon as Cashfree confirms them.
       </p>
 
       <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Filter">

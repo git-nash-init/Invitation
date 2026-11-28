@@ -6,6 +6,8 @@ import {
   cashfreeMode,
   cashfreeWebhookSignature,
   cleanPhone,
+  isStaleWebhook,
+  paymentOrigin,
   settlementOf,
   verifyCashfreeWebhook,
 } from "../src/lib/cashfree.ts";
@@ -79,4 +81,31 @@ test("settlement: paid only when the order is PAID and a payment succeeded", () 
   assert.equal(settlementOf(order("ACTIVE"), [pay("USER_DROPPED")]).state, "not_paid");
   assert.equal(settlementOf(order("ACTIVE"), []).state, "not_paid", "window closed without trying");
   assert.equal(settlementOf(order("EXPIRED"), []).state, "not_paid");
+});
+
+test("stale webhook: older or newer than ten minutes, or unreadable", () => {
+  const now = 1_800_000_000_000;
+  assert.equal(isStaleWebhook(String(now), now), false);
+  assert.equal(isStaleWebhook(String(now - 9 * 60_000), now), false);
+  assert.equal(isStaleWebhook(String(now - 11 * 60_000), now), true, "sent again later");
+  assert.equal(isStaleWebhook(String(now + 11 * 60_000), now), true, "from the future");
+  assert.equal(isStaleWebhook(String(Math.floor(now / 1000)), now), false, "seconds are accepted");
+  assert.equal(isStaleWebhook("", now), true);
+  assert.equal(isStaleWebhook("yesterday", now), true);
+});
+
+test("payment address: the configured site on the live site, the request elsewhere", () => {
+  const before = { ...process.env };
+  process.env.NEXT_PUBLIC_SITE_URL = "https://example.test/";
+  delete process.env.VERCEL_ENV;
+  assert.equal(paymentOrigin("http://localhost:3300"), "http://localhost:3300");
+  process.env.VERCEL_ENV = "preview";
+  assert.equal(paymentOrigin("https://preview.example.test"), "https://preview.example.test");
+  process.env.VERCEL_ENV = "production";
+  assert.equal(paymentOrigin("https://other.example.test"), "https://example.test");
+  process.env.NEXT_PUBLIC_SITE_URL = "http://example.test";
+  assert.equal(paymentOrigin("https://other.example.test"), "https://other.example.test", "never an http address");
+  process.env.NEXT_PUBLIC_SITE_URL = "";
+  assert.equal(paymentOrigin("https://other.example.test"), "https://other.example.test");
+  process.env = before;
 });

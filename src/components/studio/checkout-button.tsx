@@ -5,33 +5,21 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { setStatus } from "@/lib/invitations/actions";
-import { BRAND } from "@/lib/brand";
 
-type RazorpaySuccess = { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };
-type RazorpayInstance = { open: () => void; on: (event: string, cb: (r: { error?: { description?: string } }) => void) => void };
 type CashfreeResult = { error?: { message?: string }; redirect?: boolean; paymentDetails?: unknown };
 type CashfreeInstance = {
   checkout: (options: { paymentSessionId: string; redirectTarget: "_modal" | "_self" }) => Promise<CashfreeResult>;
 };
 declare global {
   interface Window {
-    Razorpay?: new (options: Record<string, unknown>) => RazorpayInstance;
     Cashfree?: (options: { mode: "sandbox" | "production" }) => CashfreeInstance;
   }
 }
 
 type Checkout = {
   alreadyPaid?: boolean;
-  provider: "razorpay" | "cashfree";
+  provider: "cashfree";
   orderId: string;
-  // Razorpay
-  keyId: string;
-  razorpayOrderId: string;
-  amount: number;
-  currency: string;
-  email: string;
-  name: string;
-  // Cashfree
   paymentSessionId: string;
   mode: "sandbox" | "production";
 };
@@ -63,7 +51,7 @@ const validPhone = (v: string) => /^[6-9]\d{9}$/.test(v.replace(/\D/g, "").repla
 const NOT_COMPLETED = "The payment was not completed, so you have not been charged. You can try again.";
 
 /**
- * Opens the payment window (Cashfree or Razorpay, whichever the server says), waits for the
+ * Opens the Cashfree payment window, waits for the
  * server to confirm the payment, then publishes. If the confirmation is slow (the webhook is
  * still on its way), it keeps checking for a short while.
  *
@@ -73,13 +61,13 @@ const NOT_COMPLETED = "The payment was not completed, so you have not been charg
 export function CheckoutButton({
   invitationId,
   label,
-  description,
   askPhone = false,
   resumeOrderId,
 }: {
   invitationId: string;
   label: string;
-  description: string;
+  /** What is being bought, in a few words. Kept for callers; the payment window shows the order itself. */
+  description?: string;
   askPhone?: boolean;
   resumeOrderId?: string;
 }) {
@@ -164,36 +152,6 @@ export function CheckoutButton({
     return confirm({ provider: "cashfree", orderId: data.orderId }, Boolean(result.paymentDetails));
   }
 
-  async function payWithRazorpay(data: Partial<Checkout>) {
-    if (!data.keyId || !data.razorpayOrderId || !data.orderId) {
-      setError("We could not start the payment. Please try again.");
-      return setState("idle");
-    }
-    if (!(await loadScript("https://checkout.razorpay.com/v1/checkout.js")) || !window.Razorpay) {
-      setError("The payment window could not load. Check your connection and try again.");
-      return setState("idle");
-    }
-    const orderId = data.orderId;
-    const rzp = new window.Razorpay({
-      key: data.keyId,
-      amount: data.amount,
-      currency: data.currency,
-      name: BRAND.name,
-      description,
-      order_id: data.razorpayOrderId,
-      prefill: { email: data.email, name: data.name },
-      notes: { invitation_id: invitationId },
-      theme: { color: "#6B0F2B" },
-      modal: { ondismiss: () => setState((s) => (s === "opening" ? "idle" : s)) },
-      handler: (r: RazorpaySuccess) => void confirm({ orderId, ...r }, true),
-    });
-    rzp.on("payment.failed", (r) => {
-      setError(r.error?.description ?? "The payment did not go through. You have not been charged. Please try again.");
-      setState("idle");
-    });
-    rzp.open();
-  }
-
   async function start() {
     setError("");
     if (askPhone && !validPhone(phone)) {
@@ -231,7 +189,7 @@ export function CheckoutButton({
         setError("We could not start the payment. Please try again.");
         return setState("idle");
       }
-      return data.provider === "cashfree" ? await payWithCashfree(data) : await payWithRazorpay(data);
+      return await payWithCashfree(data);
     } catch {
       setError("Something went wrong. Please try again.");
       setState("idle");

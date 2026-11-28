@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { cashfreeKeys, settleCashfreeOrder, verifyCashfreeWebhook } from "@/lib/cashfree";
-import { confirmPaid, markFailed, markRefunded } from "@/lib/razorpay";
+import { cashfreeKeys, isStaleWebhook, settleCashfreeOrder, verifyCashfreeWebhook } from "@/lib/cashfree";
+import { confirmPaid, markFailed, markRefunded } from "@/lib/payments";
 
 // Needs the raw body for the signature, so it is read as text and never as JSON first.
 export const dynamic = "force-dynamic";
@@ -40,6 +40,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "bad_body" }, { status: 400 });
   }
 
+  // An old message sent again. A success is never taken from the message itself (Cashfree is asked
+  // afresh below) and a refund can only be recorded once, so both are still safe to act on, which
+  // also keeps Cashfree's own late retries working. A stale failure is the one event that would
+  // be believed as written, so it is dropped.
+  const stale = isStaleWebhook(timestamp);
+
   const orderId = event.data?.order?.order_id;
   try {
     switch (event.type) {
@@ -51,8 +57,10 @@ export async function POST(request: Request) {
         if (s.state === "not_paid") return ok({ ignored: "not_paid" });
         const done = await confirmPaid({
           orderId: orderId as string,
-          razorpayOrderId: orderId as string,
-          payment: { id: s.paymentId, order_id: orderId as string, amount: s.amountPaise, currency: "INR", status: "captured", method: s.method ?? undefined },
+          gatewayOrderId: orderId as string,
+          paymentId: s.paymentId,
+          amountPaise: s.amountPaise,
+          method: s.method,
         });
         // A mismatch is not something a retry can fix; anything else is, so ask Cashfree to retry.
         if (!done.ok && !/mismatch|not found/i.test(done.error)) {
@@ -61,6 +69,7 @@ export async function POST(request: Request) {
         return ok();
       }
       case "PAYMENT_FAILED_WEBHOOK": {
+        if (stale) return ok({ ignored: "stale" });
         // One order can be tried again in the same window; a later success still marks it paid.
         if (uuid.safeParse(orderId).success) await markFailed(orderId as string, event.data?.payment?.payment_message ?? "payment failed");
         return ok();

@@ -85,7 +85,7 @@ export default function RefundPage() {
         <h2>How long a refund takes</h2>
         <p>
           Once we approve a refund we start it straight away, to the same account, card or UPI ID
-          you paid with, through the same payment partner (Cashfree Payments or Razorpay). Banks and card networks usually show it within 5 to 7
+          you paid with, through our payment partner, Cashfree Payments. Banks and card networks usually show it within 5 to 7
           working days; some take up to 10. We cannot speed up the bank&apos;s part.
         </p>
       </section>
